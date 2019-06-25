@@ -152,6 +152,8 @@
     <ClCompile Include="Source\Core\Allocate.cpp" />
     <ClCompile Include="Source\Core\Clock.cpp" />
     <ClCompile Include="Source\Core\Sleep.cpp" />
+    <ClCompile Include="Source\Engine\Application.cpp" />
+    <ClCompile Include="Source\Engine\Engine.cpp" />
     <ClCompile Include="Source\Main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -161,7 +163,11 @@
     <ClInclude Include="Source\Core\DataTypes.h" />
     <ClInclude Include="Source\Core\Macros.h" />
     <ClInclude Include="Source\Core\Sleep.h" />
+    <ClInclude Include="Source\Engine\Application.h" />
+    <ClInclude Include="Source\Engine\Engine.h" />
     <ClInclude Include="Source\Math\Matrix2.h" />
+    <ClInclude Include="Source\Math\Matrix3.h" />
+    <ClInclude Include="Source\Math\Matrix4.h" />
     <ClInclude Include="Source\Math\Vector2.h" />
     <ClInclude Include="Source\Math\Vector3.h" />
     <ClInclude Include="Source\Math\Vector4.h" />

@@ -1,13 +1,11 @@
-#include <Math/Matrix2.h>
-
 #include <vld.h>
+
+#include <Engine/Application.h>
 
 int main()
 {
-	Matrix2f a(2.0f);
-	Vector2f v(1.0f, 3.0f);
+	Application app;
+	bool success = app.Run();
 
-	Vector2f result = a * v;
-
-	return 0;
+	return success ? 0 : 1;
 }
