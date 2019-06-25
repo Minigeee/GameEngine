@@ -9,10 +9,63 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
+    <Filter Include="Include\Core">
+      <UniqueIdentifier>{e3d7faec-12c9-4e8a-b44b-e30d0ae91915}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Core">
+      <UniqueIdentifier>{b80a889d-6417-4b93-ac6d-61a6f4a54f6c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include\Math">
+      <UniqueIdentifier>{5d67a5e3-27be-4593-a898-514796f406b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Math">
+      <UniqueIdentifier>{10ae3bc8-2430-4848-9b52-b16f6fbe0c4b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Main.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Core\Sleep.cpp">
+      <Filter>Source\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\Clock.cpp">
+      <Filter>Source\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\Allocate.cpp">
+      <Filter>Source\Core</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Core\DataTypes.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Sleep.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Clock.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Array.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Math\Vector2.h">
+      <Filter>Include\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Allocate.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Macros.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Math\Vector3.h">
+      <Filter>Include\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Math\Vector4.h">
+      <Filter>Include\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Math\Matrix2.h">
+      <Filter>Include\Math</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
