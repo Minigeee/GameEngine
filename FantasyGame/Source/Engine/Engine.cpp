@@ -1,24 +1,88 @@
 #include <Engine/Engine.h>
 
+#include <Core/Clock.h>
+#include <Core/Sleep.h>
+
+///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-bool Engine::Init(const Params& params)
+Engine::Engine() :
+	mFrameRate		(60),
+	mLoopDuration	(1.0f / 60.0f)
 {
+
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+bool Engine::Init(const Engine::Params& params)
+{
+	// Create window
+	bool success = mWindow.Create(
+		params.mWindowWidth,
+		params.mWindowHeight,
+		params.mWindowTitle,
+		params.mFullscreen
+	);
+
+	if (!success) return false;
+
 	return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#include <iostream>
+
 void Engine::Start()
 {
+	Clock clock;
 
+	while (mWindow.IsOpen())
+	{
+		float elapsed = clock.Restart();
+
+		// Game logic
+		mWindow.PollEvents();
+		mWindow.Display();
+
+		// Get work time
+		float workTime = clock.GetElapsedTime();
+		float sleepTime = mLoopDuration - workTime;
+
+		// Sleep for rest of frame
+		if (sleepTime > 0.0f)
+			Sleep(sleepTime);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 void Engine::Stop()
 {
+	mWindow.CleanUp();
+}
 
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+void Engine::SetFrameRate(Uint32 fps)
+{
+	mFrameRate = fps;
+	mLoopDuration = 1.0f / fps;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+Uint32 Engine::GetFrameRate() const
+{
+	return mFrameRate;
+}
+
+float Engine::GetLoopDuration() const
+{
+	return mLoopDuration;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

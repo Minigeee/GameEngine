@@ -18,14 +18,17 @@
     <Filter Include="Include\Math">
       <UniqueIdentifier>{5d67a5e3-27be-4593-a898-514796f406b6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Math">
-      <UniqueIdentifier>{10ae3bc8-2430-4848-9b52-b16f6fbe0c4b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Include\Engine">
       <UniqueIdentifier>{e6b6720c-9c35-4824-9678-cfecd17b352c}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine">
       <UniqueIdentifier>{a800bc83-e0c3-46e7-9e55-b8ccc8f9f03c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include\Graphics">
+      <UniqueIdentifier>{2a4a1441-ab0f-4dc4-903a-8d5eebc1305d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Graphics">
+      <UniqueIdentifier>{28d4e82f-ad5a-4afe-9324-c1950c44528f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -45,7 +48,16 @@
       <Filter>Source\Engine</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Engine.cpp">
-      <Filter>Source\Math</Filter>
+      <Filter>Source\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Window.cpp">
+      <Filter>Source\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\LogFile.cpp">
+      <Filter>Source\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlibs\glad\src\glad.c">
+      <Filter>Source\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -90,6 +102,15 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Application.h">
       <Filter>Include\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Window.h">
+      <Filter>Include\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\LogFile.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Graphics\OpenGL.h">
+      <Filter>Include\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

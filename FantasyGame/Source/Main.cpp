@@ -1,6 +1,7 @@
 #include <vld.h>
 
 #include <Engine/Application.h>
+#include <Core/LogFile.h>
 
 int main()
 {

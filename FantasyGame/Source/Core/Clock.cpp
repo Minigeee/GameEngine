@@ -50,7 +50,7 @@ float Clock::GetElapsedTime() const
 float Clock::Restart()
 {
 	Uint64 now = ClockImpl();
-	Uint64 elapsed = now = mStartTime;
+	Uint64 elapsed = now - mStartTime;
 	mStartTime = now;
 
 	return elapsed / 1000000.0f;

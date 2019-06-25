@@ -3,6 +3,8 @@
 
 #include <Core/DataTypes.h>
 
+#include <Engine/Window.h>
+
 ///////////////////////////////////////////////////////////////////////////////
 
 class Engine
@@ -21,12 +23,31 @@ public:
 	};
 
 public:
+	Engine();
+
 	/* Initialize engine */
 	bool Init(const Params& params);
 	/* Start engine */
 	void Start();
 	/* Engine cleanup */
 	void Stop();
+
+	/* Set game framerate */
+	void SetFrameRate(Uint32 fps);
+
+	/* Get game framerate */
+	Uint32 GetFrameRate() const;
+	/* Get loop duration (seconds) */
+	float GetLoopDuration() const;
+
+private:
+	/* Game window */
+	Window mWindow;
+
+	/* Engine framerate */
+	Uint32 mFrameRate;
+	/* Game loop duration (seconds) */
+	float mLoopDuration;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
