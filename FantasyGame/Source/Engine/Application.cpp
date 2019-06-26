@@ -1,4 +1,5 @@
 #include <Engine/Application.h>
+#include <Game/WorldScene.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -15,6 +16,7 @@ bool Application::Run()
 	// Initialize engine
 	if (!mEngine.Init(params))
 		return false;
+	mEngine.SetScene(new WorldScene());
 
 	// Game loop
 	mEngine.Start();

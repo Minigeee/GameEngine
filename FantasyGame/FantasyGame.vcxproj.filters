@@ -30,6 +30,18 @@
     <Filter Include="Source\Graphics">
       <UniqueIdentifier>{28d4e82f-ad5a-4afe-9324-c1950c44528f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Include\Scene">
+      <UniqueIdentifier>{d2a225d3-ea4b-4f2d-ab14-a75f085214dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Scene">
+      <UniqueIdentifier>{821fcf99-b959-4b09-a1f5-86034c6c49ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include\Game">
+      <UniqueIdentifier>{c895fab9-b359-4907-aa91-ea24ae67dc9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Game">
+      <UniqueIdentifier>{4633c83a-cb14-4635-a1f9-c3d1c70a4938}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Main.cpp">
@@ -58,6 +70,12 @@
     </ClCompile>
     <ClCompile Include="..\..\extlibs\glad\src\glad.c">
       <Filter>Source\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Scene\Scene.cpp">
+      <Filter>Source\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Game\WorldScene.cpp">
+      <Filter>Source\Game</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -111,6 +129,12 @@
     </ClInclude>
     <ClInclude Include="Source\Graphics\OpenGL.h">
       <Filter>Include\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Scene\Scene.h">
+      <Filter>Include\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Game\WorldScene.h">
+      <Filter>Include\Game</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -7,6 +7,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
+class Scene;
+
 class Engine
 {
 public:
@@ -40,6 +42,9 @@ public:
 	/* Get loop duration (seconds) */
 	float GetLoopDuration() const;
 
+	/* Set current scene */
+	void SetScene(Scene* scene);
+
 private:
 	/* Game window */
 	Window mWindow;
@@ -48,6 +53,9 @@ private:
 	Uint32 mFrameRate;
 	/* Game loop duration (seconds) */
 	float mLoopDuration;
+
+	/* Current scene */
+	Scene* mScene;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

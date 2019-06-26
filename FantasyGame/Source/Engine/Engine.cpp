@@ -2,6 +2,9 @@
 
 #include <Core/Clock.h>
 #include <Core/Sleep.h>
+#include <Core/LogFile.h>
+
+#include <Scene/Scene.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -39,12 +42,19 @@ void Engine::Start()
 {
 	Clock clock;
 
+	if (!mScene)
+	{
+		LOG_ERROR << "No Scene object\n";
+		return;
+	}
+
 	while (mWindow.IsOpen())
 	{
 		float elapsed = clock.Restart();
 
 		// Game logic
 		mWindow.PollEvents();
+		mScene->Update(elapsed);
 		mWindow.Display();
 
 		// Get work time
@@ -61,6 +71,12 @@ void Engine::Start()
 
 void Engine::Stop()
 {
+	if (mScene)
+	{
+		mScene->Delete();
+		delete mScene;
+	}
+
 	mWindow.CleanUp();
 }
 
@@ -83,6 +99,25 @@ Uint32 Engine::GetFrameRate() const
 float Engine::GetLoopDuration() const
 {
 	return mLoopDuration;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+void Engine::SetScene(Scene* scene)
+{
+	/* TODO : multithread */
+	// For now, single-threaded scene loading
+	scene->Create(this);
+
+	// Clean up previous scene
+	if (mScene)
+	{
+		mScene->Delete();
+		delete mScene;
+	}
+
+	mScene = scene;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
