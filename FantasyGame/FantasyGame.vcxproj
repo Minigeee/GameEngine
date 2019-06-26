@@ -154,6 +154,7 @@
     <ClCompile Include="Source\Core\Clock.cpp" />
     <ClCompile Include="Source\Core\LogFile.cpp" />
     <ClCompile Include="Source\Core\Sleep.cpp" />
+    <ClCompile Include="Source\Core\TypeInfo.cpp" />
     <ClCompile Include="Source\Engine\Application.cpp" />
     <ClCompile Include="Source\Engine\Engine.cpp" />
     <ClCompile Include="Source\Engine\Window.cpp" />
@@ -169,6 +170,7 @@
     <ClInclude Include="Source\Core\LogFile.h" />
     <ClInclude Include="Source\Core\Macros.h" />
     <ClInclude Include="Source\Core\Sleep.h" />
+    <ClInclude Include="Source\Core\TypeInfo.h" />
     <ClInclude Include="Source\Engine\Application.h" />
     <ClInclude Include="Source\Engine\Engine.h" />
     <ClInclude Include="Source\Engine\Window.h" />

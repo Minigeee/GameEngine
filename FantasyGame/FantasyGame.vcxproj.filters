@@ -77,6 +77,9 @@
     <ClCompile Include="Source\Game\WorldScene.cpp">
       <Filter>Source\Game</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Core\TypeInfo.cpp">
+      <Filter>Source\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Core\DataTypes.h">
@@ -135,6 +138,9 @@
     </ClInclude>
     <ClInclude Include="Source\Game\WorldScene.h">
       <Filter>Include\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\TypeInfo.h">
+      <Filter>Include\Core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
