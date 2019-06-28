@@ -1,0 +1,16 @@
+#include <Graphics/Graphics.h>
+#include <Graphics/OpenGL.h>
+
+///////////////////////////////////////////////////////////////////////////////
+
+void Graphics::SetClearColor(float r, float g, float b, float a)
+{
+	glClearColor(r, g, b, a);
+}
+
+void Graphics::Clear(Uint32 flags)
+{
+	glClear(flags);
+}
+
+///////////////////////////////////////////////////////////////////////////////

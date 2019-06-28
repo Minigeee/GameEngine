@@ -15,6 +15,9 @@ public:
 	GLObject(const GLObject&) = delete;
 	GLObject& operator=(const GLObject&) = delete;
 
+	GLObject(GLObject&&);
+	GLObject& operator=(GLObject&&);
+
 	/* Get OpenGL ID */
 	Uint32 GetID() const;
 

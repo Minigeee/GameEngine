@@ -33,6 +33,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 #define LOG LogFile::gLogFile
+#define LOG_INFO LOG << "INFO : "
 #define LOG_WARNING LOG << "WARNING : "
 #define LOG_ERROR LOG << "ERROR : "
 
