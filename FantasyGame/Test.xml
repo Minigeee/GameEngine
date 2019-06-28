@@ -1,0 +1,3 @@
+<program>
+    <shader type = "Vertex">Shaders/Default.vert</shader>
+</program>

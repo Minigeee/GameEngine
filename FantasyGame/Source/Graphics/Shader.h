@@ -1,8 +1,7 @@
 #ifndef SHADER_H
 #define SHADER_H
 
-#include <Engine/Resource.h>
-#include <iostream>
+#include <Resource/Resource.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -10,9 +9,11 @@ class Shader : public Resource<Shader>
 {
 	RESOURCE_TYPE(Shader);
 
+public:
+
 private:
-	Shader() { std::cout << "AAA\n"; }
-	virtual ~Shader() { }
+	Shader();
+	virtual ~Shader();
 };
 
 ///////////////////////////////////////////////////////////////////////////////

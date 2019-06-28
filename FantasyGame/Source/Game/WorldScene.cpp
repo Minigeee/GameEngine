@@ -1,8 +1,7 @@
 #include <Game/WorldScene.h>
 
 #include <Core/LogFile.h>
-
-#include <Graphics/Shader.h>
+#include <Resource/XmlDocument.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -23,12 +22,6 @@ WorldScene::~WorldScene()
 void WorldScene::OnCreate()
 {
 	LOG << "Creating world\n";
-
-	Shader::CreatePool(8);
-	Shader* shader = Shader::Create();
-	Shader::FreePool();
-
-	Uint32 a = 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -42,6 +42,12 @@
     <Filter Include="Source\Game">
       <UniqueIdentifier>{4633c83a-cb14-4635-a1f9-c3d1c70a4938}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Include\Resource">
+      <UniqueIdentifier>{fa3afb66-d7dd-4ff2-8249-399023c9815d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Resource">
+      <UniqueIdentifier>{8a358211-9178-4a19-9fce-fcad25bd9d17}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Main.cpp">
@@ -97,6 +103,15 @@
     </ClCompile>
     <ClCompile Include="Source\Graphics\Shader.cpp">
       <Filter>Source\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Resource\XmlDocument.cpp">
+      <Filter>Source\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Resource\XmlNode.cpp">
+      <Filter>Source\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Resource\XmlAttribute.cpp">
+      <Filter>Source\Resource</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -175,11 +190,20 @@
     <ClInclude Include="Source\Graphics\VertexBuffer.h">
       <Filter>Include\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Resource.h">
-      <Filter>Include\Engine</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Graphics\Shader.h">
       <Filter>Include\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Resource\Resource.h">
+      <Filter>Include\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Resource\XmlDocument.h">
+      <Filter>Include\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Resource\XmlNode.h">
+      <Filter>Include\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Resource\XmlAttribute.h">
+      <Filter>Include\Resource</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

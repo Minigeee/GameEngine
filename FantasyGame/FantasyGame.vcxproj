@@ -166,6 +166,9 @@
     <ClCompile Include="Source\Graphics\VertexArray.cpp" />
     <ClCompile Include="Source\Graphics\VertexBuffer.cpp" />
     <ClCompile Include="Source\Main.cpp" />
+    <ClCompile Include="Source\Resource\XmlAttribute.cpp" />
+    <ClCompile Include="Source\Resource\XmlDocument.cpp" />
+    <ClCompile Include="Source\Resource\XmlNode.cpp" />
     <ClCompile Include="Source\Scene\Scene.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -180,7 +183,6 @@
     <ClInclude Include="Source\Core\TypeInfo.h" />
     <ClInclude Include="Source\Engine\Application.h" />
     <ClInclude Include="Source\Engine\Engine.h" />
-    <ClInclude Include="Source\Engine\Resource.h" />
     <ClInclude Include="Source\Engine\Window.h" />
     <ClInclude Include="Source\Game\WorldScene.h" />
     <ClInclude Include="Source\Graphics\GLObject.h" />
@@ -195,6 +197,10 @@
     <ClInclude Include="Source\Math\Vector2.h" />
     <ClInclude Include="Source\Math\Vector3.h" />
     <ClInclude Include="Source\Math\Vector4.h" />
+    <ClInclude Include="Source\Resource\Resource.h" />
+    <ClInclude Include="Source\Resource\XmlAttribute.h" />
+    <ClInclude Include="Source\Resource\XmlDocument.h" />
+    <ClInclude Include="Source\Resource\XmlNode.h" />
     <ClInclude Include="Source\Scene\Scene.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

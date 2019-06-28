@@ -1,0 +1,53 @@
+#include <Resource/XmlAttribute.h>
+
+#include <rapidxml/rapidxml.hpp>
+
+#define XML_CAST(x) static_cast<rapidxml::xml_attribute<>*>(x)
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+XmlAttribute::XmlAttribute(void* attr) :
+	mAttribute		(attr)
+{
+
+}
+
+XmlAttribute::~XmlAttribute()
+{
+
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+const char* XmlAttribute::GetName() const
+{
+	return XML_CAST(mAttribute)->name();
+}
+
+const char* XmlAttribute::GetValue() const
+{
+	return XML_CAST(mAttribute)->value();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+XmlAttribute XmlAttribute::GetNextAttribute(const char* name) const
+{
+	return XmlAttribute(XML_CAST(mAttribute)->next_attribute(name));
+}
+
+XmlAttribute XmlAttribute::GetPrevAttribute(const char* name) const
+{
+	return XmlAttribute(XML_CAST(mAttribute)->previous_attribute(name));
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+bool XmlAttribute::Exists() const
+{
+	return (bool)mAttribute;
+}
+
+///////////////////////////////////////////////////////////////////////////////
