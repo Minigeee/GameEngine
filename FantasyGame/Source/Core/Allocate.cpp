@@ -22,6 +22,8 @@ void* Alloc(Uint32 size, Uint32 align)
 
 void Free(void* ptr)
 {
+	if (!ptr) return;
+
 	// Free start of allocated memory
 	free(((void**)ptr)[-1]);
 }

@@ -33,15 +33,7 @@ public:
 
 	~Array()
 	{
-		// Call destructors
-		Clear();
-
-		// Free memory
-		Free(mStart);
-
-		mStart = 0;
-		mLast = 0;
-		mEnd = 0;
+		Free();
 	}
 
 
@@ -189,7 +181,7 @@ public:
 	}
 
 	/* Resize array (All current elements removed) */
-	void Resize(Uint32 size)
+	void Resize(Uint32 size, bool fill = false)
 	{
 		// Clear previous elements
 		Clear();
@@ -199,7 +191,28 @@ public:
 			mStart = (T*)Alloc(size * sizeof(T), alignof(T));
 			mLast = mStart;
 			mEnd = mStart + size;
+
+			if (fill)
+			{
+				mLast = mEnd;
+				for (T* ptr = mStart; ptr < mLast; ++ptr)
+					new(ptr)T();
+			}
 		}
+	}
+
+	/* Free memory */
+	void Free()
+	{
+		for (T* ptr = mStart; ptr < mLast; ++ptr)
+			ptr->~T();
+
+		// Free memory
+		::Free(mStart);
+
+		mStart = 0;
+		mLast = 0;
+		mEnd = 0;
 	}
 
 

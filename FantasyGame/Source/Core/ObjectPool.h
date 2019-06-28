@@ -19,10 +19,17 @@ public:
 
 	/* Create object pool */
 	bool Create(Uint32 size, Uint32 objSize, Uint32 align = 4);
+	/* Free (all) memory (Doesn't call destructors) */
+	void Free();
 	/* Allocate space for object */
 	void* Alloc();
 	/* Free space */
 	void Free(void* ptr);
+
+	/* Get data ptr */
+	void* DataPtr() const;
+	/* Get index of slot ptr */
+	Uint32 GetIndex(void* ptr) const;
 
 private:
 	/* Ptr to data */

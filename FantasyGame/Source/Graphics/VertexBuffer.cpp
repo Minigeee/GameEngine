@@ -10,7 +10,8 @@ Uint32 VertexBuffer::sCurrentBound = 0;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-VertexBuffer::VertexBuffer()
+VertexBuffer::VertexBuffer() :
+	mTarget			(Array)
 {
 	glGenBuffers(1, &mID);
 }

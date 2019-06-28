@@ -162,6 +162,7 @@
     <ClCompile Include="Source\Game\WorldScene.cpp" />
     <ClCompile Include="Source\Graphics\GLObject.cpp" />
     <ClCompile Include="Source\Graphics\Graphics.cpp" />
+    <ClCompile Include="Source\Graphics\Shader.cpp" />
     <ClCompile Include="Source\Graphics\VertexArray.cpp" />
     <ClCompile Include="Source\Graphics\VertexBuffer.cpp" />
     <ClCompile Include="Source\Main.cpp" />
@@ -179,11 +180,13 @@
     <ClInclude Include="Source\Core\TypeInfo.h" />
     <ClInclude Include="Source\Engine\Application.h" />
     <ClInclude Include="Source\Engine\Engine.h" />
+    <ClInclude Include="Source\Engine\Resource.h" />
     <ClInclude Include="Source\Engine\Window.h" />
     <ClInclude Include="Source\Game\WorldScene.h" />
     <ClInclude Include="Source\Graphics\GLObject.h" />
     <ClInclude Include="Source\Graphics\Graphics.h" />
     <ClInclude Include="Source\Graphics\OpenGL.h" />
+    <ClInclude Include="Source\Graphics\Shader.h" />
     <ClInclude Include="Source\Graphics\VertexArray.h" />
     <ClInclude Include="Source\Graphics\VertexBuffer.h" />
     <ClInclude Include="Source\Math\Matrix2.h" />
