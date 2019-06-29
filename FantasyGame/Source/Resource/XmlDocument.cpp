@@ -32,7 +32,7 @@ bool XmlDocument::Load(const char* fname)
 	if (!file.is_open()) return false;
 
 	// Get file size
-	Uint32 fsize = file.tellg();
+	Uint32 fsize = (Uint32)file.tellg();
 	file.seekg(0, std::ios::beg);
 
 	char* buffer = (char*)malloc(fsize + 1);
@@ -46,6 +46,8 @@ bool XmlDocument::Load(const char* fname)
 
 	mNode = XML_CAST(mDoc);
 	mBuffer = buffer;
+
+	return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -74,9 +74,6 @@
     <ClCompile Include="Source\Core\LogFile.cpp">
       <Filter>Source\Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\extlibs\glad\src\glad.c">
-      <Filter>Source\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Scene\Scene.cpp">
       <Filter>Source\Scene</Filter>
     </ClCompile>
@@ -112,6 +109,9 @@
     </ClCompile>
     <ClCompile Include="Source\Resource\XmlAttribute.cpp">
       <Filter>Source\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="..\extlibs\glad.c">
+      <Filter>Source\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

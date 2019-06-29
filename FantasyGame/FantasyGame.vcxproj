@@ -89,12 +89,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\C++\FantasyGame\FantasyGame\Source;D:\C++\extlibs\include;C:\Program Files (x86)\Visual Leak Detector\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Source;$(SolutionDir)extlibs\include;C:\Program Files (x86)\Visual Leak Detector\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\C++\extlibs\lib\$(Configuration);D:\C++\extlibs\lib;C:\Program Files (x86)\Visual Leak Detector\lib\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)extlibs\lib\$(Configuration);$(SolutionDir)extlibs\lib;C:\Program Files (x86)\Visual Leak Detector\lib\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>winmm.lib;glfw3.lib;vld.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -120,14 +120,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\C++\FantasyGame\FantasyGame\Source;D:\C++\extlibs\include;C:\Program Files (x86)\Visual Leak Detector\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Source;$(SolutionDir)extlibs\include;C:\Program Files (x86)\Visual Leak Detector\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\C++\extlibs\lib\$(Configuration);D:\C++\extlibs\lib;C:\Program Files (x86)\Visual Leak Detector\lib\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)extlibs\lib\$(Configuration);$(SolutionDir)extlibs\lib;C:\Program Files (x86)\Visual Leak Detector\lib\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>winmm.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -149,7 +149,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\extlibs\glad\src\glad.c" />
+    <ClCompile Include="..\extlibs\glad.c" />
     <ClCompile Include="Source\Core\Allocate.cpp" />
     <ClCompile Include="Source\Core\Clock.cpp" />
     <ClCompile Include="Source\Core\LogFile.cpp" />
