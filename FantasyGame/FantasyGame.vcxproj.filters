@@ -86,9 +86,6 @@
     <ClCompile Include="Source\Graphics\GLObject.cpp">
       <Filter>Source\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\ObjectPool.cpp">
-      <Filter>Source\Core</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Graphics\Graphics.cpp">
       <Filter>Source\Graphics</Filter>
     </ClCompile>
@@ -193,9 +190,6 @@
     <ClInclude Include="Source\Graphics\Shader.h">
       <Filter>Include\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Resource\Resource.h">
-      <Filter>Include\Resource</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Resource\XmlDocument.h">
       <Filter>Include\Resource</Filter>
     </ClInclude>
@@ -203,6 +197,9 @@
       <Filter>Include\Resource</Filter>
     </ClInclude>
     <ClInclude Include="Source\Resource\XmlAttribute.h">
+      <Filter>Include\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Resource\Resource.h">
       <Filter>Include\Resource</Filter>
     </ClInclude>
   </ItemGroup>

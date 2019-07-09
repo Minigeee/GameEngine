@@ -153,7 +153,6 @@
     <ClCompile Include="Source\Core\Allocate.cpp" />
     <ClCompile Include="Source\Core\Clock.cpp" />
     <ClCompile Include="Source\Core\LogFile.cpp" />
-    <ClCompile Include="Source\Core\ObjectPool.cpp" />
     <ClCompile Include="Source\Core\Sleep.cpp" />
     <ClCompile Include="Source\Core\TypeInfo.cpp" />
     <ClCompile Include="Source\Engine\Application.cpp" />

@@ -1,19 +1,18 @@
 #ifndef SHADER_H
 #define SHADER_H
 
-#include <Resource/Resource.h>
+// #include <Resource/Resource.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class Shader : public Resource<Shader>
+class Shader
 {
-	RESOURCE_TYPE(Shader);
-
 public:
-
-private:
 	Shader();
 	virtual ~Shader();
+
+	/* Load shader from XML file */
+	bool Load(const char* fname);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
