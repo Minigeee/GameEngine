@@ -1,3 +1,4 @@
 <program>
     <shader type = "Vertex">Shaders/Default.vert</shader>
+    <shader type = "Fragment">Shaders/Default.frag</shader>
 </program>

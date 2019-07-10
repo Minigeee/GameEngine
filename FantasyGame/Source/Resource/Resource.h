@@ -9,6 +9,13 @@ template <typename T>
 class Resource
 {
 public:
+	static T* Create()
+	{
+		T* obj = sResourcePool.New();
+
+		return obj;
+	}
+
 	static T* Load(const char* fname)
 	{
 		T* obj = sResourcePool.New();
