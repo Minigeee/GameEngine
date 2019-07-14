@@ -44,7 +44,7 @@ struct Matrix4
 		w(0, 0, 0, val)
 	{ }
 
-	explicit Matrix4(const Vector4<T>& x, const Vector4<T>& y, const Vector4<T>& z, const Vector4<T>& z) :
+	explicit Matrix4(const Vector4<T>& x, const Vector4<T>& y, const Vector4<T>& z, const Vector4<T>& w) :
 		x(x),
 		y(y),
 		z(z),

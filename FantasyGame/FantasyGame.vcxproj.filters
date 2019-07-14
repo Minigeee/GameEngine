@@ -48,6 +48,9 @@
     <Filter Include="Source\Resource">
       <UniqueIdentifier>{8a358211-9178-4a19-9fce-fcad25bd9d17}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Math">
+      <UniqueIdentifier>{81440bb0-04ed-4729-8cde-fc5d15f5111b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Main.cpp">
@@ -109,6 +112,15 @@
     </ClCompile>
     <ClCompile Include="..\extlibs\glad.c">
       <Filter>Source\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Math\Quaternion.cpp">
+      <Filter>Source\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Math\Math.cpp">
+      <Filter>Source\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Math\Transform.cpp">
+      <Filter>Source\Math</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -201,6 +213,15 @@
     </ClInclude>
     <ClInclude Include="Source\Resource\Resource.h">
       <Filter>Include\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Math\Quaternion.h">
+      <Filter>Include\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Math\Math.h">
+      <Filter>Include\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Math\Transform.h">
+      <Filter>Include\Math</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

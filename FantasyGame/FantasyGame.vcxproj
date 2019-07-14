@@ -165,6 +165,9 @@
     <ClCompile Include="Source\Graphics\VertexArray.cpp" />
     <ClCompile Include="Source\Graphics\VertexBuffer.cpp" />
     <ClCompile Include="Source\Main.cpp" />
+    <ClCompile Include="Source\Math\Math.cpp" />
+    <ClCompile Include="Source\Math\Quaternion.cpp" />
+    <ClCompile Include="Source\Math\Transform.cpp" />
     <ClCompile Include="Source\Resource\XmlAttribute.cpp" />
     <ClCompile Include="Source\Resource\XmlDocument.cpp" />
     <ClCompile Include="Source\Resource\XmlNode.cpp" />
@@ -190,9 +193,12 @@
     <ClInclude Include="Source\Graphics\Shader.h" />
     <ClInclude Include="Source\Graphics\VertexArray.h" />
     <ClInclude Include="Source\Graphics\VertexBuffer.h" />
+    <ClInclude Include="Source\Math\Math.h" />
     <ClInclude Include="Source\Math\Matrix2.h" />
     <ClInclude Include="Source\Math\Matrix3.h" />
     <ClInclude Include="Source\Math\Matrix4.h" />
+    <ClInclude Include="Source\Math\Quaternion.h" />
+    <ClInclude Include="Source\Math\Transform.h" />
     <ClInclude Include="Source\Math\Vector2.h" />
     <ClInclude Include="Source\Math\Vector3.h" />
     <ClInclude Include="Source\Math\Vector4.h" />
