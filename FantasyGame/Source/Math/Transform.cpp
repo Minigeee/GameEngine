@@ -30,22 +30,15 @@ Matrix4f ToTransform(const Vector3f& t, const Quaternion& q, float k)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Matrix4f ToView(const Vector3f& pos, float pitch, float yaw)
+Matrix4f ToView(const Vector3f& p, const Vector3f& f, const Vector3f& r)
 {
-	float cx = cos(pitch);
-	float sx = sin(pitch);
-	float cy = cos(yaw);
-	float sy = sin(yaw);
-
-	Vector3f x(cy, 0.0f, -sy);
-	Vector3f y(sy * sx, cx, cy * sx);
-	Vector3f z(sy * cx, -sx, cx * cy);
+	Vector3f u = Normalize(Cross(r, f));
 
 	return Matrix4f(
-		x.x, y.x, z.x, 0.0f,
-		x.y, y.y, z.y, 0.0f,
-		x.z, y.z, z.z, 0.0f,
-		-Dot(x, pos), -Dot(y, pos), -Dot(z, pos), 1.0f
+		r.x, u.x, -f.x, -Dot(r, p),
+		r.y, u.y, -f.y, -Dot(u, p),
+		r.z, u.z, -f.z,  Dot(f, p),
+		0.0f, 0.0f, 0.0f, 1.0f
 	);
 }
 
