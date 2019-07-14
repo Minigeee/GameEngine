@@ -4,6 +4,8 @@
 #include <Core/Array.h>
 #include <Core/ObjectPool.h>
 
+#include <assert.h>
+
 ///////////////////////////////////////////////////////////////////////////////
 
 class GLObject;

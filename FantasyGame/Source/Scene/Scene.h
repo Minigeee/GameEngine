@@ -1,6 +1,8 @@
 #ifndef SCENE_H
 #define SCENE_H
 
+#include <Graphics/Renderer.h>
+
 ///////////////////////////////////////////////////////////////////////////////
 
 class Engine;
@@ -21,6 +23,8 @@ public:
 protected:
 	/* Access to engine */
 	Engine* mEngine;
+	/* Scene renderer */
+	Renderer mRenderer;
 
 private:
 	/* Called on scene creation */

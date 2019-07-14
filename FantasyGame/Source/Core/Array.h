@@ -134,14 +134,14 @@ public:
 	void Push(const T& element)
 	{
 		if (mLast < mEnd)
-			*(mLast++) = element;
+			new(mLast++)T(element);
 	}
 
 	/* Push to back (move) */
 	void Push(T&& element)
 	{
 		if (mLast < mEnd)
-			*(mLast++) = std::move(element);
+			new(mLast++)T(std::move(element));
 	}
 
 	/* Pop from back */

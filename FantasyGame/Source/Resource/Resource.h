@@ -16,10 +16,11 @@ public:
 		return obj;
 	}
 
-	static T* Load(const char* fname)
+	template <typename... Args>
+	static T* Load(const char* fname, Args... args)
 	{
 		T* obj = sResourcePool.New();
-		if (!obj->Load(fname))
+		if (!obj->Load(fname, args...))
 		{
 			sResourcePool.Free(obj);
 			return 0;

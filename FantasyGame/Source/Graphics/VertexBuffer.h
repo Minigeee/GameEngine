@@ -9,7 +9,7 @@
 
 class VertexBuffer : public GLObject
 {
-	TYPE_INFO(VertexBuffer);
+	GL_OBJECT(VertexBuffer);
 
 public:
 	enum Target

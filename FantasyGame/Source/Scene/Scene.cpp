@@ -20,6 +20,7 @@ Scene::~Scene()
 void Scene::Create(Engine* engine)
 {
 	mEngine = engine;
+	mRenderer.Init();
 
 	OnCreate();
 }
@@ -33,16 +34,9 @@ void Scene::Delete()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <Graphics/VertexArray.h>
-#include <Graphics/VertexBuffer.h>
-
-#include <Math/Vector3.h>
-
-#include <Graphics/Graphics.h>
-
 void Scene::Update(float dt)
 {
-
+	mRenderer.Render();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

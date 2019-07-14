@@ -18,7 +18,11 @@ VertexBuffer::VertexBuffer() :
 
 VertexBuffer::~VertexBuffer()
 {
-	glDeleteBuffers(1, &mID);
+	if (mID)
+	{
+		glDeleteBuffers(1, &mID);
+		mID = 0;
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////

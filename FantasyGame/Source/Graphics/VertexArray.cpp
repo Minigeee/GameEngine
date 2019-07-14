@@ -17,7 +17,11 @@ VertexArray::VertexArray()
 
 VertexArray::~VertexArray()
 {
-	glDeleteVertexArrays(1, &mID);
+	if (mID)
+	{
+		glDeleteVertexArrays(1, &mID);
+		mID = 0;
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////

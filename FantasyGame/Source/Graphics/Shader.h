@@ -9,7 +9,7 @@
 
 class Shader : public GLObject
 {
-	TYPE_INFO(Shader);
+	GL_OBJECT(Shader);
 
 public:
 	Shader();

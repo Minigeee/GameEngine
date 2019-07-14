@@ -28,4 +28,15 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#include <Core/TypeInfo.h>
+#include <utility>
+
+#define GL_OBJECT(x) \
+TYPE_INFO(x); \
+public: \
+	x(x&& a) : GLObject(std::move(a)) { } \
+	x& operator=(x&& a) { *this = std::move(a); }
+
+///////////////////////////////////////////////////////////////////////////////
+
 #endif

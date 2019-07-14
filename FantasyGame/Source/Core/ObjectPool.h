@@ -4,7 +4,7 @@
 #include <Core/DataTypes.h>
 #include <Core/Allocate.h>
 
-#define OBJECT_POOL_PAGE_SIZE 1024
+#include <vector>
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -33,7 +33,8 @@ class ObjectPool
 public:
 	ObjectPool() :
 		mStart		(0),
-		mCurrent	(0)
+		mCurrent	(0),
+		mPageSize	(1024)
 	{
 
 	}
@@ -61,6 +62,9 @@ public:
 	{
 		if (this != &other)
 		{
+			if (mStart)
+				Free();
+
 			mStart = other.mStart;
 			mCurrent = other.mCurrent;
 
@@ -74,11 +78,32 @@ public:
 	/* Free (all) memory */
 	void Free()
 	{
+		std::vector<bool> filled(mPageSize, true);
+
 		T* ptr = mStart;
 		while (ptr)
 		{
 			T* page = ptr;
-			ptr = (T*)((PageHeader*)(page + OBJECT_POOL_PAGE_SIZE))->mNext;
+			PageHeader* header = (PageHeader*)(page + mPageSize);
+			ptr = (T*)header->mNext;
+
+			// Mark which slots were not used
+			T** nextFree = (T**)header->mNextFree;
+			while (nextFree)
+			{
+				filled[(T*)nextFree - page] = false;
+				nextFree = (T**)(*nextFree);
+			}
+
+			// Call destructors on ones that are being used
+			for (Uint32 i = 0; i < mPageSize; ++i)
+			{
+				if (filled[i])
+					(page + i)->~T();
+				else
+					filled[i] = true;
+			}
+
 			::Free(page);
 		}
 	}
@@ -88,16 +113,16 @@ public:
 	{
 		if (!mStart || !mCurrent)
 		{
-			mStart = AllocPage();
+			mStart = AllocPage(mPageSize);
 			mCurrent = mStart;
 		}
 
-		PageHeader* header = (PageHeader*)(mCurrent + OBJECT_POOL_PAGE_SIZE);
+		PageHeader* header = (PageHeader*)(mCurrent + mPageSize);
 		
 		if (!header->mNextFree)
 		{
 			// Allocate new block
-			mStart = AllocPage();
+			mStart = AllocPage(mPageSize);
 			mCurrent = mStart;
 		}
 
@@ -121,10 +146,10 @@ public:
 		while (page)
 		{
 			// If pointer is inside block, then break from loop
-			if (ptr >= page && ptr < page + OBJECT_POOL_PAGE_SIZE) break;
+			if (ptr >= page && ptr < page + mPageSize) break;
 
 			// Go to next page
-			page = (T*)((PageHeader*)(page + OBJECT_POOL_PAGE_SIZE))->mNext;
+			page = (T*)((PageHeader*)(page + mPageSize))->mNext;
 		}
 
 		if (!page) return;
@@ -133,14 +158,20 @@ public:
 		ptr->~T();
 
 		// Update free list
-		PageHeader* header = (PageHeader*)(page + OBJECT_POOL_PAGE_SIZE);
+		PageHeader* header = (PageHeader*)(page + mPageSize);
 		*(void**)ptr = (void*)header->mNextFree;
 		header->mNextFree = (void**)ptr;
 	}
 
+	/* Set page size if nothing has been allocated yet */
+	void SetPageSize(Uint32 size)
+	{
+		mPageSize = size;
+	}
+
 private:
 	/* Allocate page */
-	T* AllocPage(Uint32 size = OBJECT_POOL_PAGE_SIZE)
+	T* AllocPage(Uint32 size)
 	{
 		T* ptr = (T*)Alloc(size * sizeof(T) + sizeof(PageHeader), alignof(T));
 
@@ -160,6 +191,8 @@ private:
 	T* mStart;
 	/* Current page */
 	T* mCurrent;
+	/* Page size */
+	Uint32 mPageSize;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

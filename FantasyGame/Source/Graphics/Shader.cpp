@@ -22,7 +22,11 @@ Shader::Shader()
 
 Shader::~Shader()
 {
-	glDeleteProgram(mID);
+	if (mID)
+	{
+		glDeleteProgram(mID);
+		mID = 0;
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////

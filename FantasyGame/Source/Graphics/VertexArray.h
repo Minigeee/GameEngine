@@ -9,7 +9,7 @@
 
 class VertexArray : public GLObject
 {
-	TYPE_INFO(VertexArray);
+	GL_OBJECT(VertexArray);
 
 public:
 	VertexArray();
