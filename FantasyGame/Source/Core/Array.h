@@ -180,23 +180,23 @@ public:
 		mLast = mStart;
 	}
 
-	/* Resize array (All current elements removed) */
-	void Resize(Uint32 size, bool fill = false)
+	/* Resize array */
+	void Resize(Uint32 size)
 	{
-		// Clear previous elements
-		Clear();
+		T* start = mStart;
+		Uint32 prevSize = Size();
 
 		if (Capacity() != size)
 		{
 			mStart = (T*)Alloc(size * sizeof(T), alignof(T));
-			mLast = mStart;
+			mLast = mStart + prevSize;
 			mEnd = mStart + size;
 
-			if (fill)
+			if (start)
 			{
-				mLast = mEnd;
-				for (T* ptr = mStart; ptr < mLast; ++ptr)
-					new(ptr)T();
+				// Copy previous data if it exists
+				for (Uint32 i = 0; i < prevSize; ++i)
+					new(mStart + i)T(std::move(*(start + i)));
 			}
 		}
 	}

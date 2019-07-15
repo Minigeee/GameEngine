@@ -1,4 +1,6 @@
 #include <Graphics/Camera.h>
+
+#include <Math/Math.h>
 #include <Math/Transform.h>
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -64,10 +66,13 @@ void Camera::SetDirection(float x, float y, float z)
 
 void Camera::SetRotation(const Vector2f& rotation)
 {
-	float cx = cos(rotation.x);
-	float cy = cos(rotation.y);
-	float sx = sin(rotation.x);
-	float sy = sin(rotation.y);
+	float x = ToRadians(rotation.x);
+	float y = ToRadians(rotation.y);
+
+	float cx = cos(x);
+	float cy = cos(y);
+	float sx = sin(x);
+	float sy = sin(y);
 
 	mDirection = Normalize(Vector3f(cy * cx, sx, sy * cx));
 	mRight = Cross(mDirection, Vector3f(0.0f, 1.0f, 0.0f));
@@ -93,13 +98,13 @@ void Camera::SetZoom(float zoom)
 void Camera::Move(const Vector3f& pos)
 {
 	mPosition += pos;
-	mViewDirty;
+	mViewDirty = true;
 }
 
 void Camera::Move(float x, float y, float z)
 {
 	mPosition += Vector3f(x, y, z);
-	mViewDirty;
+	mViewDirty = true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

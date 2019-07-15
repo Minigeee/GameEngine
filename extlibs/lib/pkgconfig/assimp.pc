@@ -1,0 +1,11 @@
+prefix=D:/C++/extlibs/assimp-4.1.0/build/install
+exec_prefix=D:/C++/extlibs/assimp-4.1.0/build/install/
+libdir=D:/C++/extlibs/assimp-4.1.0/build/install/lib
+includedir=D:/C++/extlibs/assimp-4.1.0/build/install/include
+
+Name: Assimp
+Description: Import various well-known 3D model formats in an uniform manner.
+Version: 4.1.0
+Libs: -L${libdir} -lassimp
+Libs.private:  
+Cflags: -I${includedir}
