@@ -34,6 +34,8 @@ public:
 
 	/* Send data for first time */
 	void BufferData(const void* data, Uint32 size, Usage usage);
+	/* Update with new data */
+	void UpdateData(const void* data, Uint32 size, Uint32 offset = 0);
 
 private:
 	/* Current bound buffer */

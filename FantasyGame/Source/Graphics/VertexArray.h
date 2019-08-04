@@ -22,9 +22,9 @@ public:
 	void VertexAttrib(Uint32 index, Uint32 size, Uint32 stride = 0, Uint32 offset = 0, Uint32 divisor = 0);
 
 	/* Draw from buffers */
-	void DrawArrays(Uint32 vertices, Uint32 offset = 0);
+	void DrawArrays(Uint32 vertices, Uint32 instances = 1, Uint32 offset = 0);
 	/* Draw from element buffer */
-	void DrawElements(Uint32 vertices, Uint32 offset = 0);
+	void DrawElements(Uint32 vertices, Uint32 instances = 1, Uint32 offset = 0);
 
 private:
 	/* Current bound VAO */

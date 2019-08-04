@@ -25,6 +25,8 @@ public:
 	/* Add mesh (Make sure mesh bounding box has been set) */
 	void AddMesh(const Mesh& mesh);
 
+	/* Get number of meshes in model */
+	Uint32 GetNumMeshes() const;
 	/* Get mesh */
 	Mesh& GetMesh(Uint32 index) const;
 	/* Get bounding box */

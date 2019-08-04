@@ -4,6 +4,8 @@
 
 #include <Resource/Resource.h>
 #include <Graphics/Model.h>
+#include <Graphics/Renderable.h>
+#include <Graphics/Shader.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -26,6 +28,14 @@ void WorldScene::OnCreate()
 	LOG << "Creating world\n";
 
 	Model* model = Resource<Model>::Load("Models/Box/Box.dae");
+	Renderable* object = Resource<Renderable>::Create();
+	object->SetModel(model);
+	object->SetPosition(0.2f, 0.0f, 0.0f);
+
+	Shader* shader = Resource<Shader>::Load("Shaders/Default.xml");
+	shader->Bind();
+
+	mRenderer.AddStatic(object);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

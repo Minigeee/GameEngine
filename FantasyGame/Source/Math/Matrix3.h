@@ -129,7 +129,7 @@ inline Matrix3<T> Mul(const Matrix3<T>& l, const Matrix3<T>& r)
 
 /* Matrix-Vector multiplication */
 template <typename T>
-inline Vector2<T> operator*(const Matrix3<T>& l, const Vector3<T>& r)
+inline Vector3<T> operator*(const Matrix3<T>& l, const Vector3<T>& r)
 {
 	return l.x* r.x + l.y * r.y + l.z * r.z;
 }

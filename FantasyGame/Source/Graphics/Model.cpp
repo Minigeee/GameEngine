@@ -81,6 +81,7 @@ Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene)
 	VertexArray* vao = Resource<VertexArray>::Create();
 	vao->Bind();
 
+	vertexSize *= sizeof(float);
 	vao->VertexAttrib(0, 3, vertexSize, 0);
 	vao->VertexAttrib(1, 3, vertexSize, 12);
 
@@ -88,7 +89,7 @@ Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene)
 	if (mesh->HasTextureCoords(0))
 	{
 		vao->VertexAttrib(2, 2, vertexSize, offset);
-		offset += 2;
+		offset += 2 * sizeof(float);
 	}
 	if (mesh->HasVertexColors(0))
 	{
@@ -135,8 +136,15 @@ bool Model::Load(const char* fname)
 
 	// Resize mesh array
 	mMeshes.Resize(scene->mNumMeshes > 4 ? scene->mNumMeshes : 4);
+	// Temporary array
+	Array<Mesh> meshes(mMeshes.Capacity());
 
-	ProcessNode(mMeshes, scene->mRootNode, scene);
+	// Process nodes
+	ProcessNode(meshes, scene->mRootNode, scene);
+
+	// Add meshes
+	for (Uint32 i = 0; i < meshes.Size(); ++i)
+		AddMesh(meshes[i]);
 
 
 	LOG << "Loaded model file " << fname << "\n";
@@ -153,28 +161,41 @@ void Model::SetMaxMeshes(Uint32 max)
 
 void Model::AddMesh(const Mesh& mesh)
 {
+	if (mMeshes.Size())
+	{
+		// Update bounding box
+		const BoundingBox& box = mesh.mBoundingBox;
+
+		if (box.mMin.x < mBoundingBox.mMin.x)
+			mBoundingBox.mMin.x = box.mMin.x;
+		if (box.mMax.x > mBoundingBox.mMax.x)
+			mBoundingBox.mMax.x = box.mMax.x;
+
+		if (box.mMin.y < mBoundingBox.mMin.y)
+			mBoundingBox.mMin.y = box.mMin.y;
+		if (box.mMax.y > mBoundingBox.mMax.y)
+			mBoundingBox.mMax.y = box.mMax.y;
+
+		if (box.mMin.z < mBoundingBox.mMin.z)
+			mBoundingBox.mMin.z = box.mMin.z;
+		if (box.mMax.z > mBoundingBox.mMax.z)
+			mBoundingBox.mMax.z = box.mMax.z;
+	}
+	else
+	{
+		// This is the first mesh added, so use mesh bounding box as original box
+		mBoundingBox = mesh.mBoundingBox;
+	}
+
 	mMeshes.Push(mesh);
-
-	// Update bounding box
-	const BoundingBox& box = mesh.mBoundingBox;
-
-	if (box.mMin.x < mBoundingBox.mMin.x)
-		mBoundingBox.mMin.x = box.mMin.x;
-	if (box.mMax.x > mBoundingBox.mMax.x)
-		mBoundingBox.mMax.x = box.mMax.x;
-
-	if (box.mMin.y < mBoundingBox.mMin.y)
-		mBoundingBox.mMin.y = box.mMin.y;
-	if (box.mMax.y > mBoundingBox.mMax.y)
-		mBoundingBox.mMax.y = box.mMax.y;
-
-	if (box.mMin.z < mBoundingBox.mMin.z)
-		mBoundingBox.mMin.z = box.mMin.z;
-	if (box.mMax.z > mBoundingBox.mMax.z)
-		mBoundingBox.mMax.z = box.mMax.z;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+Uint32 Model::GetNumMeshes() const
+{
+	return mMeshes.Size();
+}
 
 Mesh& Model::GetMesh(Uint32 i) const
 {

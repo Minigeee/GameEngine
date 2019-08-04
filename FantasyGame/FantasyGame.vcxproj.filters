@@ -137,6 +137,9 @@
     <ClCompile Include="Source\Graphics\Mesh.cpp">
       <Filter>Source\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Graphics\Renderable.cpp">
+      <Filter>Source\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Core\DataTypes.h">
@@ -251,6 +254,9 @@
       <Filter>Include\Math</Filter>
     </ClInclude>
     <ClInclude Include="Source\Graphics\Mesh.h">
+      <Filter>Include\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Graphics\Renderable.h">
       <Filter>Include\Graphics</Filter>
     </ClInclude>
   </ItemGroup>

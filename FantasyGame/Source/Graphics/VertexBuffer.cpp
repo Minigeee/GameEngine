@@ -45,3 +45,12 @@ void VertexBuffer::BufferData(const void* data, Uint32 size, Usage usage)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+void VertexBuffer::UpdateData(const void* data, Uint32 size, Uint32 offset)
+{
+	assert(sCurrentBound == mID);
+
+	glBufferSubData(mTarget, offset, size, data);
+}
+
+///////////////////////////////////////////////////////////////////////////////

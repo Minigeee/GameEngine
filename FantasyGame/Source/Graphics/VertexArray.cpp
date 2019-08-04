@@ -47,16 +47,22 @@ void VertexArray::VertexAttrib(Uint32 index, Uint32 size, Uint32 stride, Uint32 
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void VertexArray::DrawArrays(Uint32 vertices, Uint32 offset)
+void VertexArray::DrawArrays(Uint32 vertices, Uint32 instances, Uint32 offset)
 {
 	assert(sCurrentBound == mID);
-	glDrawArrays(GL_TRIANGLES, offset, vertices);
+	if (instances == 1)
+		glDrawArrays(GL_TRIANGLES, offset, vertices);
+	else
+		glDrawArraysInstanced(GL_TRIANGLES, offset, vertices, instances);
 }
 
-void VertexArray::DrawElements(Uint32 vertices, Uint32 offset)
+void VertexArray::DrawElements(Uint32 vertices, Uint32 instances, Uint32 offset)
 {
 	assert(sCurrentBound == mID);
-	glDrawElements(GL_TRIANGLES, vertices, GL_UNSIGNED_INT, (const void*)offset);
+	if (instances == 1)
+		glDrawElements(GL_TRIANGLES, vertices, GL_UNSIGNED_INT, (const void*)offset);
+	else
+		glDrawElementsInstanced(GL_TRIANGLES, vertices, GL_UNSIGNED_INT, (const void*)offset, instances);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

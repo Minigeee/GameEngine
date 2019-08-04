@@ -133,15 +133,19 @@ public:
 	/* Push to back (copy) */
 	void Push(const T& element)
 	{
-		if (mLast < mEnd)
-			new(mLast++)T(element);
+		if (mLast == mEnd)
+			Resize(Capacity() * 2);
+
+		new(mLast++)T(element);
 	}
 
 	/* Push to back (move) */
 	void Push(T&& element)
 	{
-		if (mLast < mEnd)
-			new(mLast++)T(std::move(element));
+		if (mLast == mEnd)
+			Resize(Capacity() * 2);
+
+		new(mLast++)T(std::move(element));
 	}
 
 	/* Pop from back */

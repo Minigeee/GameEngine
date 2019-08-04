@@ -140,7 +140,7 @@ inline Matrix4<T> Mul(const Matrix4<T> & l, const Matrix4<T> & r)
 
 /* Matrix-Vector multiplication */
 template <typename T>
-inline Vector2<T> operator*(const Matrix4<T> & l, const Vector3<T> & r)
+inline Vector4<T> operator*(const Matrix4<T> & l, const Vector4<T> & r)
 {
 	return l.x* r.x + l.y * r.y + l.z * r.z + l.w * r.w;
 }
