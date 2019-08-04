@@ -3,6 +3,9 @@
 
 #include <Core/TypeInfo.h>
 
+#include <Math/Vector4.h>
+#include <Math/Matrix4.h>
+
 #include <Graphics/GLObject.h>
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -20,6 +23,23 @@ public:
 
 	/* Bind shader */
 	void Bind();
+
+	/* Set shader uniform */
+	void SetUniform(const char* name, int val);
+	/* Set shader uniform */
+	void SetUniform(const char* name, float val);
+	/* Set shader uniform */
+	void SetUniform(const char* name, const Vector2f& val);
+	/* Set shader uniform */
+	void SetUniform(const char* name, const Vector3f& val);
+	/* Set shader uniform */
+	void SetUniform(const char* name, const Vector4f& val);
+	/* Set shader uniform */
+	void SetUniform(const char* name, const Matrix2f& val);
+	/* Set shader uniform */
+	void SetUniform(const char* name, const Matrix3f& val);
+	/* Set shader uniform */
+	void SetUniform(const char* name, const Matrix4f& val);
 
 private:
 	/* Load shader code from file */

@@ -6,6 +6,7 @@
 
 #include <Resource/XmlDocument.h>
 
+#include <assert.h>
 #include <fstream>
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -156,6 +157,65 @@ void Shader::Bind()
 {
 	glUseProgram(mID);
 	sCurrentBound = mID;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+void Shader::SetUniform(const char* name, int val)
+{
+	assert(sCurrentBound == mID);
+	int loc = glGetUniformLocation(mID, name);
+	glUniform1i(loc, val);
+}
+
+void Shader::SetUniform(const char* name, float val)
+{
+	assert(sCurrentBound == mID);
+	int loc = glGetUniformLocation(mID, name);
+	glUniform1f(loc, val);
+}
+
+void Shader::SetUniform(const char* name, const Vector2f& val)
+{
+	assert(sCurrentBound == mID);
+	int loc = glGetUniformLocation(mID, name);
+	glUniform2fv(loc, 1, (const float*)&val);
+}
+
+void Shader::SetUniform(const char* name, const Vector3f& val)
+{
+	assert(sCurrentBound == mID);
+	int loc = glGetUniformLocation(mID, name);
+	glUniform3fv(loc, 1, (const float*)&val);
+}
+
+void Shader::SetUniform(const char* name, const Vector4f& val)
+{
+	assert(sCurrentBound == mID);
+	int loc = glGetUniformLocation(mID, name);
+	glUniform4fv(loc, 1, (const float*)&val);
+}
+
+void Shader::SetUniform(const char* name, const Matrix2f& val)
+{
+	assert(sCurrentBound == mID);
+	int loc = glGetUniformLocation(mID, name);
+	glUniformMatrix2fv(loc, 1, GL_FALSE, (const float*)&val);
+}
+
+void Shader::SetUniform(const char* name, const Matrix3f& val)
+{
+	assert(sCurrentBound == mID);
+	int loc = glGetUniformLocation(mID, name);
+	glUniformMatrix3fv(loc, 1, GL_FALSE, (const float*)&val);
+}
+
+void Shader::SetUniform(const char* name, const Matrix4f& val)
+{
+	assert(sCurrentBound == mID);
+	int loc = glGetUniformLocation(mID, name);
+	glUniformMatrix4fv(loc, 1, GL_FALSE, (const float*)&val);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
