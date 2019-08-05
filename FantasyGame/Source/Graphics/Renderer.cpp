@@ -5,9 +5,13 @@
 #include <Graphics/Graphics.h>
 #include <Graphics/VertexArray.h>
 #include <Graphics/VertexBuffer.h>
+#include <Graphics/Material.h>
 #include <Graphics/Model.h>
 #include <Graphics/Camera.h>
 #include <Graphics/Renderable.h>
+#include <Graphics/Shader.h>
+
+#include <map>
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -33,6 +37,7 @@ void Renderer::Init()
 	mVaoData.Resize(initSize);
 	mDataMap.Resize(initSize);
 	mRenderData.Resize(initSize);
+	mRenderQueue.Resize(initSize);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -87,10 +92,37 @@ void Renderer::Render()
 	Graphics::SetClearColor(0.2f, 0.2f, 0.3f);
 	Graphics::Clear();
 
-	for (Uint32 i = 1; i < mVaoData.Size(); ++i)
+	// Get camera projection-view matrix
+	Matrix4f projView = mCamera->GetProjection() * mCamera->GetView();
+
+	// Set up initial shader
+	Shader* shader = mRenderQueue.Front().mMaterial->mShader;
+	shader->Bind();
+	shader->SetUniform("projView", projView);
+
+
+	for (Uint32 i = 0; i < mRenderQueue.Size(); ++i)
 	{
-		VertexArrayData& data = mVaoData[i];
-		data.mVertexArray->DrawArrays(data.mNumVertices, mRenderData[mDataMap[i]].mBufferSize);
+		VertexArrayData& data = mRenderQueue[i];
+
+		if (data.mMaterial)
+		{
+			// Switch shader if needed
+			Shader* next = data.mMaterial->mShader;
+			if (next != shader)
+			{
+				shader = next;
+				shader->Bind();
+				shader->SetUniform("projView", projView);
+			}
+
+			// Use material
+			data.mMaterial->Use();
+		}
+
+		// Render vao
+		Uint32 id = data.mVertexArray->GetID();
+		data.mVertexArray->DrawArrays(data.mNumVertices, mRenderData[mDataMap[id]].mBufferSize);
 	}
 }
 
@@ -125,6 +157,7 @@ void Renderer::RegisterModel(Model* model, Uint32 num)
 		VertexArrayData data;
 		data.mVertexArray = mesh.mVertexArray;
 		data.mNumVertices = mesh.mNumVertices;
+		data.mMaterial = mesh.mMaterial;
 		
 		Uint32 id = mesh.mVertexArray->GetID();
 
@@ -146,6 +179,44 @@ void Renderer::RegisterModel(Model* model, Uint32 num)
 		vao->VertexAttrib(5, 4, sizeof(Matrix4f), 16, 1);
 		vao->VertexAttrib(6, 4, sizeof(Matrix4f), 32, 1);
 		vao->VertexAttrib(7, 4, sizeof(Matrix4f), 48, 1);
+	}
+
+	UpdateQueue();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void Renderer::UpdateQueue()
+{
+	mRenderQueue.Clear();
+
+	std::map<Uint32, Array<VertexArrayData*>> byShader;
+
+	for (Uint32 i = 1; i < mVaoData.Size(); ++i)
+	{
+		VertexArrayData& data = mVaoData[i];
+
+		// Get shader id (used to sort vao data)
+		Uint32 id = data.mMaterial->mShader->GetID();
+
+		// Add if group does not exist
+		auto it = byShader.find(id);
+		if (it == byShader.end())
+		{
+			byShader[id] = Array<VertexArrayData*>(8);
+			it = byShader.find(id);
+		}
+
+		// Add data to group
+		it->second.Push(&data);
+	}
+
+	for (auto it = byShader.begin(); it != byShader.end(); ++it)
+	{
+		Array<VertexArrayData*>& list = it->second;
+		// Add all vao data
+		for (Uint32 i = 0; i < list.Size(); ++i)
+			mRenderQueue.Push(*list[0]);
 	}
 }
 

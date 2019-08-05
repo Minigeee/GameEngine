@@ -2,6 +2,7 @@
 #define SCENE_H
 
 #include <Graphics/Renderer.h>
+#include <Graphics/Camera.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -25,6 +26,9 @@ protected:
 	Engine* mEngine;
 	/* Scene renderer */
 	Renderer mRenderer;
+
+	/* Scene camera */
+	Camera mCamera;
 
 private:
 	/* Called on scene creation */

@@ -65,10 +65,10 @@ Matrix4f ToView(const Vector3f& p, const Vector3f& f, const Vector3f& r)
 	Vector3f u = Normalize(Cross(r, f));
 
 	return Matrix4f(
-		r.x, u.x, -f.x, -Dot(r, p),
-		r.y, u.y, -f.y, -Dot(u, p),
-		r.z, u.z, -f.z,  Dot(f, p),
-		0.0f, 0.0f, 0.0f, 1.0f
+		r.x, u.x, -f.x, 0.0f,
+		r.y, u.y, -f.y, 0.0f,
+		r.z, u.z, -f.z,  0.0f,
+		-Dot(r, p), -Dot(u, p), Dot(f, p), 1.0f
 	);
 }
 
@@ -77,7 +77,7 @@ Matrix4f ToView(const Vector3f& p, const Vector3f& f, const Vector3f& r)
 Matrix4f ToPerspective(float fov, float ar, float near, float far)
 {
 	float fovy = fov / ar;
-	fovy = tan(fovy * 0.5f);
+	fovy = tan(ToRadians(fovy * 0.5f));
 
 	return Matrix4f(
 		1.0f / (ar * fovy), 0.0f,			0.0f,							0.0f,

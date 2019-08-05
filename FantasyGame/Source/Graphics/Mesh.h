@@ -7,6 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 class VertexArray;
+class Material;
 
 /* Container for VAO, vertices, material, etc. */
 class Mesh
@@ -16,6 +17,8 @@ public:
 
 	/* Vertex array to draw mesh */
 	VertexArray* mVertexArray;
+	/* Material to render mesh */
+	Material* mMaterial;
 	/* Number of vertices in mesh */
 	Uint32 mNumVertices;
 	/* Bounding box */

@@ -10,6 +10,7 @@
 class VertexArray;
 class VertexBuffer;
 class Renderable;
+class Material;
 class Model;
 class Camera;
 
@@ -39,6 +40,8 @@ private:
 	{
 		/* Vertex array to render */
 		VertexArray* mVertexArray;
+		/* Material to render */
+		Material* mMaterial;
 		/* How many vertices to render */
 		Uint32 mNumVertices;
 	};
@@ -56,6 +59,8 @@ private:
 		bool mNeedsUpdate;
 	};
 
+	/* Update render queue */
+	void UpdateQueue();
 	/* Pre-render update */
 	void Update();
 
@@ -69,6 +74,8 @@ private:
 	Array<int> mDataMap;
 	/* Render data */
 	Array<RenderData> mRenderData;
+	/* Render queue */
+	Array<VertexArrayData> mRenderQueue;
 
 	/* Marks if render data updated */
 	bool mRenderDataUpdated;

@@ -20,7 +20,9 @@ Scene::~Scene()
 void Scene::Create(Engine* engine)
 {
 	mEngine = engine;
+
 	mRenderer.Init();
+	mRenderer.SetCamera(&mCamera);
 
 	OnCreate();
 }

@@ -3,6 +3,7 @@
 #include <Core/LogFile.h>
 
 #include <Resource/Resource.h>
+#include <Graphics/Material.h>
 #include <Graphics/Model.h>
 #include <Graphics/Renderable.h>
 #include <Graphics/Shader.h>
@@ -33,9 +34,17 @@ void WorldScene::OnCreate()
 	object->SetPosition(0.2f, 0.0f, 0.0f);
 
 	Shader* shader = Resource<Shader>::Load("Shaders/Default.xml");
-	shader->Bind();
+
+	Material* material = Resource<Material>::Create();
+	material->mShader = shader;
+	material->mDiffuse = Vector3f(0.8f, 0.5f, 0.6f);
+
+	model->GetMesh(0).mMaterial = material;
 
 	mRenderer.AddStatic(object);
+
+	// Move camera
+	mCamera.SetPosition(5.0f, 5.0f, 10.0f);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
