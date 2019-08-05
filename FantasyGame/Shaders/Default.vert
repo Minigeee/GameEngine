@@ -6,7 +6,14 @@ layout (location = 4) in mat4 aTransform;
 
 uniform mat4 projView;
 
+out vec3 FragPos;
+out vec3 Normal;
+
 void main()
 {
-    gl_Position = projView * aTransform * vec4(aPos, 1.0);
+    vec4 worldTransform = aTransform * vec4(aPos, 1.0);
+    gl_Position = projView * worldTransform;
+
+    FragPos = worldTransform.xyz;
+    Normal = aNormal;
 }

@@ -17,9 +17,9 @@ Material::Material() :
 
 void Material::Use()
 {
-	mShader->SetUniform("diffuse", mDiffuse);
-	mShader->SetUniform("specular", mSpecular);
-	mShader->SetUniform("specFactor", mSpecFactor);
+	mShader->SetUniform("material.diffuse", mDiffuse);
+	mShader->SetUniform("material.specular", mSpecular);
+	mShader->SetUniform("material.specFactor", mSpecFactor);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -37,14 +37,14 @@ void WorldScene::OnCreate()
 
 	Material* material = Resource<Material>::Create();
 	material->mShader = shader;
-	material->mDiffuse = Vector3f(0.8f, 0.5f, 0.6f);
+	material->mDiffuse = Vector3f(0.6f, 1.0f, 0.6f);
 
 	model->GetMesh(0).mMaterial = material;
 
 	mRenderer.AddStatic(object);
 
-	// Move camera
-	mCamera.SetPosition(5.0f, 5.0f, 10.0f);
+
+	mDirLight.SetDirection(0.0f, -1.0f, 2.0f);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

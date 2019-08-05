@@ -11,6 +11,8 @@
 #include <Graphics/Renderable.h>
 #include <Graphics/Shader.h>
 
+#include <Scene/Scene.h>
+
 #include <map>
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -38,6 +40,8 @@ void Renderer::Init()
 	mDataMap.Resize(initSize);
 	mRenderData.Resize(initSize);
 	mRenderQueue.Resize(initSize);
+
+	Graphics::Enable(Graphics::DepthTest);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -84,6 +88,15 @@ void Renderer::Update()
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void BindShader(Shader* shader, const Matrix4f& projView, Scene* scene)
+{
+	shader->Bind();
+	shader->SetUniform("camPos", scene->GetCamera().GetPosition());
+	shader->SetUniform("projView", projView);
+	shader->SetUniform("ambient", scene->GetAmbient());
+	scene->GetDirLight().Use(shader);
+}
+
 void Renderer::Render()
 {
 	Update();
@@ -93,12 +106,12 @@ void Renderer::Render()
 	Graphics::Clear();
 
 	// Get camera projection-view matrix
-	Matrix4f projView = mCamera->GetProjection() * mCamera->GetView();
+	Camera& camera = mScene->GetCamera();
+	Matrix4f projView = camera.GetProjection() * camera.GetView();
 
 	// Set up initial shader
 	Shader* shader = mRenderQueue.Front().mMaterial->mShader;
-	shader->Bind();
-	shader->SetUniform("projView", projView);
+	BindShader(shader, projView, mScene);
 
 
 	for (Uint32 i = 0; i < mRenderQueue.Size(); ++i)
@@ -112,8 +125,7 @@ void Renderer::Render()
 			if (next != shader)
 			{
 				shader = next;
-				shader->Bind();
-				shader->SetUniform("projView", projView);
+				BindShader(shader, projView, mScene);
 			}
 
 			// Use material
@@ -247,9 +259,9 @@ void Renderer::AddStatic(Renderable* renderable)
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-void Renderer::SetCamera(Camera* camera)
+void Renderer::SetScene(Scene* scene)
 {
-	mCamera = camera;
+	mScene = scene;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

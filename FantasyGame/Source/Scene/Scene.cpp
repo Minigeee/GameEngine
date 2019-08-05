@@ -4,7 +4,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 Scene::Scene() :
-	mEngine		(0)
+	mEngine			(0),
+	mAmbientColor	(0.1f)
 {
 
 }
@@ -22,7 +23,7 @@ void Scene::Create(Engine* engine)
 	mEngine = engine;
 
 	mRenderer.Init();
-	mRenderer.SetCamera(&mCamera);
+	mRenderer.SetScene(this);
 
 	OnCreate();
 }
@@ -38,7 +39,31 @@ void Scene::Delete()
 
 void Scene::Update(float dt)
 {
+	static float time = 0.0f;
+	time += dt;
+
+	float x = sin(time * 1.5f) * 4.0f;
+	mCamera.SetPosition(x, 4.0f, 10.0f);
+
 	mRenderer.Render();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+Camera& Scene::GetCamera()
+{
+	return mCamera;
+}
+
+Vector3f& Scene::GetAmbient()
+{
+	return mAmbientColor;
+}
+
+DirLight& Scene::GetDirLight()
+{
+	return mDirLight;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

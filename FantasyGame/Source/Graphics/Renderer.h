@@ -12,7 +12,7 @@ class VertexBuffer;
 class Renderable;
 class Material;
 class Model;
-class Camera;
+class Scene;
 
 class Renderer
 {
@@ -25,8 +25,8 @@ public:
 	/* Render stuff */
 	void Render();
 
-	/* Set camera to render with */
-	void SetCamera(Camera* camera);
+	/* Set scene to render */
+	void SetScene(Scene* scene);
 
 	/* Register model */
 	void RegisterModel(Model* model, Uint32 num = 64);
@@ -65,8 +65,8 @@ private:
 	void Update();
 
 private:
-	/* Camera to render with */
-	Camera* mCamera;
+	/* Scene to render */
+	Scene* mScene;
 
 	/* List of vertex arrays */
 	Array<VertexArrayData> mVaoData;

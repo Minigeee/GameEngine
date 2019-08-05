@@ -3,6 +3,7 @@
 
 #include <Graphics/Renderer.h>
 #include <Graphics/Camera.h>
+#include <Graphics/Lights.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -21,6 +22,13 @@ public:
 	/* Update scene and do game logic */
 	void Update(float dt);
 
+	/* Get scene camera */
+	Camera& GetCamera();
+	/* Get ambient color */
+	Vector3f& GetAmbient();
+	/* Get directional light */
+	DirLight& GetDirLight();
+
 protected:
 	/* Access to engine */
 	Engine* mEngine;
@@ -29,6 +37,10 @@ protected:
 
 	/* Scene camera */
 	Camera mCamera;
+	/* Ambient color */
+	Vector3f mAmbientColor;
+	/* Directional light */
+	DirLight mDirLight;
 
 private:
 	/* Called on scene creation */

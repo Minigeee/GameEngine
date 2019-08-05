@@ -135,6 +135,9 @@ Uint32 Shader::LoadShader(const char* fname, Uint32 type)
 	glShaderSource(shader, 1, &buffer, NULL);
 	glCompileShader(shader);
 
+	// Free text buffer
+	free(buffer);
+
 	// Check status
 	int success;
 	char infoLog[512];
@@ -146,9 +149,6 @@ Uint32 Shader::LoadShader(const char* fname, Uint32 type)
 		glDeleteShader(shader);
 		return 0;
 	}
-
-	// Free text buffer
-	free(buffer);
 
 	return shader;
 }

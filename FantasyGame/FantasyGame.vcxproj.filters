@@ -149,6 +149,9 @@
     <ClCompile Include="Source\Resource\Loadable.cpp">
       <Filter>Source\Resource</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Graphics\Lights.cpp">
+      <Filter>Source\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Core\DataTypes.h">
@@ -276,6 +279,9 @@
     </ClInclude>
     <ClInclude Include="Source\Resource\Loadable.h">
       <Filter>Include\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Graphics\Lights.h">
+      <Filter>Include\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
