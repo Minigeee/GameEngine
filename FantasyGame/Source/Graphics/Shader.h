@@ -8,9 +8,13 @@
 
 #include <Graphics/GLObject.h>
 
+#include <Resource/Loadable.h>
+
 ///////////////////////////////////////////////////////////////////////////////
 
-class Shader : public GLObject
+class Shader :
+	public GLObject,
+	public Loadable
 {
 	GL_OBJECT(Shader);
 

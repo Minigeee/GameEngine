@@ -156,6 +156,7 @@
     <ClCompile Include="Source\Core\Clock.cpp" />
     <ClCompile Include="Source\Core\LogFile.cpp" />
     <ClCompile Include="Source\Core\Sleep.cpp" />
+    <ClCompile Include="Source\Core\StringHash.cpp" />
     <ClCompile Include="Source\Core\TypeInfo.cpp" />
     <ClCompile Include="Source\Engine\Application.cpp" />
     <ClCompile Include="Source\Engine\Engine.cpp" />
@@ -177,6 +178,7 @@
     <ClCompile Include="Source\Math\Math.cpp" />
     <ClCompile Include="Source\Math\Quaternion.cpp" />
     <ClCompile Include="Source\Math\Transform.cpp" />
+    <ClCompile Include="Source\Resource\Loadable.cpp" />
     <ClCompile Include="Source\Resource\XmlAttribute.cpp" />
     <ClCompile Include="Source\Resource\XmlDocument.cpp" />
     <ClCompile Include="Source\Resource\XmlNode.cpp" />
@@ -191,6 +193,7 @@
     <ClInclude Include="Source\Core\Macros.h" />
     <ClInclude Include="Source\Core\ObjectPool.h" />
     <ClInclude Include="Source\Core\Sleep.h" />
+    <ClInclude Include="Source\Core\StringHash.h" />
     <ClInclude Include="Source\Core\TypeInfo.h" />
     <ClInclude Include="Source\Engine\Application.h" />
     <ClInclude Include="Source\Engine\Engine.h" />
@@ -218,6 +221,7 @@
     <ClInclude Include="Source\Math\Vector2.h" />
     <ClInclude Include="Source\Math\Vector3.h" />
     <ClInclude Include="Source\Math\Vector4.h" />
+    <ClInclude Include="Source\Resource\Loadable.h" />
     <ClInclude Include="Source\Resource\Resource.h" />
     <ClInclude Include="Source\Resource\XmlAttribute.h" />
     <ClInclude Include="Source\Resource\XmlDocument.h" />

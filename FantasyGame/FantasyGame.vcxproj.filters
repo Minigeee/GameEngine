@@ -143,6 +143,12 @@
     <ClCompile Include="Source\Graphics\Material.cpp">
       <Filter>Source\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Core\StringHash.cpp">
+      <Filter>Source\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Resource\Loadable.cpp">
+      <Filter>Source\Resource</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Core\DataTypes.h">
@@ -264,6 +270,12 @@
     </ClInclude>
     <ClInclude Include="Source\Graphics\Material.h">
       <Filter>Include\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\StringHash.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Resource\Loadable.h">
+      <Filter>Include\Resource</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

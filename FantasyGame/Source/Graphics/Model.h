@@ -7,9 +7,11 @@
 #include <Math/BoundingBox.h>
 #include <Graphics/Mesh.h>
 
+#include <Resource/Loadable.h>
+
 ///////////////////////////////////////////////////////////////////////////////
 
-class Model
+class Model : public Loadable
 {
 	TYPE_INFO(Model);
 

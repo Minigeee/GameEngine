@@ -100,6 +100,8 @@ bool Shader::Load(const char* fname)
 	mID = program;
 
 
+	mFileHash = fname;
+
 	LOG_INFO << "Loaded shader " << fname << "\n";
 	return true;
 }

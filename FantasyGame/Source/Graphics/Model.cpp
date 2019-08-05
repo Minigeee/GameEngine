@@ -147,6 +147,8 @@ bool Model::Load(const char* fname)
 		AddMesh(meshes[i]);
 
 
+	mFileHash = fname;
+
 	LOG << "Loaded model file " << fname << "\n";
 	return true;
 }
