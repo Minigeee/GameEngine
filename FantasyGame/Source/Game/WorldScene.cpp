@@ -24,7 +24,21 @@ WorldScene::~WorldScene()
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <Engine/Input.h>
+#include <Scene/GameSystem.h>
+
+class A : public GameSystem
+{
+	TYPE_INFO(A);
+
+public:
+	A() { }
+
+private:
+	void OnInit() override
+	{
+		LOG << "Hello World!\n";
+	}
+};
 
 void WorldScene::OnCreate()
 {
@@ -47,6 +61,8 @@ void WorldScene::OnCreate()
 
 
 	mDirLight.SetDirection(0.0f, -1.0f, 2.0f);
+
+	RegisterSystem<A>();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

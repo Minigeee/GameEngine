@@ -184,6 +184,7 @@
     <ClCompile Include="Source\Resource\XmlAttribute.cpp" />
     <ClCompile Include="Source\Resource\XmlDocument.cpp" />
     <ClCompile Include="Source\Resource\XmlNode.cpp" />
+    <ClCompile Include="Source\Scene\GameSystem.cpp" />
     <ClCompile Include="Source\Scene\Scene.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -199,7 +200,6 @@
     <ClInclude Include="Source\Core\TypeInfo.h" />
     <ClInclude Include="Source\Engine\Application.h" />
     <ClInclude Include="Source\Engine\Engine.h" />
-    <ClInclude Include="Source\Engine\EventListener.h" />
     <ClInclude Include="Source\Engine\Input.h" />
     <ClInclude Include="Source\Engine\Window.h" />
     <ClInclude Include="Source\Game\WorldScene.h" />
@@ -231,6 +231,8 @@
     <ClInclude Include="Source\Resource\XmlAttribute.h" />
     <ClInclude Include="Source\Resource\XmlDocument.h" />
     <ClInclude Include="Source\Resource\XmlNode.h" />
+    <ClInclude Include="Source\Scene\EventListener.h" />
+    <ClInclude Include="Source\Scene\GameSystem.h" />
     <ClInclude Include="Source\Scene\Scene.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

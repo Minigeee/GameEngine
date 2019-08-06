@@ -1,7 +1,9 @@
 #include <Scene/Scene.h>
 
 #include <Engine/Engine.h>
-#include <Engine/EventListener.h>
+
+#include <Scene/EventListener.h>
+#include <Scene/GameSystem.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -28,6 +30,8 @@ void Scene::Create(Engine* engine)
 	mRenderer.Init();
 	mRenderer.SetScene(this);
 
+	mUpdateList.Resize(16);
+
 	OnCreate();
 }
 
@@ -35,6 +39,9 @@ void Scene::Create(Engine* engine)
 
 void Scene::Delete()
 {
+	for (auto it = mSystems.begin(); it != mSystems.end(); ++it)
+		delete it->second;
+
 	OnDelete();
 }
 
@@ -42,6 +49,11 @@ void Scene::Delete()
 
 void Scene::Update(float dt)
 {
+	for (Uint32 i = 0; i < mUpdateList.Size(); ++i)
+		mUpdateList[i]->Update(dt);
+
+	/* TEMP */
+
 	static float time = 0.0f;
 	time += dt;
 
@@ -50,6 +62,8 @@ void Scene::Update(float dt)
 	mCamera.SetPosition(x, 4.0f, 10.0f);
 
 	mRenderer.Render();
+
+	/* /TEMP */
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -73,7 +87,7 @@ DirLight& Scene::GetDirLight()
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-void Scene::AddListener(EventListener* listener, Uint32 type)
+void Scene::RegisterListener(EventListener* listener, Uint32 type)
 {
 	Array<EventListener*>& list = mListeners[type];
 	if (!list.Capacity())
@@ -82,7 +96,7 @@ void Scene::AddListener(EventListener* listener, Uint32 type)
 	list.Push(listener);
 }
 
-void Scene::AddListener(EventListener* listener)
+void Scene::RegisterListener(EventListener* listener)
 {
 	listener->RegisterEvents(this);
 }
@@ -95,6 +109,32 @@ void Scene::SendEvent(const void* event, Uint32 type)
 
 	for (Uint32 i = 0; i < list.Size(); ++i)
 		list[i]->HandleEvent(event, type);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+bool Scene::RegisterSystem(GameSystem* system, Uint32 type)
+{
+	GameSystem*& ptr = mSystems[type];
+	if (ptr) return false;
+
+	ptr = system;
+	system->Init(this);
+	system->RegisterDependencies();
+
+	// Add to update list
+	mUpdateList.Push(system);
+
+	return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+GameSystem* Scene::GetSystem(Uint32 type) const
+{
+	auto it = mSystems.find(type);
+	return it == mSystems.end() ? 0 : it->second;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

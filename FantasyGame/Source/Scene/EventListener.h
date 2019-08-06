@@ -22,7 +22,7 @@ public:
 
 #define HANDLE_EVENT_FUNC_NAME HandleEvent
 #define HANDLE_EVENT_FUNC(x) if (type == x::StaticTypeID()) { HANDLE_EVENT_FUNC_NAME(*(const x*)e); return; }
-#define REGISTER_EVENT_FUNC(x) scene->AddListener<x>(this);
+#define REGISTER_EVENT_FUNC(x) scene->RegisterListener<x>(this);
 
 #define HANDLE_EVENTS_IMPL(N, ...) \
 public: \

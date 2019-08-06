@@ -13,6 +13,7 @@
 
 class Engine;
 class EventListener;
+class GameSystem;
 
 class Scene
 {
@@ -36,16 +37,41 @@ public:
 	/* Get directional light */
 	DirLight& GetDirLight();
 
+
+	/* Event System */
+
 	/* Send event */
 	void SendEvent(const void* event, Uint32 type);
 	/* Send event */
 	template <typename T> void SendEvent(const T& event) { SendEvent(&event, T::StaticTypeID()); }
-	/* Add listener to certain event list */
-	void AddListener(EventListener* listener, Uint32 type);
-	/* Add listener to certain event list */
-	template <typename T> void AddListener(EventListener* listener) { AddListener(listener, T::StaticTypeID()); }
-	/* Add listener to all registered events */
-	void AddListener(EventListener* listener);
+	/* Register listener to certain event list */
+	void RegisterListener(EventListener* listener, Uint32 type);
+	/* Register listener to certain event list */
+	template <typename T> void RegisterListener(EventListener* listener) { RegisterListener(listener, T::StaticTypeID()); }
+	/* Register listener to all registered events */
+	void RegisterListener(EventListener* listener);
+
+	/* Game Systems */
+
+	/* Register game system */
+	template <typename T> T* RegisterSystem()
+	{
+		T* ptr = new T();
+		if (!RegisterSystem(ptr, T::StaticTypeID()))
+		{
+			delete ptr;
+			return 0;
+		}
+
+		return ptr;
+	}
+	/* Register game system */
+	bool RegisterSystem(GameSystem* system, Uint32 type);
+
+	/* Access system */
+	template <typename T> T* GetSystem() const { return (T*)GetSystem(T::StaticTypeID()); }
+	/* Access system */
+	GameSystem* GetSystem(Uint32 type) const;
 
 protected:
 	/* Handle key events */
@@ -79,6 +105,10 @@ private:
 private:
 	/* Map of event listeners */
 	std::unordered_map<Uint32, Array<EventListener*>> mListeners;
+	/* Map of game systems */
+	std::unordered_map<Uint32, GameSystem*> mSystems;
+	/* Update list for game systems */
+	Array<GameSystem*> mUpdateList;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

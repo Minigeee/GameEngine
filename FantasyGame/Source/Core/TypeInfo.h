@@ -18,6 +18,12 @@ public: \
 	Uint32 GetTypeID() const { return StaticTypeID(); } \
 	const char* GetTypeName() const { return STR(x); }
 
+#define REQUIRES_TYPE_INFO \
+public: \
+	virtual Uint32 GetTypeID() const = 0; \
+	virtual const char* GetTypeName() const = 0;
+
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #endif

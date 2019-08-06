@@ -155,6 +155,9 @@
     <ClCompile Include="Source\Engine\Input.cpp">
       <Filter>Source\Engine</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Scene\GameSystem.cpp">
+      <Filter>Source\Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Core\DataTypes.h">
@@ -286,11 +289,14 @@
     <ClInclude Include="Source\Graphics\Lights.h">
       <Filter>Include\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\EventListener.h">
-      <Filter>Include\Engine</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Input.h">
       <Filter>Include\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Scene\EventListener.h">
+      <Filter>Include\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Scene\GameSystem.h">
+      <Filter>Include\Scene</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
