@@ -212,15 +212,12 @@ void Renderer::UpdateQueue()
 		Uint32 id = data.mMaterial->mShader->GetID();
 
 		// Add if group does not exist
-		auto it = byShader.find(id);
-		if (it == byShader.end())
-		{
-			byShader[id] = Array<VertexArrayData*>(8);
-			it = byShader.find(id);
-		}
+		Array<VertexArrayData*>& list = byShader[id];
+		if (!list.Capacity())
+			list.Resize(8);
 
 		// Add data to group
-		it->second.Push(&data);
+		list.Push(&data);
 	}
 
 	for (auto it = byShader.begin(); it != byShader.end(); ++it)

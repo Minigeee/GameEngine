@@ -283,5 +283,8 @@
     <ClInclude Include="Source\Graphics\Lights.h">
       <Filter>Include\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\EventListener.h">
+      <Filter>Include\Engine</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

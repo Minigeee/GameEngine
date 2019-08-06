@@ -1,5 +1,7 @@
 #include <Scene/Scene.h>
 
+#include <Engine/EventListener.h>
+
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -42,7 +44,8 @@ void Scene::Update(float dt)
 	static float time = 0.0f;
 	time += dt;
 
-	float x = sin(time * 1.5f) * 4.0f;
+	float x = sin(time * 0.5f) * 6.0f;
+	float z = cos(time * 0.5f) * 10.0f;
 	mCamera.SetPosition(x, 4.0f, 10.0f);
 
 	mRenderer.Render();
@@ -64,6 +67,33 @@ Vector3f& Scene::GetAmbient()
 DirLight& Scene::GetDirLight()
 {
 	return mDirLight;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+void Scene::AddListener(EventListener* listener, Uint32 type)
+{
+	Array<EventListener*>& list = mListeners[type];
+	if (!list.Capacity())
+		list.Resize(16);
+
+	list.Push(listener);
+}
+
+void Scene::AddListener(EventListener* listener)
+{
+	listener->RegisterEvents(this);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void Scene::SendEvent(const void* event, Uint32 type)
+{
+	Array<EventListener*>& list = mListeners[type];
+
+	for (Uint32 i = 0; i < list.Size(); ++i)
+		list[i]->HandleEvent(event, type);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

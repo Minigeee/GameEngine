@@ -5,9 +5,12 @@
 #include <Graphics/Camera.h>
 #include <Graphics/Lights.h>
 
+#include <unordered_map>
+
 ///////////////////////////////////////////////////////////////////////////////
 
 class Engine;
+class EventListener;
 
 class Scene
 {
@@ -29,6 +32,17 @@ public:
 	/* Get directional light */
 	DirLight& GetDirLight();
 
+	/* Send event */
+	void SendEvent(const void* event, Uint32 type);
+	/* Send event */
+	template <typename T> void SendEvent(const T& event) { SendEvent(&event, T::StaticTypeID()); }
+	/* Add listener to certain event list */
+	void AddListener(EventListener* listener, Uint32 type);
+	/* Add listener to certain event list */
+	template <typename T> void AddListener(EventListener* listener) { AddListener(listener, T::StaticTypeID()); }
+	/* Add listener to all registered events */
+	void AddListener(EventListener* listener);
+
 protected:
 	/* Access to engine */
 	Engine* mEngine;
@@ -47,6 +61,10 @@ private:
 	virtual void OnCreate();
 	/* Called when scene is deleted */
 	virtual void OnDelete();
+
+private:
+	/* Map of event listeners */
+	std::unordered_map<Uint32, Array<EventListener*>> mListeners;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
