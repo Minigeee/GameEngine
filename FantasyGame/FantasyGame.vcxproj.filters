@@ -152,6 +152,9 @@
     <ClCompile Include="Source\Graphics\Lights.cpp">
       <Filter>Source\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\Input.cpp">
+      <Filter>Source\Engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Core\DataTypes.h">
@@ -284,6 +287,9 @@
       <Filter>Include\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\EventListener.h">
+      <Filter>Include\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Input.h">
       <Filter>Include\Engine</Filter>
     </ClInclude>
   </ItemGroup>

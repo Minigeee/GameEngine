@@ -149,7 +149,7 @@ bool Model::Load(const char* fname)
 
 	mFileHash = fname;
 
-	LOG << "Loaded model file " << fname << "\n";
+	LOG_INFO << "Loaded model file " << fname << "\n";
 	return true;
 }
 

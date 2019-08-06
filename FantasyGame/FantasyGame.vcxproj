@@ -160,6 +160,7 @@
     <ClCompile Include="Source\Core\TypeInfo.cpp" />
     <ClCompile Include="Source\Engine\Application.cpp" />
     <ClCompile Include="Source\Engine\Engine.cpp" />
+    <ClCompile Include="Source\Engine\Input.cpp" />
     <ClCompile Include="Source\Engine\Window.cpp" />
     <ClCompile Include="Source\Game\WorldScene.cpp" />
     <ClCompile Include="Source\Graphics\Camera.cpp" />
@@ -199,6 +200,7 @@
     <ClInclude Include="Source\Engine\Application.h" />
     <ClInclude Include="Source\Engine\Engine.h" />
     <ClInclude Include="Source\Engine\EventListener.h" />
+    <ClInclude Include="Source\Engine\Input.h" />
     <ClInclude Include="Source\Engine\Window.h" />
     <ClInclude Include="Source\Game\WorldScene.h" />
     <ClInclude Include="Source\Graphics\Camera.h" />

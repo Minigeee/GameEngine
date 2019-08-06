@@ -4,6 +4,7 @@
 #include <Core/DataTypes.h>
 
 #include <Engine/Window.h>
+#include <Engine/Input.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -34,6 +35,9 @@ public:
 	/* Engine cleanup */
 	void Stop();
 
+	/* Close engine */
+	void Close();
+
 	/* Set game framerate */
 	void SetFrameRate(Uint32 fps);
 
@@ -48,6 +52,8 @@ public:
 private:
 	/* Game window */
 	Window mWindow;
+	/* Input system */
+	Input mInput;
 
 	/* Engine framerate */
 	Uint32 mFrameRate;

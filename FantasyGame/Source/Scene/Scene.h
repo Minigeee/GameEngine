@@ -1,6 +1,8 @@
 #ifndef SCENE_H
 #define SCENE_H
 
+#include <Engine/Input.h>
+
 #include <Graphics/Renderer.h>
 #include <Graphics/Camera.h>
 #include <Graphics/Lights.h>
@@ -14,6 +16,8 @@ class EventListener;
 
 class Scene
 {
+	friend Input;
+
 public:
 	Scene();
 	virtual ~Scene();
@@ -42,6 +46,16 @@ public:
 	template <typename T> void AddListener(EventListener* listener) { AddListener(listener, T::StaticTypeID()); }
 	/* Add listener to all registered events */
 	void AddListener(EventListener* listener);
+
+protected:
+	/* Handle key events */
+	virtual void OnKeyEvent(const E_KeyEvent& event);
+	/* Handle mouse move events */
+	virtual void OnMouseMove(const E_MouseMove& event);
+	/* Handle mouse button events */
+	virtual void OnMouseButton(const E_MouseButton& event);
+	/* Handle mouse scroll events */
+	virtual void OnMouseScroll(const E_MouseScroll& event);
 
 protected:
 	/* Access to engine */

@@ -1,5 +1,6 @@
 #include <Scene/Scene.h>
 
+#include <Engine/Engine.h>
 #include <Engine/EventListener.h>
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -97,6 +98,35 @@ void Scene::SendEvent(const void* event, Uint32 type)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+void Scene::OnKeyEvent(const E_KeyEvent& event)
+{
+	/* TEMP */
+
+	if (event.mAction == Input::Press && event.mKey == Input::Escape)
+		mEngine->Close();
+
+	/* \TEMP */
+
+	SendEvent(event);
+}
+
+void Scene::OnMouseMove(const E_MouseMove& event)
+{
+	SendEvent(event);
+}
+
+void Scene::OnMouseButton(const E_MouseButton& event)
+{
+	SendEvent(event);
+}
+
+void Scene::OnMouseScroll(const E_MouseScroll& event)
+{
+	SendEvent(event);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void Scene::OnCreate()

@@ -29,6 +29,9 @@ bool Engine::Init(const Engine::Params& params)
 		params.mFullscreen
 	);
 
+	/* Initialize input system */
+	mInput.Init(&mWindow);
+
 	if (!success) return false;
 
 	return true;
@@ -81,6 +84,13 @@ void Engine::Stop()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+void Engine::Close()
+{
+	mWindow.Close();
+}
+
+///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
 void Engine::SetFrameRate(Uint32 fps)
@@ -118,6 +128,9 @@ void Engine::SetScene(Scene* scene)
 	}
 
 	mScene = scene;
+
+	// Switch scenes for input system
+	mInput.SetScene(mScene);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
