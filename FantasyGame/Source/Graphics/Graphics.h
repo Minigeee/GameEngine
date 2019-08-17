@@ -23,6 +23,7 @@ public:
 	enum Options
 	{
 		DepthTest		= 0x0B71,
+		CullFace		= 0x0B44,
 		ClipPlane
 	};
 
@@ -36,6 +37,8 @@ public:
 	static void Enable(Options opt);
 	/* Disable graphics option */
 	static void Disable(Options opt);
+	/* Enable face culling */
+	static void EnableCull(bool front);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

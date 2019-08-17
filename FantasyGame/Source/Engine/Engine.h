@@ -41,6 +41,10 @@ public:
 	/* Set game framerate */
 	void SetFrameRate(Uint32 fps);
 
+	/* Get window */
+	Window* GetWindow();
+	/* Get input system */
+	Input* GetInput();
 	/* Get game framerate */
 	Uint32 GetFrameRate() const;
 	/* Get loop duration (seconds) */

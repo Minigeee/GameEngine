@@ -105,6 +105,8 @@ void Renderer::Render()
 	Graphics::SetClearColor(0.2f, 0.2f, 0.3f);
 	Graphics::Clear();
 
+	Graphics::EnableCull(false);
+
 	// Get camera projection-view matrix
 	Camera& camera = mScene->GetCamera();
 	Matrix4f projView = camera.GetProjection() * camera.GetView();

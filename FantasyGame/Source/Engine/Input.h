@@ -181,12 +181,24 @@ public:
 
 	///////////////////////////////////////////////////////////////////////////////
 
+	enum CursorMode
+	{
+		Normal		= 0x00034001,
+		Hidden		= 0x00034002,
+		Disabled	= 0x00034003
+	};
+
 public:
 	/* Initialize input system */
 	void Init(Window* window);
 
 	/* Set current scene */
 	void SetScene(Scene* scene);
+
+	/* Set cursor mode */
+	void SetCursorMode(CursorMode mode);
+	/* Returns if key is pressed */
+	bool KeyPressed(Keyboard key) const;
 
 private:
 	void OnKeyEvent(Keyboard key, Action action);
@@ -195,6 +207,9 @@ private:
 	void OnMouseScroll(float x, float y);
 
 private:
+	/* Window pointer */
+	void* mWindow;
+
 	/* Current scene to give input updates */
 	Scene* mScene;
 };

@@ -67,7 +67,7 @@ Matrix4f ToView(const Vector3f& p, const Vector3f& f, const Vector3f& r)
 	return Matrix4f(
 		r.x, u.x, -f.x, 0.0f,
 		r.y, u.y, -f.y, 0.0f,
-		r.z, u.z, -f.z,  0.0f,
+		r.z, u.z, -f.z, 0.0f,
 		-Dot(r, p), -Dot(u, p), Dot(f, p), 1.0f
 	);
 }

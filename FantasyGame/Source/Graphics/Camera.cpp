@@ -51,14 +51,14 @@ void Camera::SetPosition(float x, float y, float z)
 void Camera::SetDirection(const Vector3f& dir)
 {
 	mDirection = Normalize(dir);
-	mRight = Cross(mDirection, Vector3f(0.0f, 1.0f, 0.0f));
+	mRight = Normalize(Cross(mDirection, Vector3f(0.0f, 1.0f, 0.0f)));
 	mViewDirty = true;
 }
 
 void Camera::SetDirection(float x, float y, float z)
 {
 	mDirection = Normalize(Vector3f(x, y, z));
-	mRight = Cross(mDirection, Vector3f(0.0f, 1.0f, 0.0f));
+	mRight = Normalize(Cross(mDirection, Vector3f(0.0f, 1.0f, 0.0f)));
 	mViewDirty = true;
 }
 
@@ -67,7 +67,7 @@ void Camera::SetDirection(float x, float y, float z)
 void Camera::SetRotation(const Vector2f& rotation)
 {
 	float x = ToRadians(rotation.x);
-	float y = ToRadians(rotation.y);
+	float y = ToRadians(rotation.y - 90.0f);
 
 	float cx = cos(x);
 	float cy = cos(y);
@@ -75,7 +75,7 @@ void Camera::SetRotation(const Vector2f& rotation)
 	float sy = sin(y);
 
 	mDirection = Normalize(Vector3f(cy * cx, sx, sy * cx));
-	mRight = Cross(mDirection, Vector3f(0.0f, 1.0f, 0.0f));
+	mRight = Normalize(Cross(mDirection, Vector3f(0.0f, 1.0f, 0.0f)));
 
 	mViewDirty = true;
 }

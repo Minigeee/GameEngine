@@ -38,6 +38,7 @@ void OnMouseScroll(GLFWwindow* window, double x, double y)
 void Input::Init(Window* window)
 {
 	GLFWwindow* win = (GLFWwindow*)window->mWindow;
+	mWindow = win;
 
 	glfwSetKeyCallback(win, ::OnKeyEvent);
 	glfwSetCursorPosCallback(win, ::OnMouseMove);
@@ -54,6 +55,22 @@ void Input::SetScene(Scene* scene)
 	mScene = scene;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+void Input::SetCursorMode(CursorMode mode)
+{
+	glfwSetInputMode((GLFWwindow*)mWindow, GLFW_CURSOR, mode);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+bool Input::KeyPressed(Keyboard key) const
+{
+	return glfwGetKey((GLFWwindow*)mWindow, key) == Press;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
 void Input::OnKeyEvent(Keyboard key, Action action)

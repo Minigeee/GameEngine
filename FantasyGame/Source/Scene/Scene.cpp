@@ -52,22 +52,16 @@ void Scene::Update(float dt)
 	for (Uint32 i = 0; i < mUpdateList.Size(); ++i)
 		mUpdateList[i]->Update(dt);
 
-	/* TEMP */
-
-	static float time = 0.0f;
-	time += dt;
-
-	float x = sin(time * 0.5f) * 6.0f;
-	float z = cos(time * 0.5f) * 10.0f;
-	mCamera.SetPosition(x, 4.0f, 10.0f);
-
 	mRenderer.Render();
-
-	/* /TEMP */
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
+
+Engine* Scene::GetEngine() const
+{
+	return mEngine;
+}
 
 Camera& Scene::GetCamera()
 {

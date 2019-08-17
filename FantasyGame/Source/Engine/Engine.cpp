@@ -101,6 +101,16 @@ void Engine::SetFrameRate(Uint32 fps)
 
 ///////////////////////////////////////////////////////////////////////////////
 
+Window* Engine::GetWindow()
+{
+	return &mWindow;
+}
+
+Input* Engine::GetInput()
+{
+	return &mInput;
+}
+
 Uint32 Engine::GetFrameRate() const
 {
 	return mFrameRate;

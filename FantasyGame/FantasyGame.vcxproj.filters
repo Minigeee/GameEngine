@@ -51,6 +51,18 @@
     <Filter Include="Source\Math">
       <UniqueIdentifier>{81440bb0-04ed-4729-8cde-fc5d15f5111b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Include\Game\Systems">
+      <UniqueIdentifier>{0b38a7a0-6ebc-4152-b999-6d45359a7947}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Game\System">
+      <UniqueIdentifier>{ad0de6fb-e251-4dbf-9fc5-fa8dfebd1c38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Game\Objects">
+      <UniqueIdentifier>{d21a374f-e621-4c57-91c8-8eafbe25c432}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include\Game\Objects">
+      <UniqueIdentifier>{5355d4cf-185b-4487-8ed0-a1e0590df1d9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Main.cpp">
@@ -157,6 +169,18 @@
     </ClCompile>
     <ClCompile Include="Source\Scene\GameSystem.cpp">
       <Filter>Source\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Game\Systems\InputSystem.cpp">
+      <Filter>Source\Game\System</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Scene\GameObject.cpp">
+      <Filter>Source\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Scene\Transformable.cpp">
+      <Filter>Source\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Game\Objects\PlayerObject.cpp">
+      <Filter>Source\Game\Objects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -297,6 +321,18 @@
     </ClInclude>
     <ClInclude Include="Source\Scene\GameSystem.h">
       <Filter>Include\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Game\Systems\InputSystem.h">
+      <Filter>Include\Game\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Scene\GameObject.h">
+      <Filter>Include\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Scene\Transformable.h">
+      <Filter>Include\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Game\Objects\PlayerObject.h">
+      <Filter>Include\Game\Objects</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

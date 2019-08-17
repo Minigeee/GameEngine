@@ -2,11 +2,9 @@
 
 #include <Core/LogFile.h>
 
-#include <Resource/Resource.h>
-#include <Graphics/Material.h>
-#include <Graphics/Model.h>
-#include <Graphics/Renderable.h>
-#include <Graphics/Shader.h>
+#include <Game/Systems/InputSystem.h>
+
+#include <Game/Objects/PlayerObject.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -24,45 +22,19 @@ WorldScene::~WorldScene()
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <Scene/GameSystem.h>
-
-class A : public GameSystem
-{
-	TYPE_INFO(A);
-
-public:
-	A() { }
-
-private:
-	void OnInit() override
-	{
-		LOG << "Hello World!\n";
-	}
-};
-
 void WorldScene::OnCreate()
 {
 	LOG << "Creating world\n";
 
-	Model* model = Resource<Model>::Load("Models/Box/Box.dae");
-	Renderable* object = Resource<Renderable>::Create();
-	object->SetModel(model);
-	object->SetPosition(0.2f, 0.0f, 0.0f);
+	Array<PlayerObject*> objects = CreateObjects<PlayerObject>(1);
+	mRenderer.AddStatic(objects[0]);
 
-	Shader* shader = Resource<Shader>::Load("Shaders/Default.xml");
-
-	Material* material = Resource<Material>::Create();
-	material->mShader = shader;
-	material->mDiffuse = Vector3f(0.6f, 1.0f, 0.6f);
-
-	model->GetMesh(0).mMaterial = material;
-
-	mRenderer.AddStatic(object);
+	InputSystem* system = RegisterSystem<InputSystem>();
+	system->SetMainPlayer(objects[0]);
 
 
 	mDirLight.SetDirection(0.0f, -1.0f, 2.0f);
-
-	RegisterSystem<A>();
+	mCamera.SetPosition(0.0f, 2.0f, 4.0f);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

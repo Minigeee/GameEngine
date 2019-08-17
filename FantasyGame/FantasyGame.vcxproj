@@ -162,6 +162,8 @@
     <ClCompile Include="Source\Engine\Engine.cpp" />
     <ClCompile Include="Source\Engine\Input.cpp" />
     <ClCompile Include="Source\Engine\Window.cpp" />
+    <ClCompile Include="Source\Game\Objects\PlayerObject.cpp" />
+    <ClCompile Include="Source\Game\Systems\InputSystem.cpp" />
     <ClCompile Include="Source\Game\WorldScene.cpp" />
     <ClCompile Include="Source\Graphics\Camera.cpp" />
     <ClCompile Include="Source\Graphics\GLObject.cpp" />
@@ -184,8 +186,10 @@
     <ClCompile Include="Source\Resource\XmlAttribute.cpp" />
     <ClCompile Include="Source\Resource\XmlDocument.cpp" />
     <ClCompile Include="Source\Resource\XmlNode.cpp" />
+    <ClCompile Include="Source\Scene\GameObject.cpp" />
     <ClCompile Include="Source\Scene\GameSystem.cpp" />
     <ClCompile Include="Source\Scene\Scene.cpp" />
+    <ClCompile Include="Source\Scene\Transformable.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Core\Allocate.h" />
@@ -202,6 +206,8 @@
     <ClInclude Include="Source\Engine\Engine.h" />
     <ClInclude Include="Source\Engine\Input.h" />
     <ClInclude Include="Source\Engine\Window.h" />
+    <ClInclude Include="Source\Game\Objects\PlayerObject.h" />
+    <ClInclude Include="Source\Game\Systems\InputSystem.h" />
     <ClInclude Include="Source\Game\WorldScene.h" />
     <ClInclude Include="Source\Graphics\Camera.h" />
     <ClInclude Include="Source\Graphics\GLObject.h" />
@@ -232,8 +238,10 @@
     <ClInclude Include="Source\Resource\XmlDocument.h" />
     <ClInclude Include="Source\Resource\XmlNode.h" />
     <ClInclude Include="Source\Scene\EventListener.h" />
+    <ClInclude Include="Source\Scene\GameObject.h" />
     <ClInclude Include="Source\Scene\GameSystem.h" />
     <ClInclude Include="Source\Scene\Scene.h" />
+    <ClInclude Include="Source\Scene\Transformable.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

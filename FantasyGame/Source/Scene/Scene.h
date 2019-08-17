@@ -7,6 +7,8 @@
 #include <Graphics/Camera.h>
 #include <Graphics/Lights.h>
 
+#include <Resource/Resource.h>
+
 #include <unordered_map>
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -14,6 +16,7 @@
 class Engine;
 class EventListener;
 class GameSystem;
+class GameObject;
 
 class Scene
 {
@@ -30,6 +33,8 @@ public:
 	/* Update scene and do game logic */
 	void Update(float dt);
 
+	/* Get engine pointer */
+	Engine* GetEngine() const;
 	/* Get scene camera */
 	Camera& GetCamera();
 	/* Get ambient color */
@@ -38,7 +43,7 @@ public:
 	DirLight& GetDirLight();
 
 
-	/* Event System */
+	/* ====================== Event System ====================== */
 
 	/* Send event */
 	void SendEvent(const void* event, Uint32 type);
@@ -51,7 +56,7 @@ public:
 	/* Register listener to all registered events */
 	void RegisterListener(EventListener* listener);
 
-	/* Game Systems */
+	/* ====================== Game Systems ====================== */
 
 	/* Register game system */
 	template <typename T> T* RegisterSystem()
@@ -72,6 +77,33 @@ public:
 	template <typename T> T* GetSystem() const { return (T*)GetSystem(T::StaticTypeID()); }
 	/* Access system */
 	GameSystem* GetSystem(Uint32 type) const;
+
+
+	/* ====================== Game Objects ====================== */
+
+	/* Create game objects */
+	template <typename T>
+	Array<T*> CreateObjects(Uint32 num)
+	{
+		Array<T*> objects(num);
+
+		for (Uint32 i = 0; i < num; ++i)
+		{
+			T* object = Resource<T>::Create();
+			object->Create();
+			objects.Push(object);
+		}
+
+		return objects;
+	}
+
+	/* Free game object */
+	template <typename T>
+	void FreeObject(T* object)
+	{
+		Resource<T>::Free(object);
+	}
+
 
 protected:
 	/* Handle key events */
