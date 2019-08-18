@@ -89,7 +89,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)Source;$(SolutionDir)extlibs\include;C:\Program Files (x86)\Visual Leak Detector\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
@@ -120,7 +120,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)Source;$(SolutionDir)extlibs\include;C:\Program Files (x86)\Visual Leak Detector\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
@@ -168,6 +168,7 @@
     <ClCompile Include="Source\Graphics\Camera.cpp" />
     <ClCompile Include="Source\Graphics\GLObject.cpp" />
     <ClCompile Include="Source\Graphics\Graphics.cpp" />
+    <ClCompile Include="Source\Graphics\Image.cpp" />
     <ClCompile Include="Source\Graphics\Lights.cpp" />
     <ClCompile Include="Source\Graphics\Material.cpp" />
     <ClCompile Include="Source\Graphics\Mesh.cpp" />
@@ -175,6 +176,7 @@
     <ClCompile Include="Source\Graphics\Renderable.cpp" />
     <ClCompile Include="Source\Graphics\Renderer.cpp" />
     <ClCompile Include="Source\Graphics\Shader.cpp" />
+    <ClCompile Include="Source\Graphics\Texture.cpp" />
     <ClCompile Include="Source\Graphics\VertexArray.cpp" />
     <ClCompile Include="Source\Graphics\VertexBuffer.cpp" />
     <ClCompile Include="Source\Main.cpp" />
@@ -183,6 +185,7 @@
     <ClCompile Include="Source\Math\Quaternion.cpp" />
     <ClCompile Include="Source\Math\Transform.cpp" />
     <ClCompile Include="Source\Resource\Loadable.cpp" />
+    <ClCompile Include="Source\Resource\StbImage.cpp" />
     <ClCompile Include="Source\Resource\XmlAttribute.cpp" />
     <ClCompile Include="Source\Resource\XmlDocument.cpp" />
     <ClCompile Include="Source\Resource\XmlNode.cpp" />
@@ -212,6 +215,7 @@
     <ClInclude Include="Source\Graphics\Camera.h" />
     <ClInclude Include="Source\Graphics\GLObject.h" />
     <ClInclude Include="Source\Graphics\Graphics.h" />
+    <ClInclude Include="Source\Graphics\Image.h" />
     <ClInclude Include="Source\Graphics\Lights.h" />
     <ClInclude Include="Source\Graphics\Material.h" />
     <ClInclude Include="Source\Graphics\Mesh.h" />
@@ -220,6 +224,7 @@
     <ClInclude Include="Source\Graphics\Renderable.h" />
     <ClInclude Include="Source\Graphics\Renderer.h" />
     <ClInclude Include="Source\Graphics\Shader.h" />
+    <ClInclude Include="Source\Graphics\Texture.h" />
     <ClInclude Include="Source\Graphics\VertexArray.h" />
     <ClInclude Include="Source\Graphics\VertexBuffer.h" />
     <ClInclude Include="Source\Math\BoundingBox.h" />
@@ -234,6 +239,7 @@
     <ClInclude Include="Source\Math\Vector4.h" />
     <ClInclude Include="Source\Resource\Loadable.h" />
     <ClInclude Include="Source\Resource\Resource.h" />
+    <ClInclude Include="Source\Resource\StbImage.h" />
     <ClInclude Include="Source\Resource\XmlAttribute.h" />
     <ClInclude Include="Source\Resource\XmlDocument.h" />
     <ClInclude Include="Source\Resource\XmlNode.h" />

@@ -22,6 +22,8 @@ WorldScene::~WorldScene()
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
+#include <Graphics/Image.h>
+
 void WorldScene::OnCreate()
 {
 	LOG << "Creating world\n";
@@ -31,6 +33,8 @@ void WorldScene::OnCreate()
 
 	InputSystem* system = RegisterSystem<InputSystem>();
 	system->SetMainPlayer(objects[0]);
+
+	Image* image = Resource<Image>::Load("Textures/YourName.jpg");
 
 
 	mDirLight.SetDirection(0.0f, -1.0f, 2.0f);

@@ -15,5 +15,5 @@ void main()
     gl_Position = projView * worldTransform;
 
     FragPos = worldTransform.xyz;
-    Normal = aNormal;
+    Normal = mat3(aTransform) * aNormal;
 }

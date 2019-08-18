@@ -182,6 +182,15 @@
     <ClCompile Include="Source\Game\Objects\PlayerObject.cpp">
       <Filter>Source\Game\Objects</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Graphics\Image.cpp">
+      <Filter>Source\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Resource\StbImage.cpp">
+      <Filter>Source\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Graphics\Texture.cpp">
+      <Filter>Source\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Core\DataTypes.h">
@@ -333,6 +342,15 @@
     </ClInclude>
     <ClInclude Include="Source\Game\Objects\PlayerObject.h">
       <Filter>Include\Game\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Graphics\Image.h">
+      <Filter>Include\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Resource\StbImage.h">
+      <Filter>Include\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Graphics\Texture.h">
+      <Filter>Include\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
