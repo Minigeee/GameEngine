@@ -56,6 +56,8 @@ private:
 	float mCameraDist;
 	/* Camera offset from player */
 	Vector3f mCameraOffset;
+	/* Keep track of camera rotation */
+	Vector2f mCameraRot;
 
 	/* Used so that first camera rotation isn't too big */
 	bool mFirstRun;

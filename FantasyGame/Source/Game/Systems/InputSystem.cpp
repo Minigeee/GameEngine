@@ -15,6 +15,7 @@ InputSystem::InputSystem() :
 	mMousePos		(0.0f),
 	mCameraDist		(5.0f),
 	mCameraOffset	(0.0f, 1.0f, 0.0f),
+	mCameraRot		(0.0f),
 	mFirstRun		(true)
 {
 
@@ -98,11 +99,17 @@ void InputSystem::HandleEvent(const E_MouseMove& event)
 	mMousePos = pos;
 
 	// Rotate player
-	mPlayerObject->Rotate(0.0f, delta.x, -delta.y);
-	const Vector3f& rot = mPlayerObject->GetRotation();
+	mPlayerObject->Rotate(0.0f, -delta.x, 0.0f);
 
 	// Update camera
-	mCamera->SetRotation(rot.z, rot.y);
+	mCameraRot.x = fmod(mCameraRot.x - delta.y, 360.0f);
+	mCameraRot.y = fmod(mCameraRot.y + delta.x, 360.0f);
+	if (mCameraRot.x > 89.0f)
+		mCameraRot.x = 89.0f;
+	else if (mCameraRot.x < -89.0f)
+		mCameraRot.x = -89.0f;
+
+	mCamera->SetRotation(mCameraRot);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -27,7 +27,7 @@ void WorldScene::OnCreate()
 	LOG << "Creating world\n";
 
 	Array<PlayerObject*> objects = CreateObjects<PlayerObject>(1);
-	mRenderer.AddStatic(objects[0]);
+	mRenderer.AddDynamic(objects[0]);
 
 	InputSystem* system = RegisterSystem<InputSystem>();
 	system->SetMainPlayer(objects[0]);

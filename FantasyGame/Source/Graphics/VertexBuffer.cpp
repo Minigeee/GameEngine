@@ -54,3 +54,19 @@ void VertexBuffer::UpdateData(const void* data, Uint32 size, Uint32 offset)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+void* VertexBuffer::MapWrite(Uint32 size, Uint32 opt, Uint32 offset)
+{
+	assert(sCurrentBound == mID);
+
+	return glMapBufferRange(mTarget, offset, size, GL_MAP_WRITE_BIT | opt);
+}
+
+void VertexBuffer::Unmap()
+{
+	assert(sCurrentBound == mID);
+
+	glUnmapBuffer(mTarget);
+}
+
+///////////////////////////////////////////////////////////////////////////////

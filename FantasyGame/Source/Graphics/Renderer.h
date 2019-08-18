@@ -29,11 +29,13 @@ public:
 	void SetScene(Scene* scene);
 
 	/* Register model */
-	void RegisterModel(Model* model, Uint32 num = 64);
+	void RegisterModel(Model* model, bool isStatic = true, Uint32 num = 64);
 	/* Add static renderable object */
 	void AddStatic(Renderable* object);
 	/* Mark static object for update */
 	void UpdateStatic(Renderable* object);
+	/* Add dynamic renderable object */
+	void AddDynamic(Renderable* object);
 
 private:
 	struct VertexArrayData
@@ -46,7 +48,7 @@ private:
 		Uint32 mNumVertices;
 	};
 
-	struct RenderData
+	struct StaticRenderData
 	{
 		/* Transform matrices */
 		Array<Matrix4f> mTransforms;
@@ -59,8 +61,18 @@ private:
 		bool mNeedsUpdate;
 	};
 
+	struct DynamicRenderData
+	{
+		/* List of renderables */
+		Array<Renderable*> mRenderables;
+		/* Offset into instance buffer (in bytes) */
+		Uint32 mDataOffset;
+	};
+
+	/* Render queue */
+	void RenderQueue(Array<VertexArrayData>& queue);
 	/* Update render queue */
-	void UpdateQueue();
+	void UpdateQueue(Array<VertexArrayData>& queue);
 	/* Pre-render update */
 	void Update();
 
@@ -72,13 +84,28 @@ private:
 	Array<VertexArrayData> mVaoData;
 	/* Map vertex array to render data */
 	Array<int> mDataMap;
-	/* Render data */
-	Array<RenderData> mRenderData;
-	/* Render queue */
-	Array<VertexArrayData> mRenderQueue;
+	/* Static render data */
+	Array<StaticRenderData> mStaticRenderData;
+	/* Dynamic render data */
+	Array<DynamicRenderData> mDynamicRenderData;
+	/* Static render queue */
+	Array<VertexArrayData> mStaticQueue;
+	/* Dynamic render queue */
+	Array<VertexArrayData> mDynamicQueue;
+	/* List of dynamic VAO IDs */
+	Array<Uint32> mDynamicVaos;
+
+	/* Dynamic instance buffer */
+	VertexBuffer* mDynamicBuffer;
+	/* Dynamic buffer size */
+	Uint32 mDynamicSize;
+	/* Dynamic buffer current offset */
+	Uint32 mDynamicOffset;
+	/* Keep track of number of dynamic objects */
+	Uint32 mNumDynamic;
 
 	/* Marks if render data updated */
-	bool mRenderDataUpdated;
+	bool mStaticDataUpdated;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

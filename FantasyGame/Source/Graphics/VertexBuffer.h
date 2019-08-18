@@ -25,6 +25,13 @@ public:
 		Stream		= 0x88E0
 	};
 
+	enum MapOptions
+	{
+		Unsynchronized		= 0x0020,
+		InvalidateBuffer	= 0x0008,
+		InvalidateRange		= 0x0004
+	};
+
 public:
 	VertexBuffer();
 	~VertexBuffer();
@@ -36,6 +43,10 @@ public:
 	void BufferData(const void* data, Uint32 size, Usage usage);
 	/* Update with new data */
 	void UpdateData(const void* data, Uint32 size, Uint32 offset = 0);
+	/* Map buffer for write operations */
+	void* MapWrite(Uint32 size, Uint32 opt, Uint32 offset = 0);
+	/* Unmap all mapped ranges */
+	void Unmap();
 
 private:
 	/* Current bound buffer */
