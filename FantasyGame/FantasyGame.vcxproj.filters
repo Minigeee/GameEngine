@@ -191,6 +191,9 @@
     <ClCompile Include="Source\Graphics\Texture.cpp">
       <Filter>Source\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Graphics\Skybox.cpp">
+      <Filter>Source\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Core\DataTypes.h">
@@ -350,6 +353,9 @@
       <Filter>Include\Resource</Filter>
     </ClInclude>
     <ClInclude Include="Source\Graphics\Texture.h">
+      <Filter>Include\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Graphics\Skybox.h">
       <Filter>Include\Graphics</Filter>
     </ClInclude>
   </ItemGroup>

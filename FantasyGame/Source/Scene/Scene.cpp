@@ -5,6 +5,8 @@
 #include <Scene/EventListener.h>
 #include <Scene/GameSystem.h>
 
+#include <Graphics/Skybox.h>
+
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -32,6 +34,9 @@ void Scene::Create(Engine* engine)
 
 	mUpdateList.Resize(16);
 
+	// Create skybox
+	mSkybox = new Skybox();
+
 	OnCreate();
 }
 
@@ -39,10 +44,12 @@ void Scene::Create(Engine* engine)
 
 void Scene::Delete()
 {
+	OnDelete();
+
 	for (auto it = mSystems.begin(); it != mSystems.end(); ++it)
 		delete it->second;
 
-	OnDelete();
+	delete mSkybox;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -76,6 +83,11 @@ Vector3f& Scene::GetAmbient()
 DirLight& Scene::GetDirLight()
 {
 	return mDirLight;
+}
+
+Skybox* Scene::GetSkybox() const
+{
+	return mSkybox;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

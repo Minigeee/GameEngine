@@ -176,6 +176,7 @@
     <ClCompile Include="Source\Graphics\Renderable.cpp" />
     <ClCompile Include="Source\Graphics\Renderer.cpp" />
     <ClCompile Include="Source\Graphics\Shader.cpp" />
+    <ClCompile Include="Source\Graphics\Skybox.cpp" />
     <ClCompile Include="Source\Graphics\Texture.cpp" />
     <ClCompile Include="Source\Graphics\VertexArray.cpp" />
     <ClCompile Include="Source\Graphics\VertexBuffer.cpp" />
@@ -224,6 +225,7 @@
     <ClInclude Include="Source\Graphics\Renderable.h" />
     <ClInclude Include="Source\Graphics\Renderer.h" />
     <ClInclude Include="Source\Graphics\Shader.h" />
+    <ClInclude Include="Source\Graphics\Skybox.h" />
     <ClInclude Include="Source\Graphics\Texture.h" />
     <ClInclude Include="Source\Graphics\VertexArray.h" />
     <ClInclude Include="Source\Graphics\VertexBuffer.h" />

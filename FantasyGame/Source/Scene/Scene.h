@@ -18,6 +18,8 @@ class EventListener;
 class GameSystem;
 class GameObject;
 
+class Skybox;
+
 class Scene
 {
 	friend Input;
@@ -41,6 +43,8 @@ public:
 	Vector3f& GetAmbient();
 	/* Get directional light */
 	DirLight& GetDirLight();
+	/* Get skybox */
+	Skybox* GetSkybox() const;
 
 
 	/* ====================== Event System ====================== */
@@ -127,6 +131,8 @@ protected:
 	Vector3f mAmbientColor;
 	/* Directional light */
 	DirLight mDirLight;
+	/* Skybox */
+	Skybox* mSkybox;
 
 private:
 	/* Called on scene creation */

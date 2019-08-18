@@ -27,6 +27,14 @@ public:
 		ClipPlane
 	};
 
+	enum DepthFunc
+	{
+		Less		= 0x0201,
+		Lequal		= 0x0203,
+		Greater		= 0x0204,
+		Gequal		= 0x0206
+	};
+
 public:
 	/* Set clear color */
 	static void SetClearColor(float r, float g, float b, float a = 1.0f);
@@ -39,6 +47,9 @@ public:
 	static void Disable(Options opt);
 	/* Enable face culling */
 	static void EnableCull(bool front);
+
+	/* Set rendering depth function */
+	static void SetDepthFunc(DepthFunc func);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

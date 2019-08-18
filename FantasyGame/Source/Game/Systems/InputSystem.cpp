@@ -13,7 +13,7 @@
 InputSystem::InputSystem() :
 	mCamera			(0),
 	mMousePos		(0.0f),
-	mCameraDist		(5.0f),
+	mCameraDist		(10.0f),
 	mCameraOffset	(0.0f, 1.0f, 0.0f),
 	mCameraRot		(0.0f),
 	mFirstRun		(true)

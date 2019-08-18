@@ -4,9 +4,26 @@
 #include <Core/ObjectPool.h>
 #include <Core/StringHash.h>
 
+#include <Resource/Loadable.h>
+
 #include <unordered_map>
 
 ///////////////////////////////////////////////////////////////////////////////
+
+template< typename C, typename = void >
+struct has_receive
+	: std::false_type
+{};
+
+template< typename C >
+struct has_receive< C, typename std::enable_if<
+	std::is_same<
+	decltype(std::declval<C>().GetFileHash()),
+	StringHash
+	>::value
+>::type >
+	: std::true_type
+{};
 
 template <typename T>
 class Resource
@@ -44,13 +61,20 @@ public:
 
 	static void Free(T* resource)
 	{
+		if (dynamic_cast<Loadable*>(resource))
+			FreeLoadable((Loadable*)resource);
+
+		sResourcePool.Free(resource);
+	}
+
+private:
+	static void FreeLoadable(Loadable* resource)
+	{
 		// Remove from loaded files if needed
 		Uint32 hash(resource->GetFileHash());
 		auto it = sFileMap.find(hash);
 		if (it != sFileMap.end())
 			sFileMap.erase(it);
-
-		sResourcePool.Free(resource);
 	}
 
 private:

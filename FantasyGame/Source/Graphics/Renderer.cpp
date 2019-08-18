@@ -10,6 +10,7 @@
 #include <Graphics/Camera.h>
 #include <Graphics/Renderable.h>
 #include <Graphics/Shader.h>
+#include <Graphics/Skybox.h>
 
 #include <Scene/Scene.h>
 
@@ -189,6 +190,8 @@ void Renderer::Render()
 	Matrix4f projView = camera.GetProjection() * camera.GetView();
 
 
+	// ======================== Static ========================
+
 	if (mStaticQueue.Size())
 	{
 		// Set up initial shader
@@ -221,6 +224,8 @@ void Renderer::Render()
 	}
 
 
+	// ======================== Dynamic ========================
+
 	if (mDynamicQueue.Size())
 	{
 		Shader* shader = mDynamicQueue.Front().mMaterial->mShader;
@@ -250,6 +255,11 @@ void Renderer::Render()
 			data.mVertexArray->DrawArrays(data.mNumVertices, mDynamicRenderData[mDataMap[id]].mRenderables.Size());
 		}
 	}
+
+
+	// ======================== Skybox ========================
+	Graphics::SetDepthFunc(Graphics::Lequal);
+	mScene->GetSkybox()->Render(projView);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -344,6 +354,8 @@ void Renderer::UpdateQueue(Array<VertexArrayData>& queue)
 	for (Uint32 i = 1; i < mVaoData.Size(); ++i)
 	{
 		VertexArrayData& data = mVaoData[i];
+		// If vao isn't being used, skip
+		if (!data.mVertexArray) continue;
 
 		// Get shader id (used to sort vao data)
 		Uint32 id = data.mMaterial->mShader->GetID();
