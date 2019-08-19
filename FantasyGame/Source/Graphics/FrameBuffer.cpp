@@ -11,6 +11,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
+FrameBuffer FrameBuffer::Default = FrameBuffer(0);
 Uint32 FrameBuffer::sCurrentBound = 0;
 
 FrameBuffer::FrameBuffer() :
@@ -22,6 +23,17 @@ FrameBuffer::FrameBuffer() :
 	mMultisampled	(false)
 {
 	glGenFramebuffers(1, &mID);
+}
+
+FrameBuffer::FrameBuffer(Uint32 id) :
+	mSize			(1280, 720),
+	mColorTexture	(0),
+	mDepthTexture	(0),
+	mColorID		(0),
+	mDepthID		(0),
+	mMultisampled	(false)
+{
+	mID = id;
 }
 
 FrameBuffer::~FrameBuffer()
@@ -126,6 +138,18 @@ void FrameBuffer::AttachDepth(bool texture, Texture::Wrap wrap, Texture::Filter 
 
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mDepthID);
 	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+Texture* FrameBuffer::GetColorTexture() const
+{
+	return mColorTexture;
+}
+
+Texture* FrameBuffer::GetDepthTexture() const
+{
+	return mDepthTexture;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

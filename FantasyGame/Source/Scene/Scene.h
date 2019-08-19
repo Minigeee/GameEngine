@@ -6,6 +6,7 @@
 #include <Graphics/Renderer.h>
 #include <Graphics/Camera.h>
 #include <Graphics/Lights.h>
+#include <Graphics/PostProcess.h>
 
 #include <Resource/Resource.h>
 
@@ -124,6 +125,8 @@ protected:
 	Engine* mEngine;
 	/* Scene renderer */
 	Renderer mRenderer;
+	/* Post processing system */
+	PostProcess mPostProcess;
 
 	/* Scene camera */
 	Camera mCamera;

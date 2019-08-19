@@ -13,6 +13,7 @@ class Renderable;
 class Material;
 class Model;
 class Scene;
+class FrameBuffer;
 
 class Renderer
 {
@@ -23,7 +24,7 @@ public:
 	/* Initialize renderer */
 	void Init();
 	/* Render stuff */
-	void Render();
+	void Render(FrameBuffer* fb = 0);
 
 	/* Set scene to render */
 	void SetScene(Scene* scene);

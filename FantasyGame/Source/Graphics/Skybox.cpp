@@ -16,11 +16,11 @@ Skybox::Skybox() :
 {
 	Init();
 
-	mColors[0].mColor = Vector3f(0.780, 0.914, 1.000);
+	mColors[0].mColor = Vector3f(0.680, 0.814, 1.000);
 	mColors[0].mHeight = 0.5f;
-	mColors[1].mColor = Vector3f(0.580, 0.761, 1.000);
+	mColors[1].mColor = Vector3f(0.380, 0.561, 1.000);
 	mColors[1].mHeight = 0.6f;
-	mColors[2].mColor = Vector3f(0.431, 0.573, 1.000);
+	mColors[2].mColor = Vector3f(0.231, 0.373, 0.900);
 	mColors[2].mHeight = 1.0f;
 }
 

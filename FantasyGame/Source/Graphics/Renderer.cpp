@@ -11,6 +11,7 @@
 #include <Graphics/Renderable.h>
 #include <Graphics/Shader.h>
 #include <Graphics/Skybox.h>
+#include <Graphics/FrameBuffer.h>
 
 #include <Scene/Scene.h>
 
@@ -53,8 +54,6 @@ void Renderer::Init()
 	mDynamicBuffer->BufferData(NULL, bufferSize, VertexBuffer::Stream);
 	mDynamicSize = bufferSize;
 	mDynamicOffset = 0;
-
-	Graphics::Enable(Graphics::DepthTest);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -175,14 +174,21 @@ void BindShader(Shader* shader, const Matrix4f& projView, Scene* scene)
 	scene->GetDirLight().Use(shader);
 }
 
-void Renderer::Render()
+void Renderer::Render(FrameBuffer* fb)
 {
 	Update();
+
+	// Bind framebuffer
+	if (fb)
+		fb->Bind();
+	else
+		FrameBuffer::Default.Bind();
 
 	// Clear
 	Graphics::SetClearColor(0.2f, 0.2f, 0.3f);
 	Graphics::Clear();
 
+	Graphics::Enable(Graphics::DepthTest);
 	Graphics::EnableCull(false);
 
 	// Get camera projection-view matrix

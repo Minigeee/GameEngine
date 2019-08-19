@@ -12,7 +12,7 @@
 
 Scene::Scene() :
 	mEngine			(0),
-	mAmbientColor	(0.1f)
+	mAmbientColor	(0.05f)
 {
 
 }
@@ -59,7 +59,16 @@ void Scene::Update(float dt)
 	for (Uint32 i = 0; i < mUpdateList.Size(); ++i)
 		mUpdateList[i]->Update(dt);
 
-	mRenderer.Render();
+	// Render
+	FrameBuffer* fb = 0;
+	if (mPostProcess.IsEnabled())
+		fb = mPostProcess.GetFrameBuffer();
+
+	mRenderer.Render(fb);
+
+	// Render post process effects
+	if (mPostProcess.IsEnabled())
+		mPostProcess.Render();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

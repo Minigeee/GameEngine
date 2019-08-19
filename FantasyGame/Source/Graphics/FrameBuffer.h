@@ -16,6 +16,9 @@ public:
 	FrameBuffer();
 	~FrameBuffer();
 
+	/* Main default framebuffer */
+	static FrameBuffer Default;
+
 	/* Bind framebuffer */
 	void Bind();
 
@@ -28,7 +31,14 @@ public:
 	/* Create depth attachment */
 	void AttachDepth(bool texture, Texture::Wrap wrap = Texture::ClampToEdge, Texture::Filter filter = Texture::Linear);
 
+	/* Get color texture */
+	Texture* GetColorTexture() const;
+	/* Get depth texture */
+	Texture* GetDepthTexture() const;
+
 private:
+	FrameBuffer(Uint32 id);
+
 	static Uint32 sCurrentBound;
 
 private:

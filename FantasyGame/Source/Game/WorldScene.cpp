@@ -36,6 +36,10 @@ void WorldScene::OnCreate()
 
 	mDirLight.SetDirection(0.0f, -1.0f, 0.2f);
 	mCamera.SetPosition(0.0f, 2.0f, 4.0f);
+
+
+	// PP effects
+	mPostProcess.Enable();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

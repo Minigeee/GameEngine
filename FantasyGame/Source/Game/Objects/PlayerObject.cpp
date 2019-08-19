@@ -29,7 +29,7 @@ void PlayerObject::OnCreate()
 
 	Material* material = Resource<Material>::Create();
 	material->mShader = shader;
-	material->mDiffuse = Vector3f(0.6f, 1.0f, 0.6f);
+	material->mDiffuse = Vector3f(0.8f, 0.2f, 0.2f);
 
 	model->GetMesh(0).mMaterial = material;
 
