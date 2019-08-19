@@ -22,7 +22,7 @@ WorldScene::~WorldScene()
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <Graphics/Image.h>
+#include <Graphics/FrameBuffer.h>
 
 void WorldScene::OnCreate()
 {
@@ -34,10 +34,7 @@ void WorldScene::OnCreate()
 	InputSystem* system = RegisterSystem<InputSystem>();
 	system->SetMainPlayer(objects[0]);
 
-	Image* image = Resource<Image>::Load("Textures/YourName.jpg");
-
-
-	mDirLight.SetDirection(0.0f, -1.0f, 2.0f);
+	mDirLight.SetDirection(0.0f, -1.0f, 0.2f);
 	mCamera.SetPosition(0.0f, 2.0f, 4.0f);
 }
 

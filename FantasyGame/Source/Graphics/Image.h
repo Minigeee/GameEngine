@@ -31,6 +31,13 @@ public:
 	/* Free image data */
 	void FreeData();
 
+	/* Set image size */
+	void SetSize(Uint32 w, Uint32 h);
+	/* Set data type */
+	void SetDataType(DataType type);
+	/* Set number of color channels */
+	void SetNumChannels(Uint32 c);
+
 	/* Get image data */
 	void* GetData() const;
 	/* Get image width */

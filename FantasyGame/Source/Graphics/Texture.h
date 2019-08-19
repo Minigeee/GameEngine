@@ -9,7 +9,7 @@ class Image;
 
 class Texture : public GLObject
 {
-	TYPE_INFO(Texture);
+	GL_OBJECT(Texture);
 
 public:
 	enum Wrap
@@ -26,6 +26,15 @@ public:
 		Nearest		= 0x2600
 	};
 
+	enum Format
+	{
+		Red		= 0x1903,
+		Rg		= 0x8227,
+		Rgb		= 0x1907,
+		Rgba	= 0x1908,
+		Depth	= 0x1902
+	};
+
 public:
 	Texture();
 	~Texture();
@@ -34,7 +43,7 @@ public:
 	void Bind(Uint32 slot = 0);
 
 	/* Set image (Update texture data) */
-	void SetImage(Image* image, bool mipmap = false);
+	void SetImage(Image* image, bool mipmap = false, Uint32 format = 0);
 	/* Set subregion of image */
 	void SetSubImage(Image* image, Uint32 x, Uint32 y);
 	/* Set texture wrap */

@@ -46,7 +46,7 @@ vec3 CalcColor(Color a, Color b, float steep, float midpoint, float h)
 void main()
 {
     vec3 result = vec3(0.0f);
-    float h = FragPos.y * 0.5f / length(FragPos);
+    float h = FragPos.y / length(FragPos);
     h = h * 0.5f + 0.5f;
 
     if (h > colors[1].height)

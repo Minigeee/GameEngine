@@ -34,8 +34,11 @@ void Texture::Bind(Uint32 slot)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Texture::SetImage(Image* image, bool mipmap)
+void Texture::SetImage(Image* image, bool mipmap, Uint32 fmt)
 {
+	mImage = image;
+	if (!image) return;
+
 	assert(sCurrentBound == mID);
 
 	void* data = image->GetData();
@@ -43,19 +46,18 @@ void Texture::SetImage(Image* image, bool mipmap)
 	Uint32 h = image->GetHeight();
 	Uint32 c = image->GetNumChannels();
 
-	// If image has no data, can't update texture
-	if (!data) return;
-	mImage = image;
-
-	Uint32 format = GL_RED;
-	if (c == 2)
-		format = GL_RG;
-	else if (c == 3)
-		format = GL_RGB;
-	else if (c == 4)
-		format = GL_RGBA;
-	else
-		return;
+	Uint32 format = fmt;
+	if (!format)
+	{
+		if (c == 2)
+			format = GL_RG;
+		else if (c == 3)
+			format = GL_RGB;
+		else if (c == 4)
+			format = GL_RGBA;
+		else
+			return;
+	}
 
 	glTexImage2D(GL_TEXTURE_2D, 0, format, w, h, 0, format, image->GetDataType(), data);
 	if (mipmap)
