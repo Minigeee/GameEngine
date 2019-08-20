@@ -7,23 +7,9 @@
 #include <Resource/Loadable.h>
 
 #include <unordered_map>
+#include <type_traits>
 
 ///////////////////////////////////////////////////////////////////////////////
-
-template< typename C, typename = void >
-struct has_receive
-	: std::false_type
-{};
-
-template< typename C >
-struct has_receive< C, typename std::enable_if<
-	std::is_same<
-	decltype(std::declval<C>().GetFileHash()),
-	StringHash
-	>::value
->::type >
-	: std::true_type
-{};
 
 template <typename T>
 class Resource
@@ -61,7 +47,7 @@ public:
 
 	static void Free(T* resource)
 	{
-		if (dynamic_cast<Loadable*>(resource))
+		if (std::is_base_of<Loadable, T>::value)
 			FreeLoadable((Loadable*)resource);
 
 		sResourcePool.Free(resource);

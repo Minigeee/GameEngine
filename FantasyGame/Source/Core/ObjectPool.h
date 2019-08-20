@@ -106,6 +106,9 @@ public:
 
 			::Free(page);
 		}
+
+		mStart = 0;
+		mCurrent = 0;
 	}
 
 	/* Create new object */

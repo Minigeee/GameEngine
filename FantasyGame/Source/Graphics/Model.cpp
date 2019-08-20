@@ -5,6 +5,7 @@
 #include <Resource/Resource.h>
 #include <Graphics/VertexArray.h>
 #include <Graphics/VertexBuffer.h>
+#include <Graphics/Material.h>
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -20,7 +21,12 @@ Model::Model()
 
 Model::~Model()
 {
-
+	for (Uint32 i = 0; i < mMeshes.Size(); ++i)
+	{
+		Mesh& mesh = mMeshes[i];
+		Resource<VertexArray>::Free(mesh.mVertexArray);
+		Resource<Material>::Free(mesh.mMaterial);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////

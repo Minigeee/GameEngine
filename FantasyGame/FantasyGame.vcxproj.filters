@@ -370,5 +370,8 @@
     <ClInclude Include="Source\Graphics\PostProcess.h">
       <Filter>Include\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Graphics\Terrain.h">
+      <Filter>Include\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
