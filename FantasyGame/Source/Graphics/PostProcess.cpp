@@ -41,7 +41,7 @@ void PostProcess::Enable()
 	{
 		mFrameBuffer = new FrameBuffer();
 		mFrameBuffer->Bind();
-		mFrameBuffer->SetSize(1920, 1080);
+		mFrameBuffer->SetSize(1280, 720);
 		mFrameBuffer->AttachColor(true);
 		mFrameBuffer->AttachDepth(true);
 	}

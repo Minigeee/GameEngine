@@ -10,7 +10,41 @@
 
 #include <Resource/Loadable.h>
 
+#include <unordered_map>
+
 ///////////////////////////////////////////////////////////////////////////////
+
+struct Uniform
+{
+	Uniform() = default;
+	Uniform(const char* name, int val);
+	Uniform(const char* name, float val);
+	Uniform(const char* name, const Vector2f& val);
+	Uniform(const char* name, const Vector3f& val);
+	Uniform(const char* name, const Vector4f& val);
+	Uniform(const char* name, const Matrix2f& val);
+	Uniform(const char* name, const Matrix3f& val);
+	Uniform(const char* name, const Matrix4f& val);
+
+	enum Type
+	{
+		Int,
+		Float,
+		Vec2,
+		Vec3,
+		Vec4,
+		Mat2,
+		Mat3,
+		Mat4
+	};
+
+	/* Uniform name */
+	const char* mName;
+	/* Storage for uniform variable */
+	float mVariable[16];
+	/* Uniform type */
+	Type mType;
+};
 
 class Shader :
 	public GLObject,
@@ -44,6 +78,8 @@ public:
 	void SetUniform(const char* name, const Matrix3f& val);
 	/* Set shader uniform */
 	void SetUniform(const char* name, const Matrix4f& val);
+	/* Update all uniforms */
+	void UpdateUniforms();
 
 private:
 	/* Load shader code from file */
@@ -52,6 +88,10 @@ private:
 private:
 	/* Current bound shader */
 	static Uint32 sCurrentBound;
+
+private:
+	/* Uniform map */
+	std::unordered_map<const char*, Uniform> mUniforms;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

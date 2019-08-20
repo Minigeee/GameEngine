@@ -18,7 +18,7 @@ Uint32 Shader::sCurrentBound = 0;
 
 Shader::Shader()
 {
-
+	sizeof(Uniform);
 }
 
 Shader::~Shader()
@@ -166,58 +166,145 @@ void Shader::Bind()
 
 void Shader::SetUniform(const char* name, int val)
 {
-	assert(sCurrentBound == mID);
-	int loc = glGetUniformLocation(mID, name);
-	glUniform1i(loc, val);
+	mUniforms[name] = Uniform(name, val);
 }
 
 void Shader::SetUniform(const char* name, float val)
 {
-	assert(sCurrentBound == mID);
-	int loc = glGetUniformLocation(mID, name);
-	glUniform1f(loc, val);
+	mUniforms[name] = Uniform(name, val);
 }
 
 void Shader::SetUniform(const char* name, const Vector2f& val)
 {
-	assert(sCurrentBound == mID);
-	int loc = glGetUniformLocation(mID, name);
-	glUniform2fv(loc, 1, (const float*)&val);
+	mUniforms[name] = Uniform(name, val);
 }
 
 void Shader::SetUniform(const char* name, const Vector3f& val)
 {
-	assert(sCurrentBound == mID);
-	int loc = glGetUniformLocation(mID, name);
-	glUniform3fv(loc, 1, (const float*)&val);
+	mUniforms[name] = Uniform(name, val);
 }
 
 void Shader::SetUniform(const char* name, const Vector4f& val)
 {
-	assert(sCurrentBound == mID);
-	int loc = glGetUniformLocation(mID, name);
-	glUniform4fv(loc, 1, (const float*)&val);
+	mUniforms[name] = Uniform(name, val);
 }
 
 void Shader::SetUniform(const char* name, const Matrix2f& val)
 {
-	assert(sCurrentBound == mID);
-	int loc = glGetUniformLocation(mID, name);
-	glUniformMatrix2fv(loc, 1, GL_FALSE, (const float*)&val);
+	mUniforms[name] = Uniform(name, val);
 }
 
 void Shader::SetUniform(const char* name, const Matrix3f& val)
 {
-	assert(sCurrentBound == mID);
-	int loc = glGetUniformLocation(mID, name);
-	glUniformMatrix3fv(loc, 1, GL_FALSE, (const float*)&val);
+	mUniforms[name] = Uniform(name, val);
 }
 
 void Shader::SetUniform(const char* name, const Matrix4f& val)
 {
-	assert(sCurrentBound == mID);
-	int loc = glGetUniformLocation(mID, name);
-	glUniformMatrix4fv(loc, 1, GL_FALSE, (const float*)&val);
+	mUniforms[name] = Uniform(name, val);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void Shader::UpdateUniforms()
+{
+	assert(mID == sCurrentBound);
+
+	for (auto it : mUniforms)
+	{
+		int loc = glGetUniformLocation(mID, it.first);
+		Uniform::Type type = it.second.mType;
+		float* var = it.second.mVariable;
+
+		switch (type)
+		{
+		case Uniform::Int:
+			glUniform1iv(loc, 1, (int*)var);
+			break;
+		case Uniform::Float:
+			glUniform1fv(loc, 1, var);
+			break;
+		case Uniform::Vec2:
+			glUniform2fv(loc, 1, var);
+			break;
+		case Uniform::Vec3:
+			glUniform3fv(loc, 1, var);
+			break;
+		case Uniform::Vec4:
+			glUniform4fv(loc, 1, var);
+			break;
+		case Uniform::Mat2:
+			glUniformMatrix2fv(loc, 1, GL_FALSE, var);
+			break;
+		case Uniform::Mat3:
+			glUniformMatrix3fv(loc, 1, GL_FALSE, var);
+			break;
+		case Uniform::Mat4:
+			glUniformMatrix4fv(loc, 1, GL_FALSE, var);
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+Uniform::Uniform(const char* name, int val) :
+	mName		(name),
+	mType		(Int)
+{
+	*(int*)mVariable = val;
+}
+
+Uniform::Uniform(const char* name, float val) :
+	mName		(name),
+	mType		(Float)
+{
+	*(float*)mVariable = val;
+}
+
+Uniform::Uniform(const char* name, const Vector2f& val) :
+	mName		(name),
+	mType		(Vec2)
+{
+	*(Vector2f*)mVariable = val;
+}
+
+Uniform::Uniform(const char* name, const Vector3f& val) :
+	mName		(name),
+	mType		(Vec3)
+{
+	*(Vector3f*)mVariable = val;
+}
+
+Uniform::Uniform(const char* name, const Vector4f& val) :
+	mName		(name),
+	mType		(Vec4)
+{
+	*(Vector4f*)mVariable = val;
+}
+
+Uniform::Uniform(const char* name, const Matrix2f& val) :
+	mName		(name),
+	mType		(Mat2)
+{
+	*(Matrix2f*)mVariable = val;
+}
+
+Uniform::Uniform(const char* name, const Matrix3f& val) :
+	mName		(name),
+	mType		(Mat3)
+{
+	*(Matrix3f*)mVariable = val;
+}
+
+Uniform::Uniform(const char* name, const Matrix4f& val) :
+	mName		(name),
+	mType		(Mat4)
+{
+	*(Matrix4f*)mVariable = val;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

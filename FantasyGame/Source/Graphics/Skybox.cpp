@@ -123,6 +123,7 @@ void Skybox::Render(const Matrix4f& projView)
 	mShader->SetUniform("gradients[0].midpoint", mGradients[0].mMidpoint);
 	mShader->SetUniform("gradients[1].steepness", mGradients[1].mSteepness);
 	mShader->SetUniform("gradients[1].midpoint", mGradients[1].mMidpoint);
+	mShader->UpdateUniforms();
 
 	mVertexArray->Bind();
 	mVertexArray->DrawArrays(36);
