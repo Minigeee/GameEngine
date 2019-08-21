@@ -22,7 +22,7 @@ WorldScene::~WorldScene()
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <Graphics/FrameBuffer.h>
+#include <Graphics/Terrain.h>
 
 void WorldScene::OnCreate()
 {
@@ -36,6 +36,19 @@ void WorldScene::OnCreate()
 
 	mDirLight.SetDirection(0.0f, -1.0f, 0.2f);
 	mCamera.SetPosition(0.0f, 2.0f, 4.0f);
+
+
+	Array<float> lod(8);
+	lod.Push(20.0f);
+	lod.Push(50.0f);
+	lod.Push(100.0f);
+	lod.Push(200.0f);
+
+	Terrain* terrain = Resource<Terrain>::Create();
+	terrain->SetLodLevels(lod);
+	terrain->SetSquareSize(2.0f);
+	terrain->Create();
+	mRenderer.AddStatic(terrain);
 
 
 	// PP effects

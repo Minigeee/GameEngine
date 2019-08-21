@@ -226,8 +226,10 @@ void Renderer::Render(FrameBuffer* fb)
 			}
 
 			// Render vao
-			Uint32 id = data.mVertexArray->GetID();
-			data.mVertexArray->DrawArrays(data.mNumVertices, mStaticRenderData[mDataMap[id]].mBufferSize);
+			VertexArray* vao = data.mVertexArray;
+			Uint32 id = vao->GetID();
+			vao->Bind();
+			vao->DrawArrays(data.mNumVertices, mStaticRenderData[mDataMap[id]].mBufferSize);
 		}
 	}
 
@@ -259,8 +261,10 @@ void Renderer::Render(FrameBuffer* fb)
 			}
 
 			// Render vao
-			Uint32 id = data.mVertexArray->GetID();
-			data.mVertexArray->DrawArrays(data.mNumVertices, mDynamicRenderData[mDataMap[id]].mRenderables.Size());
+			VertexArray* vao = data.mVertexArray;
+			Uint32 id = vao->GetID();
+			vao->Bind();
+			vao->DrawArrays(data.mNumVertices, mDynamicRenderData[mDataMap[id]].mRenderables.Size());
 		}
 	}
 

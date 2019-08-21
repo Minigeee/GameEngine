@@ -200,6 +200,9 @@
     <ClCompile Include="Source\Graphics\PostProcess.cpp">
       <Filter>Source\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Graphics\Terrain.cpp">
+      <Filter>Source\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Core\DataTypes.h">
@@ -372,6 +375,9 @@
     </ClInclude>
     <ClInclude Include="Source\Graphics\Terrain.h">
       <Filter>Include\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Math\Rect.h">
+      <Filter>Include\Math</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

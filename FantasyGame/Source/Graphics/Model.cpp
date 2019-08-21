@@ -169,6 +169,10 @@ void Model::SetMaxMeshes(Uint32 max)
 
 void Model::AddMesh(const Mesh& mesh)
 {
+	// Make sure mesh array is allocated
+	if (!mMeshes.Capacity())
+		mMeshes.Resize(4);
+
 	if (mMeshes.Size())
 	{
 		// Update bounding box

@@ -202,6 +202,9 @@ public:
 				for (Uint32 i = 0; i < prevSize; ++i)
 					new(mStart + i)T(std::move(*(start + i)));
 			}
+
+			// Free prev memory
+			::Free(start);
 		}
 	}
 

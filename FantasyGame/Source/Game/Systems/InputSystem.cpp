@@ -13,7 +13,7 @@
 InputSystem::InputSystem() :
 	mCamera			(0),
 	mMousePos		(0.0f),
-	mCameraDist		(10.0f),
+	mCameraDist		(3.0f),
 	mCameraOffset	(0.0f, 1.0f, 0.0f),
 	mCameraRot		(0.0f),
 	mFirstRun		(true)
@@ -45,7 +45,7 @@ void InputSystem::OnInit()
 
 void InputSystem::Update(float dt)
 {
-	float speed = 3.0f;
+	float speed = 1.5f;
 
 	Vector3f move(0.0f);
 
