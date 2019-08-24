@@ -44,11 +44,22 @@ void Terrain::SetSquareSize(float size)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void AddTriangle(Array<Vector2f>& verts, const Vector2f& v1, const Vector2f& v2, const Vector2f& v3)
+struct TerrainVert
 {
-	verts.Push(v1);
-	verts.Push(v2);
-	verts.Push(v3);
+	TerrainVert(const Vector2f p, float res) :
+		mPos(p),
+		mRes(res)
+	{ }
+
+	Vector2f mPos;
+	float mRes;
+};
+
+void AddTriangle(Array<TerrainVert>& verts, const Vector2f& v1, const Vector2f& v2, const Vector2f& v3, float res)
+{
+	verts.Push(TerrainVert(v1, res));
+	verts.Push(TerrainVert(v2, res));
+	verts.Push(TerrainVert(v3, res));
 }
 
 void Terrain::Create()
@@ -59,7 +70,7 @@ void Terrain::Create()
 	// Area of square beneath current lod level
 	Recti sublevel(0, 0, 0, 0);
 	// Array of vertices
-	Array<Vector2f> vertices(4096);
+	Array<TerrainVert> vertices(4096);
 
 	float squareSize = mSquareSize;
 
@@ -94,45 +105,45 @@ void Terrain::Create()
 				// Left edge
 				if (c + 1 == sublevel.x && r >= sublevel.y && r < sublevel.y + sublevel.h)
 				{
-					AddTriangle(vertices, mm, mr, tr);
-					AddTriangle(vertices, mm, br, mr);
+					AddTriangle(vertices, mm, mr, tr, halfSquare);
+					AddTriangle(vertices, mm, br, mr, halfSquare);
 				}
 				else
 				{
-					AddTriangle(vertices, mm, br, tr);
+					AddTriangle(vertices, mm, br, tr, squareSize);
 				}
 
 				// Right edge
 				if (c == sublevel.x + sublevel.w && r >= sublevel.y && r < sublevel.y + sublevel.h)
 				{
-					AddTriangle(vertices, tl, ml, mm);
-					AddTriangle(vertices, ml, bl, mm);
+					AddTriangle(vertices, tl, ml, mm, halfSquare);
+					AddTriangle(vertices, ml, bl, mm, halfSquare);
 				}
 				else
 				{
-					AddTriangle(vertices, tl, bl, mm);
+					AddTriangle(vertices, tl, bl, mm, squareSize);
 				}
 
 				// Top edge
 				if (r + 1 == sublevel.y && c >= sublevel.x && c < sublevel.x + sublevel.w)
 				{
-					AddTriangle(vertices, bl, bm, mm);
-					AddTriangle(vertices, bm, br, mm);
+					AddTriangle(vertices, bl, bm, mm, halfSquare);
+					AddTriangle(vertices, bm, br, mm, halfSquare);
 				}
 				else
 				{
-					AddTriangle(vertices, bl, br, mm);
+					AddTriangle(vertices, bl, br, mm, squareSize);
 				}
 
 				// Bottom edge
 				if (r == sublevel.y + sublevel.h && c >= sublevel.x && c < sublevel.x + sublevel.w)
 				{
-					AddTriangle(vertices, tl, mm, tm);
-					AddTriangle(vertices, tm, mm, tr);
+					AddTriangle(vertices, tl, mm, tm, halfSquare);
+					AddTriangle(vertices, tm, mm, tr, halfSquare);
 				}
 				else
 				{
-					AddTriangle(vertices, tl, mm, tr);
+					AddTriangle(vertices, tl, mm, tr, squareSize);
 				}
 			}
 		}
@@ -151,11 +162,12 @@ void Terrain::Create()
 	// Vertex data
 	VertexBuffer* vbo = Resource<VertexBuffer>::Create();
 	vbo->Bind(VertexBuffer::Array);
-	vbo->BufferData(&vertices.Front(), vertices.Size() * sizeof(Vector2f), VertexBuffer::Static);
+	vbo->BufferData(&vertices.Front(), vertices.Size() * sizeof(TerrainVert), VertexBuffer::Static);
 
 	VertexArray* vao = Resource<VertexArray>::Create();
 	vao->Bind();
-	vao->VertexAttrib(0, 2);
+	vao->VertexAttrib(0, 2, sizeof(TerrainVert), 0);
+	vao->VertexAttrib(1, 1, sizeof(TerrainVert), 8);
 
 	// Material
 	Shader* shader = Resource<Shader>::Load("Shaders/Terrain.xml");
