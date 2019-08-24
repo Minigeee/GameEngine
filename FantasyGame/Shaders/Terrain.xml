@@ -1,4 +1,5 @@
 <program>
     <shader type = "Vertex">Shaders/Terrain.vert</shader>
+    <shader type = "Geometry">Shaders/Terrain.geom</shader>
     <shader type = "Fragment">Shaders/Terrain.frag</shader>
 </program>

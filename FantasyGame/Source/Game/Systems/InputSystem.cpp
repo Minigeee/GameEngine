@@ -45,7 +45,7 @@ void InputSystem::OnInit()
 
 void InputSystem::Update(float dt)
 {
-	float speed = 1.5f;
+	float speed = 4.0f;
 
 	Vector3f move(0.0f);
 

@@ -1,0 +1,43 @@
+#include <Game/Systems/TerrainSystem.h>
+
+#include <Scene/Scene.h>
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+TerrainSystem::TerrainSystem() :
+	mTerrain		(),
+	mHeightMap		(0.02f)
+{
+
+}
+
+TerrainSystem::~TerrainSystem()
+{
+
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+void TerrainSystem::OnInit()
+{
+	// Create height map
+	mHeightMap.Generate(4, 513, 513);
+
+	Array<float> lod(4);
+	lod.Push(20.0f);
+	lod.Push(50.0f);
+	lod.Push(100.0f);
+	lod.Push(200.0f);
+
+	mTerrain.SetSize(500.0f);
+	mTerrain.SetLodLevels(lod);
+	mTerrain.SetSquareSize(2.0f);
+	mTerrain.Create();
+	mTerrain.SetHeightMap(&mHeightMap);
+
+	mScene->AddRenderable(&mTerrain, true);
+}
+
+///////////////////////////////////////////////////////////////////////////////

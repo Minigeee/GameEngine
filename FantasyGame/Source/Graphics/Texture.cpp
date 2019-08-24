@@ -49,7 +49,9 @@ void Texture::SetImage(Image* image, bool mipmap, Uint32 fmt)
 	Uint32 format = fmt;
 	if (!format)
 	{
-		if (c == 2)
+		if (c == 1)
+			format = GL_RED;
+		else if (c == 2)
 			format = GL_RG;
 		else if (c == 3)
 			format = GL_RGB;

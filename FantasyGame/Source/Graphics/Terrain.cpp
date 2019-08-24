@@ -10,13 +10,16 @@
 #include <Graphics/Model.h>
 #include <Graphics/Mesh.h>
 #include <Graphics/Shader.h>
+#include <Graphics/Image.h>
+#include <Graphics/Texture.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
 Terrain::Terrain() :
 	mSquareSize		(0.0f),
-	mTotalSize		(0.0f)
+	mHeightMap		(0),
+	mSize			(0.0f)
 {
 
 }
@@ -56,7 +59,7 @@ void Terrain::Create()
 	// Area of square beneath current lod level
 	Recti sublevel(0, 0, 0, 0);
 	// Array of vertices
-	Array<Vector2f> vertices(1024);
+	Array<Vector2f> vertices(4096);
 
 	float squareSize = mSquareSize;
 
@@ -156,9 +159,11 @@ void Terrain::Create()
 
 	// Material
 	Shader* shader = Resource<Shader>::Load("Shaders/Terrain.xml");
+	shader->SetUniform("terrainSize", mSize);
 
 	Material* material = Resource<Material>::Create();
 	material->mShader = shader;
+	material->mSpecular = Vector3f(0.1f);
 
 	// Mesh
 	Mesh mesh;
@@ -166,6 +171,38 @@ void Terrain::Create()
 	mesh.mNumVertices = vertices.Size();
 	mesh.mMaterial = material;
 	mModel->AddMesh(mesh);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+void Terrain::SetSize(float size)
+{
+	mSize = size;
+
+	if (mModel)
+		mModel->GetMesh(0).mMaterial->mShader->SetUniform("terrainSize", mSize);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void Terrain::SetHeightMap(Texture* texture)
+{
+	Image* map = texture->GetImage();
+	Uint32 w = map->GetWidth();
+	Uint32 h = map->GetHeight();
+	// Must be a square
+	if (w != h) return;
+
+	// Create height map
+	if (!mHeightMap || mHeightMap != texture)
+	{
+		mHeightMap = texture;
+		mHeightMap->Bind();
+		mHeightMap->SetWrap(Texture::ClampToEdge);
+		mHeightMap->SetFilter(Texture::Linear);
+		mModel->GetMesh(0).mMaterial->AddTexture(mHeightMap, "heightMap");
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////

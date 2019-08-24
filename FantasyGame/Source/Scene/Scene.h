@@ -47,6 +47,9 @@ public:
 	/* Get skybox */
 	Skybox* GetSkybox() const;
 
+	/* Add renderable object */
+	void AddRenderable(Renderable* object, bool isStatic);
+
 
 	/* ====================== Event System ====================== */
 

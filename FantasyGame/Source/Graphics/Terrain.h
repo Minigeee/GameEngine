@@ -7,6 +7,9 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
+class Texture;
+class Image;
+
 class Terrain : public Renderable
 {
 public:
@@ -20,8 +23,10 @@ public:
 	/* Create terrain based on set options */
 	void Create();
 
-	/* Get total size of terrain (Calculated in Create() function) */
-	float GetTotalSize() const;
+	/* Set size of terrain */
+	void SetSize(float size);
+	/* Set height map image */
+	void SetHeightMap(Texture* map);
 
 private:
 	/* Lod distances */
@@ -29,8 +34,10 @@ private:
 	/* Square size at LOD-0 */
 	float mSquareSize;
 
+	/* Height map */
+	Texture* mHeightMap;
 	/* Size of terrain (square) */
-	float mTotalSize;
+	float mSize;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

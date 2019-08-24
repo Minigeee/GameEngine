@@ -45,7 +45,7 @@ void Renderer::Init()
 	mDynamicRenderData.Resize(initSize);
 	mStaticQueue.Resize(initSize);
 	mDynamicQueue.Resize(initSize);
-	mDynamicVaos.Resize(initSize);
+	mIsStatic.Resize(initSize);
 
 	// Create dynamic instance buffer
 	const Uint32 bufferSize = 1 * 1024 * 1024;
@@ -144,13 +144,14 @@ void Renderer::Update()
 	// Unmap buffer
 	mDynamicBuffer->Unmap();
 
-	for (Uint32 i = 0; i < mDynamicVaos.Size(); ++i)
+	for (Uint32 i = 1; i < mVaoData.Size(); ++i)
 	{
-		Uint32 id = mDynamicVaos[i];
+		if (mIsStatic[i]) continue;
 
-		VertexArrayData& vaoData = mVaoData[id];
-		DynamicRenderData& data = mDynamicRenderData[mDataMap[id]];
+		VertexArrayData& vaoData = mVaoData[i];
+		DynamicRenderData& data = mDynamicRenderData[mDataMap[i]];
 		VertexArray* vao = vaoData.mVertexArray;
+		if (!vao) continue;
 
 		// Set up vertex attribs
 		Uint32 offset = data.mDataOffset;
@@ -327,17 +328,16 @@ void Renderer::RegisterModel(Model* model, bool isStatic, Uint32 num)
 		{
 			mVaoData.Push(VertexArrayData());
 			mDataMap.Push(-1);
+			mIsStatic.Push(false);
 		}
 
 		// Add vao data
 		mVaoData[id] = data;
+		mIsStatic[id] = isStatic;
 		if (isStatic)
 			mDataMap[id] = mStaticRenderData.Size() - 1;
 		else
-		{
 			mDataMap[id] = mDynamicRenderData.Size() - 1;
-			mDynamicVaos.Push(id);
-		}
 
 		// Dynamic renderables vertex attribs updated every frame
 		if (isStatic)
@@ -352,19 +352,25 @@ void Renderer::RegisterModel(Model* model, bool isStatic, Uint32 num)
 		}
 	}
 
-	UpdateQueue(isStatic ? mStaticQueue : mDynamicQueue);
+	UpdateQueue(isStatic);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Renderer::UpdateQueue(Array<VertexArrayData>& queue)
+void Renderer::UpdateQueue(bool isStatic)
 {
+	// Choose correct queue
+	Array<VertexArrayData>& queue = isStatic ? mStaticQueue : mDynamicQueue;
+
 	queue.Clear();
 
 	std::map<Uint32, Array<VertexArrayData*>> byShader;
 
 	for (Uint32 i = 1; i < mVaoData.Size(); ++i)
 	{
+		// Only add correct object types
+		if (mIsStatic[i] != isStatic) continue;
+
 		VertexArrayData& data = mVaoData[i];
 		// If vao isn't being used, skip
 		if (!data.mVertexArray) continue;

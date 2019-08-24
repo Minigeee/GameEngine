@@ -152,6 +152,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\extlibs\glad.c" />
+    <ClCompile Include="..\extlibs\SimplexNoise.cpp" />
     <ClCompile Include="Source\Core\Allocate.cpp" />
     <ClCompile Include="Source\Core\Clock.cpp" />
     <ClCompile Include="Source\Core\LogFile.cpp" />
@@ -164,6 +165,8 @@
     <ClCompile Include="Source\Engine\Window.cpp" />
     <ClCompile Include="Source\Game\Objects\PlayerObject.cpp" />
     <ClCompile Include="Source\Game\Systems\InputSystem.cpp" />
+    <ClCompile Include="Source\Game\Systems\TerrainSystem.cpp" />
+    <ClCompile Include="Source\Game\Terrain\NoiseMap.cpp" />
     <ClCompile Include="Source\Game\WorldScene.cpp" />
     <ClCompile Include="Source\Graphics\Camera.cpp" />
     <ClCompile Include="Source\Graphics\FrameBuffer.cpp" />
@@ -199,6 +202,7 @@
     <ClCompile Include="Source\Scene\Transformable.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\extlibs\include\SimplexNoise.h" />
     <ClInclude Include="Source\Core\Allocate.h" />
     <ClInclude Include="Source\Core\Array.h" />
     <ClInclude Include="Source\Core\Clock.h" />
@@ -215,6 +219,8 @@
     <ClInclude Include="Source\Engine\Window.h" />
     <ClInclude Include="Source\Game\Objects\PlayerObject.h" />
     <ClInclude Include="Source\Game\Systems\InputSystem.h" />
+    <ClInclude Include="Source\Game\Systems\TerrainSystem.h" />
+    <ClInclude Include="Source\Game\Terrain\NoiseMap.h" />
     <ClInclude Include="Source\Game\WorldScene.h" />
     <ClInclude Include="Source\Graphics\Camera.h" />
     <ClInclude Include="Source\Graphics\FrameBuffer.h" />

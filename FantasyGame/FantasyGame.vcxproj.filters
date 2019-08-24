@@ -63,6 +63,12 @@
     <Filter Include="Include\Game\Objects">
       <UniqueIdentifier>{5355d4cf-185b-4487-8ed0-a1e0590df1d9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Include\Game\Terrain">
+      <UniqueIdentifier>{3056c76c-027b-413b-8db1-b51818297395}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Game\Terrain">
+      <UniqueIdentifier>{ed1db3b5-dca4-42af-9bb3-4850cc46b4ce}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Main.cpp">
@@ -202,6 +208,15 @@
     </ClCompile>
     <ClCompile Include="Source\Graphics\Terrain.cpp">
       <Filter>Source\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\extlibs\SimplexNoise.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Game\Terrain\NoiseMap.cpp">
+      <Filter>Source\Game\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Game\Systems\TerrainSystem.cpp">
+      <Filter>Source\Game\System</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -378,6 +393,15 @@
     </ClInclude>
     <ClInclude Include="Source\Math\Rect.h">
       <Filter>Include\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlibs\include\SimplexNoise.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Game\Terrain\NoiseMap.h">
+      <Filter>Include\Game\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Game\Systems\TerrainSystem.h">
+      <Filter>Include\Game\Systems</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

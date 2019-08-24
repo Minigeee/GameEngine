@@ -73,7 +73,7 @@ private:
 	/* Render queue */
 	void RenderQueue(Array<VertexArrayData>& queue);
 	/* Update render queue */
-	void UpdateQueue(Array<VertexArrayData>& queue);
+	void UpdateQueue(bool isStatic);
 	/* Pre-render update */
 	void Update();
 
@@ -93,8 +93,8 @@ private:
 	Array<VertexArrayData> mStaticQueue;
 	/* Dynamic render queue */
 	Array<VertexArrayData> mDynamicQueue;
-	/* List of dynamic VAO IDs */
-	Array<Uint32> mDynamicVaos;
+	/* List of static labels*/
+	Array<bool> mIsStatic;
 
 	/* Dynamic instance buffer */
 	VertexBuffer* mDynamicBuffer;
