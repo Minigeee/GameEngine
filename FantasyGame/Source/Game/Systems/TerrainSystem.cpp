@@ -26,8 +26,7 @@ void TerrainSystem::OnInit()
 	mHeightMap.Generate(4, 513, 513);
 
 	Array<float> lod(4);
-	lod.Push(20.0f);
-	lod.Push(50.0f);
+	lod.Push(30.0f);
 	lod.Push(100.0f);
 	lod.Push(200.0f);
 

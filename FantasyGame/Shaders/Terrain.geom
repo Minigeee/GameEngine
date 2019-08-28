@@ -4,10 +4,12 @@ layout (triangles) in;
 layout (triangle_strip, max_vertices = 3) out;
 
 in vec2 Vertex[];
-in float Res[];
+in vec2 Ind[];
+in float Lod[];
 
 uniform mat4 projView;
 uniform vec3 camPos;
+uniform float res;
 
 uniform float terrainSize;
 uniform sampler2D heightMap;
@@ -15,21 +17,46 @@ uniform sampler2D heightMap;
 out vec3 FragPos;
 out vec3 Normal;
 
+///////////////////////////////////////////////////////////////////////////////
+
+float calcHeight(vec2 p, vec2 ind, float lod)
+{
+    vec2 texCoord = p / terrainSize * 0.5f + 0.5f;
+    float h = texture(heightMap, texCoord).r * 10.0f;
+
+    if (lod < 0.0f)
+        return h;
+    else
+    {
+        texCoord = (p + ind) / terrainSize * 0.5f + 0.5f;
+        float h1 = texture(heightMap, texCoord).r * 10.0f;
+        
+        texCoord = (p - ind) / terrainSize * 0.5f + 0.5f;
+        float h2 = texture(heightMap, texCoord).r * 10.0f;
+
+        vec2 dist = vec2(lod) - abs(p - camPos.xz);
+        float factor = clamp(min(dist.x, dist.y) / (0.5f * res), 0.0f, 1.0f);
+
+        return mix(0.5f * (h1 + h2), h, factor);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 void main()
 {
-    vec2 p1 = Vertex[0] + round(camPos.xz / Res[0]) * Res[0];
-    vec2 texCoord = p1 / terrainSize * 0.5f + 0.5f;
-    float h1 = texture(heightMap, texCoord).r * 10.0f;
+    vec2 offset = round(camPos.xz / res) * res;
+
+    vec2 p1 = Vertex[0] + offset;
+    float h1 = calcHeight(p1, Ind[0], Lod[0]);
     vec3 v1 = vec3(p1.x, h1, p1.y);
     
-    vec2 p2 = Vertex[1] + round(camPos.xz / Res[1]) * Res[1];
-    texCoord = p2 / terrainSize * 0.5f + 0.5f;
-    float h2 = texture(heightMap, texCoord).r * 10.0f;
+    vec2 p2 = Vertex[1] + offset;
+    float h2 = calcHeight(p2, Ind[1], Lod[1]);
     vec3 v2 = vec3(p2.x, h2, p2.y);
     
-    vec2 p3 = Vertex[2] + round(camPos.xz / Res[2]) * Res[2];
-    texCoord = p3 / terrainSize * 0.5f + 0.5f;
-    float h3 = texture(heightMap, texCoord).r * 10.0f;
+    vec2 p3 = Vertex[2] + offset;
+    float h3 = calcHeight(p3, Ind[2], Lod[2]);
     vec3 v3 = vec3(p3.x, h3, p3.y);
 
     // Calculate normal

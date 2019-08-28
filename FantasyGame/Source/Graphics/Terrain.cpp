@@ -46,20 +46,104 @@ void Terrain::SetSquareSize(float size)
 
 struct TerrainVert
 {
-	TerrainVert(const Vector2f p, float res) :
+	TerrainVert(const Vector2f& p, const Vector2f& ind, float lod = -1.0f) :
 		mPos(p),
-		mRes(res)
+		mInd(ind),
+		mLod(lod)
 	{ }
 
 	Vector2f mPos;
-	float mRes;
+	Vector2f mInd;
+	float mLod;
 };
 
-void AddTriangle(Array<TerrainVert>& verts, const Vector2f& v1, const Vector2f& v2, const Vector2f& v3, float res)
+void CreateTransition(Array<TerrainVert>& vertices, float squareSize, float x, float y, float lod)
 {
-	verts.Push(TerrainVert(v1, res));
-	verts.Push(TerrainVert(v2, res));
-	verts.Push(TerrainVert(v3, res));
+	float halfSquare = 0.5f * squareSize;
+	float qSquare = 0.25f * squareSize;
+
+	TerrainVert tl(Vector2f(x, y), Vector2f(0.0f));
+	TerrainVert tm(tl.mPos + Vector2f(halfSquare, 0.0f), Vector2f(halfSquare, 0.0f), lod);
+	TerrainVert tr(tl.mPos + Vector2f(squareSize, 0.0f), Vector2f(0.0f));
+	TerrainVert ml(tl.mPos + Vector2f(0.0f, halfSquare), Vector2f(0.0f, halfSquare), lod);
+	TerrainVert mm(ml.mPos + Vector2f(halfSquare, 0.0f), Vector2f(0.0f));
+	TerrainVert mr(ml.mPos + Vector2f(squareSize, 0.0f), Vector2f(0.0f, halfSquare), lod);
+	TerrainVert bl(tl.mPos + Vector2f(0.0f, squareSize), Vector2f(0.0f));
+	TerrainVert bm(bl.mPos + Vector2f(halfSquare, 0.0f), Vector2f(halfSquare, 0.0f), lod);
+	TerrainVert br(bl.mPos + Vector2f(squareSize, 0.0f), Vector2f(0.0f));
+	TerrainVert m1(tl.mPos + Vector2f(0.5f * halfSquare), Vector2f(qSquare, qSquare), lod);
+	TerrainVert m2(ml.mPos + Vector2f(0.5f * halfSquare), Vector2f(-qSquare, qSquare), lod);
+	TerrainVert m3(tm.mPos + Vector2f(0.5f * halfSquare), Vector2f(-qSquare, qSquare), lod);
+	TerrainVert m4(mm.mPos + Vector2f(0.5f * halfSquare), Vector2f(qSquare, qSquare), lod);
+
+
+	// Top-Left
+	vertices.Push(tl);
+	vertices.Push(ml);
+	vertices.Push(m1);
+
+	vertices.Push(ml);
+	vertices.Push(mm);
+	vertices.Push(m1);
+
+	vertices.Push(m1);
+	vertices.Push(mm);
+	vertices.Push(tm);
+
+	vertices.Push(tl);
+	vertices.Push(m1);
+	vertices.Push(tm);
+
+	// Top-Right
+	vertices.Push(tm);
+	vertices.Push(mm);
+	vertices.Push(m3);
+
+	vertices.Push(mm);
+	vertices.Push(mr);
+	vertices.Push(m3);
+
+	vertices.Push(m3);
+	vertices.Push(mr);
+	vertices.Push(tr);
+
+	vertices.Push(tm);
+	vertices.Push(m3);
+	vertices.Push(tr);
+
+	// Bot-Left
+	vertices.Push(ml);
+	vertices.Push(bl);
+	vertices.Push(m2);
+
+	vertices.Push(bl);
+	vertices.Push(bm);
+	vertices.Push(m2);
+
+	vertices.Push(m2);
+	vertices.Push(bm);
+	vertices.Push(mm);
+
+	vertices.Push(ml);
+	vertices.Push(m2);
+	vertices.Push(mm);
+
+	// Bot-Right
+	vertices.Push(mm);
+	vertices.Push(bm);
+	vertices.Push(m4);
+
+	vertices.Push(bm);
+	vertices.Push(br);
+	vertices.Push(m4);
+
+	vertices.Push(m4);
+	vertices.Push(br);
+	vertices.Push(mr);
+
+	vertices.Push(mm);
+	vertices.Push(m4);
+	vertices.Push(mr);
 }
 
 void Terrain::Create()
@@ -72,19 +156,30 @@ void Terrain::Create()
 	// Array of vertices
 	Array<TerrainVert> vertices(4096);
 
+	float prevLod = 0.0f;
 	float squareSize = mSquareSize;
 
 	for (Uint32 lvl = 0; lvl < mLodLevels.Size(); ++lvl)
 	{
+		// This determines how big the transition zone is
+		int extend = pow(2, mLodLevels.Size() - lvl - 1);
+		// If extend is 1 (Creating last lod level), then no transition zone
+		if (extend == 1) extend = 0;
+
+		// Calc useful info
 		float dist = mLodLevels[lvl];
-		int numSquares = (int)lround(dist / squareSize);
+		int numSquares = (int)lround(dist / squareSize) - extend;
 		numSquares += numSquares % 2 == 0 ? 0 : 1;
 		float halfSquare = 0.5f * squareSize;
+		// Determines if there is a sublevel
+		bool hasSublevel = (bool)lvl;
+
+		int start = numSquares;
 
 		// Process squares in grid
-		for (int r = -numSquares; r < numSquares; ++r)
+		for (int r = -start; r < start; ++r)
 		{
-			for (int c = -numSquares; c < numSquares; ++c)
+			for (int c = -start; c < start; ++c)
 			{
 				// Process square
 				Vector2f tl(c * squareSize, r * squareSize);
@@ -101,61 +196,88 @@ void Terrain::Create()
 				if (sublevel.Contains(Recti(c, r, 1, 1)))
 					continue;
 
+				bool touchL =
+					hasSublevel &&
+					c == sublevel.x - 1 &&
+					r >= sublevel.y - 1 &&
+					r < sublevel.y + sublevel.h + 1;
+				bool touchR =
+					hasSublevel &&
+					c == sublevel.x + sublevel.w &&
+					r >= sublevel.y - 1 &&
+					r < sublevel.y + sublevel.h + 1;
+				bool touchB =
+					hasSublevel &&
+					r == sublevel.y + sublevel.h &&
+					c >= sublevel.x &&
+					c < sublevel.x + sublevel.w;
+				bool touchT =
+					hasSublevel &&
+					r == sublevel.y - 1 &&
+					c >= sublevel.x &&
+					c < sublevel.x + sublevel.w;
 
-				// Left edge
-				if (c + 1 == sublevel.x && r >= sublevel.y && r < sublevel.y + sublevel.h)
+
+				if (touchL || touchR || touchT || touchB)
 				{
-					AddTriangle(vertices, mm, mr, tr, halfSquare);
-					AddTriangle(vertices, mm, br, mr, halfSquare);
+					CreateTransition(vertices, squareSize, tl.x, tl.y, prevLod);
 				}
 				else
 				{
-					AddTriangle(vertices, mm, br, tr, squareSize);
-				}
+					vertices.Push(TerrainVert(mm, Vector2f(0.0f)));
+					vertices.Push(TerrainVert(br, Vector2f(0.0f)));
+					vertices.Push(TerrainVert(tr, Vector2f(0.0f)));
 
-				// Right edge
-				if (c == sublevel.x + sublevel.w && r >= sublevel.y && r < sublevel.y + sublevel.h)
-				{
-					AddTriangle(vertices, tl, ml, mm, halfSquare);
-					AddTriangle(vertices, ml, bl, mm, halfSquare);
-				}
-				else
-				{
-					AddTriangle(vertices, tl, bl, mm, squareSize);
-				}
+					vertices.Push(TerrainVert(tl, Vector2f(0.0f)));
+					vertices.Push(TerrainVert(bl, Vector2f(0.0f)));
+					vertices.Push(TerrainVert(mm, Vector2f(0.0f)));
 
-				// Top edge
-				if (r + 1 == sublevel.y && c >= sublevel.x && c < sublevel.x + sublevel.w)
-				{
-					AddTriangle(vertices, bl, bm, mm, halfSquare);
-					AddTriangle(vertices, bm, br, mm, halfSquare);
-				}
-				else
-				{
-					AddTriangle(vertices, bl, br, mm, squareSize);
-				}
+					vertices.Push(TerrainVert(tl, Vector2f(0.0f)));
+					vertices.Push(TerrainVert(mm, Vector2f(0.0f)));
+					vertices.Push(TerrainVert(tr, Vector2f(0.0f)));
 
-				// Bottom edge
-				if (r == sublevel.y + sublevel.h && c >= sublevel.x && c < sublevel.x + sublevel.w)
-				{
-					AddTriangle(vertices, tl, mm, tm, halfSquare);
-					AddTriangle(vertices, tm, mm, tr, halfSquare);
-				}
-				else
-				{
-					AddTriangle(vertices, tl, mm, tr, squareSize);
+					vertices.Push(TerrainVert(bl, Vector2f(0.0f)));
+					vertices.Push(TerrainVert(br, Vector2f(0.0f)));
+					vertices.Push(TerrainVert(mm, Vector2f(0.0f)));
 				}
 			}
 		}
 
+		// Quit if finished last level
+		if (lvl == mLodLevels.Size() - 1) break;
+
+		// Create transition zone
+		start = numSquares / 2 + 1;
+		numSquares += extend;
+		float lod = numSquares * squareSize;
+
 		// Update sublevel
 		sublevel.x = -numSquares / 2;
-		sublevel.y = -numSquares / 2;
+		sublevel.y = sublevel.x;
 		sublevel.w = numSquares;
-		sublevel.h = numSquares;
+		sublevel.h = sublevel.w;
 
 		// Update square size
 		squareSize *= 2.0f;
+		prevLod = lod;
+
+
+		extend /= 2;
+
+		for (int i = 0; i < extend; ++i, ++start)
+		{
+			for (int c = -start; c < start; ++c)
+			{
+				CreateTransition(vertices, squareSize, c * squareSize, -start * squareSize, lod);
+				CreateTransition(vertices, squareSize, c * squareSize, (start - 1) * squareSize, lod);
+			}
+
+			for (int r = -start + 1; r < start - 1; ++r)
+			{
+				CreateTransition(vertices, squareSize, -start * squareSize, r * squareSize, lod);
+				CreateTransition(vertices, squareSize, (start - 1) * squareSize, r * squareSize, lod);
+			}
+		}
 	}
 
 
@@ -167,11 +289,15 @@ void Terrain::Create()
 	VertexArray* vao = Resource<VertexArray>::Create();
 	vao->Bind();
 	vao->VertexAttrib(0, 2, sizeof(TerrainVert), 0);
-	vao->VertexAttrib(1, 1, sizeof(TerrainVert), 8);
+	vao->VertexAttrib(1, 2, sizeof(TerrainVert), 8);
+	vao->VertexAttrib(2, 1, sizeof(TerrainVert), 16);
 
 	// Material
 	Shader* shader = Resource<Shader>::Load("Shaders/Terrain.xml");
 	shader->SetUniform("terrainSize", mSize);
+
+	float res = (1 << (mLodLevels.Size() - 1)) * mSquareSize;
+	shader->SetUniform("res", res);
 
 	Material* material = Resource<Material>::Create();
 	material->mShader = shader;
