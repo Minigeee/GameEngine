@@ -13,8 +13,10 @@ uniform float res;
 
 uniform float terrainSize;
 uniform sampler2D heightMap;
+uniform sampler2D colorMap;
 
 out vec3 FragPos;
+out vec3 Color;
 out vec3 Normal;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -61,6 +63,11 @@ void main()
 
     // Calculate normal
     Normal = normalize(cross(v2 - v1, v3 - v1));
+
+    // Calculate color
+    vec2 avg = (p1 + p2 + p3) / 3.0f;
+    vec2 texCoord = avg / terrainSize * 0.5f + 0.5f;
+    Color = texture(colorMap, texCoord).rgb;
 
     // Create triangle
     gl_Position = projView * vec4(v1, 1.0f);

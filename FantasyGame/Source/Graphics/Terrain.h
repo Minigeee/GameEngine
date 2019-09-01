@@ -25,8 +25,10 @@ public:
 
 	/* Set size of terrain */
 	void SetSize(float size);
-	/* Set height map image */
+	/* Set height map */
 	void SetHeightMap(Texture* map);
+	/* Set color map */
+	void SetColorMap(Texture* map);
 
 private:
 	/* Lod distances */
@@ -36,6 +38,8 @@ private:
 
 	/* Height map */
 	Texture* mHeightMap;
+	/* Color map */
+	Texture* mColorMap;
 	/* Size of terrain (square) */
 	float mSize;
 };

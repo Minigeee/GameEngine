@@ -28,6 +28,7 @@ uniform DirLight dirLight;
 
 in vec3 FragPos;
 in vec3 Normal;
+in vec3 Color;
 
 out vec4 FragColor;
 
@@ -42,7 +43,7 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
         diff = diffFactor * diff + diffFactor;
     else
         diff = (1.0f - diffFactor) * diff + diffFactor;
-    vec3 diffuse = diff * light.diffuse * material.diffuse;
+    vec3 diffuse = diff * light.diffuse * Color;
 
     vec3 reflectDir = reflect(light.direction, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0f), material.specFactor);
@@ -56,7 +57,7 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
 void main()
 {
     vec3 viewDir = normalize(camPos - FragPos);
-    vec3 result = ambient * material.diffuse;
+    vec3 result = ambient * Color;
 
     result += CalcDirLight(dirLight, Normal, viewDir);
 

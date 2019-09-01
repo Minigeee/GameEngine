@@ -27,7 +27,7 @@ Texture::~Texture()
 
 void Texture::Bind(Uint32 slot)
 {
-	glActiveTexture(slot);
+	glActiveTexture(GL_TEXTURE0 + slot);
 	glBindTexture(GL_TEXTURE_2D, mID);
 	sCurrentBound = mID;
 }
@@ -61,6 +61,7 @@ void Texture::SetImage(Image* image, bool mipmap, Uint32 fmt)
 			return;
 	}
 
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glTexImage2D(GL_TEXTURE_2D, 0, format, w, h, 0, format, image->GetDataType(), data);
 	if (mipmap)
 		glGenerateMipmap(GL_TEXTURE_2D);

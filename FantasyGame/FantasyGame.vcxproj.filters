@@ -218,6 +218,9 @@
     <ClCompile Include="Source\Game\Systems\TerrainSystem.cpp">
       <Filter>Source\Game\System</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Game\Terrain\BiomeMap.cpp">
+      <Filter>Source\Game\Terrain</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Core\DataTypes.h">
@@ -402,6 +405,9 @@
     </ClInclude>
     <ClInclude Include="Source\Game\Systems\TerrainSystem.h">
       <Filter>Include\Game\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Game\Terrain\BiomeMap.h">
+      <Filter>Include\Game\Terrain</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

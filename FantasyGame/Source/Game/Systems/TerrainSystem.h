@@ -6,6 +6,7 @@
 #include <Graphics/Terrain.h>
 
 #include <Game/Terrain/NoiseMap.h>
+#include <Game/Terrain/BiomeMap.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -25,6 +26,8 @@ private:
 	Terrain mTerrain;
 	/* Height map for terrain */
 	NoiseMap mHeightMap;
+	/* Biome color map */
+	BiomeMap mBiomeMap;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

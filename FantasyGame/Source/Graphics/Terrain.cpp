@@ -294,14 +294,14 @@ void Terrain::Create()
 
 	// Material
 	Shader* shader = Resource<Shader>::Load("Shaders/Terrain.xml");
-	shader->SetUniform("terrainSize", mSize);
+	shader->SetUniform("terrainSize", mSize * 0.5f);
 
 	float res = (1 << (mLodLevels.Size() - 1)) * mSquareSize;
 	shader->SetUniform("res", res);
 
 	Material* material = Resource<Material>::Create();
 	material->mShader = shader;
-	material->mSpecular = Vector3f(0.1f);
+	material->mSpecular = Vector3f(0.05f);
 
 	// Mesh
 	Mesh mesh;
@@ -319,19 +319,13 @@ void Terrain::SetSize(float size)
 	mSize = size;
 
 	if (mModel)
-		mModel->GetMesh(0).mMaterial->mShader->SetUniform("terrainSize", mSize);
+		mModel->GetMesh(0).mMaterial->mShader->SetUniform("terrainSize", mSize * 0.5f);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 void Terrain::SetHeightMap(Texture* texture)
 {
-	Image* map = texture->GetImage();
-	Uint32 w = map->GetWidth();
-	Uint32 h = map->GetHeight();
-	// Must be a square
-	if (w != h) return;
-
 	// Create height map
 	if (!mHeightMap || mHeightMap != texture)
 	{
@@ -340,6 +334,21 @@ void Terrain::SetHeightMap(Texture* texture)
 		mHeightMap->SetWrap(Texture::ClampToEdge);
 		mHeightMap->SetFilter(Texture::Linear);
 		mModel->GetMesh(0).mMaterial->AddTexture(mHeightMap, "heightMap");
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void Terrain::SetColorMap(Texture* texture)
+{
+	// Create color map
+	if (!mColorMap || mColorMap != texture)
+	{
+		mColorMap = texture;
+		mColorMap->Bind();
+		mColorMap->SetWrap(Texture::ClampToEdge);
+		mColorMap->SetFilter(Texture::Linear);
+		mModel->GetMesh(0).mMaterial->AddTexture(mColorMap, "colorMap");
 	}
 }
 
