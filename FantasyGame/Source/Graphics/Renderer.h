@@ -5,6 +5,8 @@
 
 #include <Math/Matrix4.h>
 
+#include <Graphics/RenderPass.h>
+
 ///////////////////////////////////////////////////////////////////////////////
 
 class VertexArray;
@@ -14,6 +16,41 @@ class Material;
 class Model;
 class Scene;
 class FrameBuffer;
+
+///////////////////////////////////////////////////////////////////////////////
+
+struct VertexArrayData
+{
+	/* Vertex array to render */
+	VertexArray* mVertexArray;
+	/* Material to render */
+	Material* mMaterial;
+	/* How many vertices to render */
+	Uint32 mNumVertices;
+};
+
+struct StaticRenderData
+{
+	/* Transform matrices */
+	Array<Matrix4f> mTransforms;
+	/* Instance data buffer */
+	VertexBuffer* mInstanceBuffer;
+	/* Keeps track of buffer size */
+	Uint32 mBufferSize;
+
+	/* Marks if needs update */
+	bool mNeedsUpdate;
+};
+
+struct DynamicRenderData
+{
+	/* List of renderables */
+	Array<Renderable*> mRenderables;
+	/* Offset into instance buffer (in bytes) */
+	Uint32 mDataOffset;
+};
+
+///////////////////////////////////////////////////////////////////////////////
 
 class Renderer
 {
@@ -39,47 +76,20 @@ public:
 	void AddDynamic(Renderable* object);
 
 private:
-	struct VertexArrayData
-	{
-		/* Vertex array to render */
-		VertexArray* mVertexArray;
-		/* Material to render */
-		Material* mMaterial;
-		/* How many vertices to render */
-		Uint32 mNumVertices;
-	};
 
-	struct StaticRenderData
-	{
-		/* Transform matrices */
-		Array<Matrix4f> mTransforms;
-		/* Instance data buffer */
-		VertexBuffer* mInstanceBuffer;
-		/* Keeps track of buffer size */
-		Uint32 mBufferSize;
-
-		/* Marks if needs update */
-		bool mNeedsUpdate;
-	};
-
-	struct DynamicRenderData
-	{
-		/* List of renderables */
-		Array<Renderable*> mRenderables;
-		/* Offset into instance buffer (in bytes) */
-		Uint32 mDataOffset;
-	};
-
-	/* Render queue */
-	void RenderQueue(Array<VertexArrayData>& queue);
 	/* Update render queue */
 	void UpdateQueue(bool isStatic);
 	/* Pre-render update */
 	void Update();
 
+	/* Do a render pass */
+	void DoRenderPass(RenderPass& pass, FrameBuffer* out = 0);
+
 private:
 	/* Scene to render */
 	Scene* mScene;
+	/* List of render passes */
+	Array<RenderPass> mRenderPasses;
 
 	/* List of vertex arrays */
 	Array<VertexArrayData> mVaoData;

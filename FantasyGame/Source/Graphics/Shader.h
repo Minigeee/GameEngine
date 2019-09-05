@@ -2,6 +2,7 @@
 #define SHADER_H
 
 #include <Core/TypeInfo.h>
+#include <Core/Array.h>
 
 #include <Math/Vector4.h>
 #include <Math/Matrix4.h>
@@ -9,8 +10,6 @@
 #include <Graphics/GLObject.h>
 
 #include <Resource/Loadable.h>
-
-#include <unordered_map>
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -84,6 +83,8 @@ public:
 private:
 	/* Load shader code from file */
 	Uint32 LoadShader(const char* fname, Uint32 type);
+	/* Find uniform object */
+	Uniform& FindUniform(const char* name);
 
 private:
 	/* Current bound shader */
@@ -91,7 +92,7 @@ private:
 
 private:
 	/* Uniform map */
-	std::unordered_map<const char*, Uniform> mUniforms;
+	Array<Uniform> mUniforms;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

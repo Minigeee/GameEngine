@@ -409,5 +409,8 @@
     <ClInclude Include="Source\Game\Terrain\BiomeMap.h">
       <Filter>Include\Game\Terrain</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Graphics\RenderPass.h">
+      <Filter>Include\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

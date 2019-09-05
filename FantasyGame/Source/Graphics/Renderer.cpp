@@ -54,6 +54,10 @@ void Renderer::Init()
 	mDynamicBuffer->BufferData(NULL, bufferSize, VertexBuffer::Stream);
 	mDynamicSize = bufferSize;
 	mDynamicOffset = 0;
+
+	// Default render passes
+	mRenderPasses.Resize(4);
+	mRenderPasses.Push(RenderPass(RenderPass::Normal, &FrameBuffer::Default));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -177,15 +181,23 @@ void BindShader(Shader* shader, const Matrix4f& projView, Scene* scene)
 	shader->UpdateUniforms();
 }
 
-void Renderer::Render(FrameBuffer* fb)
+void Renderer::Render(FrameBuffer* out)
 {
 	Update();
 
+	for (Uint32 i = 0; i < mRenderPasses.Size(); ++i)
+	{
+		DoRenderPass(mRenderPasses[i], i == mRenderPasses.Size() - 1 ? out : 0);
+	}
+}
+
+void Renderer::DoRenderPass(RenderPass& pass, FrameBuffer* out)
+{
 	// Bind framebuffer
-	if (fb)
-		fb->Bind();
+	if (out)
+		out->Bind();
 	else
-		FrameBuffer::Default.Bind();
+		pass.mOutput->Bind();
 
 	// Clear
 	Graphics::SetClearColor(0.2f, 0.2f, 0.3f);
@@ -197,7 +209,6 @@ void Renderer::Render(FrameBuffer* fb)
 	// Get camera projection-view matrix
 	Camera& camera = mScene->GetCamera();
 	Matrix4f projView = camera.GetProjection() * camera.GetView();
-
 
 	// ======================== Static ========================
 

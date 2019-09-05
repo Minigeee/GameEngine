@@ -40,7 +40,7 @@ void TerrainSystem::OnInit()
 
 	mTerrain.SetSize(1000.0f);
 	mTerrain.SetLodLevels(lod);
-	mTerrain.SetSquareSize(2.0f);
+	mTerrain.SetSquareSize(3.0f);
 	mTerrain.Create();
 
 	mTerrain.SetHeightMap(&mHeightMap);

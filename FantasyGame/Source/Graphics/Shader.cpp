@@ -16,9 +16,10 @@ Uint32 Shader::sCurrentBound = 0;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Shader::Shader()
+Shader::Shader() :
+	mUniforms		(8)
 {
-	sizeof(Uniform);
+
 }
 
 Shader::~Shader()
@@ -164,44 +165,60 @@ void Shader::Bind()
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
+Uniform& Shader::FindUniform(const char* name)
+{
+	// Linear search
+	for (Uint32 i = 0; i < mUniforms.Size(); ++i)
+	{
+		// Depends on string literals having same pointer location for comparison
+		if (name == mUniforms[i].mName || strcmp(name, mUniforms[i].mName) == 0)
+			return mUniforms[i];
+	}
+
+	// Add new uniform
+	mUniforms.Push(Uniform());
+
+	return mUniforms.Back();
+}
+
 void Shader::SetUniform(const char* name, int val)
 {
-	mUniforms[name] = Uniform(name, val);
+	FindUniform(name) = Uniform(name, val);
 }
 
 void Shader::SetUniform(const char* name, float val)
 {
-	mUniforms[name] = Uniform(name, val);
+	FindUniform(name) = Uniform(name, val);
 }
 
 void Shader::SetUniform(const char* name, const Vector2f& val)
 {
-	mUniforms[name] = Uniform(name, val);
+	FindUniform(name) = Uniform(name, val);
 }
 
 void Shader::SetUniform(const char* name, const Vector3f& val)
 {
-	mUniforms[name] = Uniform(name, val);
+	FindUniform(name) = Uniform(name, val);
 }
 
 void Shader::SetUniform(const char* name, const Vector4f& val)
 {
-	mUniforms[name] = Uniform(name, val);
+	FindUniform(name) = Uniform(name, val);
 }
 
 void Shader::SetUniform(const char* name, const Matrix2f& val)
 {
-	mUniforms[name] = Uniform(name, val);
+	FindUniform(name) = Uniform(name, val);
 }
 
 void Shader::SetUniform(const char* name, const Matrix3f& val)
 {
-	mUniforms[name] = Uniform(name, val);
+	FindUniform(name) = Uniform(name, val);
 }
 
 void Shader::SetUniform(const char* name, const Matrix4f& val)
 {
-	mUniforms[name] = Uniform(name, val);
+	FindUniform(name) = Uniform(name, val);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -210,11 +227,12 @@ void Shader::UpdateUniforms()
 {
 	assert(mID == sCurrentBound);
 
-	for (auto it : mUniforms)
+	for (Uint32 i = 0; i < mUniforms.Size(); ++i)
 	{
-		int loc = glGetUniformLocation(mID, it.first);
-		Uniform::Type type = it.second.mType;
-		float* var = it.second.mVariable;
+		Uniform& uniform = mUniforms[i];
+		int loc = glGetUniformLocation(mID, uniform.mName);
+		Uniform::Type type = uniform.mType;
+		float* var = uniform.mVariable;
 
 		switch (type)
 		{
