@@ -47,7 +47,7 @@ void Atmosphere::DoCalculations()
 	vao->VertexAttrib(0, 2);
 
 	// Load shaders
-	Shader* transmittanceShader = Resource<Shader>::Load("Shaders/Atmosphere/CalcTransmittance.xml");
+	Shader* transmittanceShader = Resource<Shader>::Load("Shaders/Atmosphere/Transmittance.xml");
 
 	// Create framebuffers
 	mFB = Resource<FrameBuffer>::Create();
@@ -64,12 +64,12 @@ void Atmosphere::DoCalculations()
 	Graphics::Clear(Graphics::ColorBuffer);
 
 	transmittanceShader->Bind();
-	transmittanceShader->SetUniform("mTopRadius", 6420000.0f);
-	transmittanceShader->SetUniform("mBotRadius", 6360000.0f);
-	transmittanceShader->SetUniform("mHr", 8000.0f);
-	transmittanceShader->SetUniform("mHm", 1200.0f);
-	transmittanceShader->SetUniform("mBr", Vector3f(5.8e-3f, 1.35e-2f, 3.31e-2f));
-	transmittanceShader->SetUniform("mBm", Vector3f(4.0e-3f * 0.9f));
+	transmittanceShader->SetUniform("mTopRadius", 6420.0f);
+	transmittanceShader->SetUniform("mBotRadius", 6360.0f);
+	transmittanceShader->SetUniform("mHr", 8.0f);
+	transmittanceShader->SetUniform("mHm", 1.2f);
+	transmittanceShader->SetUniform("mBr", Vector3f(5.8e-3f, 13.5e-3f, 33.1e-3f));
+	transmittanceShader->SetUniform("mBm", Vector3f(4.0e-3f / 0.9f));
 	transmittanceShader->ApplyUniforms();
 
 	vao->DrawArrays(6);

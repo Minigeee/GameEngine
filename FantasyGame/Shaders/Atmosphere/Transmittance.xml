@@ -1,5 +1,5 @@
 <program>
     <shader type = "Vertex">Shaders/Atmosphere/Precalculation.vert</shader>
     <shader type = "Fragment">Shaders/Atmosphere/Precalculation.frag</shader>
-    <shader type = "Fragment">Shaders/Atmosphere/CalcTransmittance.frag</shader>
+    <shader type = "Fragment">Shaders/Atmosphere/Transmittance.frag</shader>
 </program>
