@@ -1,0 +1,22 @@
+#ifndef ATMOSPHERE_H
+#define ATMOSPHERE_H
+
+///////////////////////////////////////////////////////////////////////////////
+
+class FrameBuffer;
+
+class Atmosphere
+{
+public:
+	Atmosphere();
+	~Atmosphere();
+
+	/* Do precalculations */
+	void DoCalculations();
+
+	FrameBuffer* mFB;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+#endif

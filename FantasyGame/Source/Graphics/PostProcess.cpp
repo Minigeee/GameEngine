@@ -53,7 +53,8 @@ void PostProcess::Enable()
 
 	if (!mVertexArray || !mVertexBuffer)
 	{
-		float verts[] = {
+		float verts[] =
+		{
 			-1.0f,  1.0f,
 			-1.0f, -1.0f,
 			 1.0f,  1.0f,
@@ -77,7 +78,7 @@ void PostProcess::Enable()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void PostProcess::Render()
+void PostProcess::Render(FrameBuffer* fb)
 {
 	// Bind default framebuffer
 	FrameBuffer::Default.Bind();
@@ -88,7 +89,7 @@ void PostProcess::Render()
 	// Uniforms
 	mShader->Bind();
 
-	mFrameBuffer->GetColorTexture()->Bind(0);
+	fb->GetColorTexture()->Bind(0);
 	mShader->SetUniform("color", 0);
 
 

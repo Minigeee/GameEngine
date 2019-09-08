@@ -13,6 +13,26 @@ class FrameBuffer : public GLObject
 	GL_OBJECT(FrameBuffer);
 
 public:
+	struct TextureOptions
+	{
+		TextureOptions(
+			Texture::Wrap wrap = Texture::ClampToEdge,
+			Texture::Filter filter = Texture::Linear,
+			Uint32 format = 0) :
+			mWrap		(wrap),
+			mFilter		(filter),
+			mFormat		(format)
+		{ }
+
+		/* Wrap option */
+		Texture::Wrap mWrap;
+		/* Filter option */
+		Texture::Filter mFilter;
+		/* Format option */
+		Uint32 mFormat;
+	};
+
+public:
 	FrameBuffer();
 	~FrameBuffer();
 
@@ -27,9 +47,9 @@ public:
 	/* Make framebuffer multisampled (Call before creating attachments) (NOT IMPLEMENTED YET) */
 	void SetMultisampled(bool ms);
 	/* Create color attachment */
-	void AttachColor(bool texture, Texture::Wrap wrap = Texture::ClampToEdge, Texture::Filter filter = Texture::Linear);
+	void AttachColor(bool texture, const TextureOptions& options = TextureOptions());
 	/* Create depth attachment */
-	void AttachDepth(bool texture, Texture::Wrap wrap = Texture::ClampToEdge, Texture::Filter filter = Texture::Linear);
+	void AttachDepth(bool texture, const TextureOptions& options = TextureOptions());
 
 	/* Get color texture */
 	Texture* GetColorTexture() const;

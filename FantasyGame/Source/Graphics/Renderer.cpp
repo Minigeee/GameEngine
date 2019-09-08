@@ -178,7 +178,7 @@ void BindShader(Shader* shader, const Matrix4f& projView, Scene* scene)
 	shader->SetUniform("ambient", scene->GetAmbient());
 	scene->GetDirLight().Use(shader);
 
-	shader->UpdateUniforms();
+	shader->ApplyUniforms();
 }
 
 void Renderer::Render(FrameBuffer* out)

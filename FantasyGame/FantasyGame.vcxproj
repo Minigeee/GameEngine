@@ -169,6 +169,7 @@
     <ClCompile Include="Source\Game\Terrain\BiomeMap.cpp" />
     <ClCompile Include="Source\Game\Terrain\NoiseMap.cpp" />
     <ClCompile Include="Source\Game\WorldScene.cpp" />
+    <ClCompile Include="Source\Graphics\Atmosphere.cpp" />
     <ClCompile Include="Source\Graphics\Camera.cpp" />
     <ClCompile Include="Source\Graphics\FrameBuffer.cpp" />
     <ClCompile Include="Source\Graphics\GLObject.cpp" />
@@ -224,6 +225,7 @@
     <ClInclude Include="Source\Game\Terrain\BiomeMap.h" />
     <ClInclude Include="Source\Game\Terrain\NoiseMap.h" />
     <ClInclude Include="Source\Game\WorldScene.h" />
+    <ClInclude Include="Source\Graphics\Atmosphere.h" />
     <ClInclude Include="Source\Graphics\Camera.h" />
     <ClInclude Include="Source\Graphics\FrameBuffer.h" />
     <ClInclude Include="Source\Graphics\GLObject.h" />

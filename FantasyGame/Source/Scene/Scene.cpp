@@ -25,6 +25,10 @@ Scene::~Scene()
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
+#include <Graphics/Atmosphere.h>
+
+Atmosphere atm;
+
 void Scene::Create(Engine* engine)
 {
 	mEngine = engine;
@@ -36,6 +40,8 @@ void Scene::Create(Engine* engine)
 
 	// Create skybox
 	mSkybox = new Skybox();
+
+	atm.DoCalculations();
 
 	OnCreate();
 }
@@ -68,7 +74,7 @@ void Scene::Update(float dt)
 
 	// Render post process effects
 	if (mPostProcess.IsEnabled())
-		mPostProcess.Render();
+		mPostProcess.Render(atm.mFB);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

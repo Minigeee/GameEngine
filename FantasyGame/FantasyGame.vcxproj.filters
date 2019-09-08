@@ -221,6 +221,9 @@
     <ClCompile Include="Source\Game\Terrain\BiomeMap.cpp">
       <Filter>Source\Game\Terrain</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Graphics\Atmosphere.cpp">
+      <Filter>Source\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Core\DataTypes.h">
@@ -410,6 +413,9 @@
       <Filter>Include\Game\Terrain</Filter>
     </ClInclude>
     <ClInclude Include="Source\Graphics\RenderPass.h">
+      <Filter>Include\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Graphics\Atmosphere.h">
       <Filter>Include\Graphics</Filter>
     </ClInclude>
   </ItemGroup>

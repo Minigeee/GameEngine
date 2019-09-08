@@ -45,6 +45,8 @@ struct Uniform
 	Type mType;
 };
 
+///////////////////////////////////////////////////////////////////////////////
+
 class Shader :
 	public GLObject,
 	public Loadable
@@ -78,7 +80,7 @@ public:
 	/* Set shader uniform */
 	void SetUniform(const char* name, const Matrix4f& val);
 	/* Update all uniforms */
-	void UpdateUniforms();
+	void ApplyUniforms();
 
 private:
 	/* Load shader code from file */

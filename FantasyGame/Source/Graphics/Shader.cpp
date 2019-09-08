@@ -44,8 +44,10 @@ bool Shader::Load(const char* fname)
 	}
 
 	// Create program
-	Uint32 program = 0, v = 0, g = 0, f = 0;
+	Uint32 program = 0;
 	program = glCreateProgram();
+	// List of shaders
+	Array<Uint32> shaders(4);
 
 	XmlNode programNode = doc.GetFirstNode("program");
 	XmlNode shaderNode = programNode.GetFirstNode("shader");
@@ -55,25 +57,23 @@ bool Shader::Load(const char* fname)
 		Uint32 shader = 0;
 
 		if (strcmp(type, "Vertex") == 0)
-		{
 			shader = LoadShader(shaderNode.GetValue(), GL_VERTEX_SHADER);
-			v = shader;
-		}
+
 		else if (strcmp(type, "Geometry") == 0)
-		{
 			shader = LoadShader(shaderNode.GetValue(), GL_GEOMETRY_SHADER);
-			g = shader;
-		}
+
 		else if (strcmp(type, "Fragment") == 0)
-		{
 			shader = LoadShader(shaderNode.GetValue(), GL_FRAGMENT_SHADER);
-			f = shader;
-		}
+
 		else
 			LOG_WARNING << "Skipping " << shaderNode.GetValue() << ", unknown shader type\n";
 
 		if (shader)
+		{
+			// Add shader to shader list
 			glAttachShader(program, shader);
+			shaders.Push(shader);
+		}
 
 		shaderNode = shaderNode.GetNextSibling("shader");
 	}
@@ -94,9 +94,8 @@ bool Shader::Load(const char* fname)
 	}
 
 	// Delete shaders
-	if (v) glDeleteShader(v);
-	if (g) glDeleteShader(g);
-	if (f) glDeleteShader(f);
+	for (Uint32 i = 0; i < shaders.Size(); ++i)
+		glDeleteShader(shaders[i]);
 
 	mID = program;
 
@@ -223,7 +222,7 @@ void Shader::SetUniform(const char* name, const Matrix4f& val)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Shader::UpdateUniforms()
+void Shader::ApplyUniforms()
 {
 	assert(mID == sCurrentBound);
 

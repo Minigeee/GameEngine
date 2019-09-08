@@ -67,7 +67,7 @@ void FrameBuffer::SetMultisampled(bool ms)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void FrameBuffer::AttachColor(bool texture, Texture::Wrap wrap, Texture::Filter filter)
+void FrameBuffer::AttachColor(bool texture, const TextureOptions& options)
 {
 	assert(mID == sCurrentBound);
 
@@ -79,15 +79,15 @@ void FrameBuffer::AttachColor(bool texture, Texture::Wrap wrap, Texture::Filter 
 		// Create empty image
 		Image img;
 		img.SetSize(mSize.x, mSize.y);
-		img.SetNumChannels(3);
 		img.SetDataType(Image::Ubyte);
 
 		// Create empty texture
+		Uint32 format = options.mFormat ? options.mFormat : Texture::Rgb;
 		mColorTexture->Bind();
-		mColorTexture->SetImage(&img);
+		mColorTexture->SetImage(&img, false, format);
 		mColorTexture->SetImage(0);
-		mColorTexture->SetWrap(wrap);
-		mColorTexture->SetFilter(filter);
+		mColorTexture->SetWrap(options.mWrap);
+		mColorTexture->SetFilter(options.mFilter);
 
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mColorTexture->GetID(), 0);
 	}
@@ -105,7 +105,7 @@ void FrameBuffer::AttachColor(bool texture, Texture::Wrap wrap, Texture::Filter 
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void FrameBuffer::AttachDepth(bool texture, Texture::Wrap wrap, Texture::Filter filter)
+void FrameBuffer::AttachDepth(bool texture, const TextureOptions& options)
 {
 	assert(mID == sCurrentBound);
 
@@ -120,11 +120,12 @@ void FrameBuffer::AttachDepth(bool texture, Texture::Wrap wrap, Texture::Filter 
 		img.SetDataType(Image::Float);
 
 		// Create empty texture
+		Uint32 format = options.mFormat ? options.mFormat : Texture::Depth;
 		mDepthTexture->Bind();
-		mDepthTexture->SetImage(&img, false, Texture::Depth);
+		mDepthTexture->SetImage(&img, false, format);
 		mDepthTexture->SetImage(0);
-		mDepthTexture->SetWrap(wrap);
-		mDepthTexture->SetFilter(filter);
+		mDepthTexture->SetWrap(options.mWrap);
+		mDepthTexture->SetFilter(options.mFilter);
 
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, mDepthTexture->GetID(), 0);
 	}
