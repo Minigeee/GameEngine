@@ -15,7 +15,7 @@ FrameBuffer FrameBuffer::Default = FrameBuffer(0);
 Uint32 FrameBuffer::sCurrentBound = 0;
 
 FrameBuffer::FrameBuffer() :
-	mSize			(1280, 720),
+	mSize			(1280, 720, 0),
 	mColorTexture	(0),
 	mDepthTexture	(0),
 	mColorID		(0),
@@ -26,7 +26,7 @@ FrameBuffer::FrameBuffer() :
 }
 
 FrameBuffer::FrameBuffer(Uint32 id) :
-	mSize			(1280, 720),
+	mSize			(1280, 720, 0),
 	mColorTexture	(0),
 	mDepthTexture	(0),
 	mColorID		(0),
@@ -40,7 +40,20 @@ FrameBuffer::~FrameBuffer()
 {
 	if (mID)
 		glDeleteFramebuffers(1, &mID);
+	if (mColorTexture)
+		Resource<Texture>::Free(mColorTexture);
+	if (mDepthTexture)
+		Resource<Texture>::Free(mDepthTexture);
+	if (mColorID)
+		glDeleteRenderbuffers(1, &mColorID);
+	if (mDepthID)
+		glDeleteRenderbuffers(1, &mDepthID);
+
 	mID = 0;
+	mColorTexture = 0;
+	mDepthTexture = 0;
+	mColorID = 0;
+	mDepthID = 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -55,9 +68,9 @@ void FrameBuffer::Bind()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void FrameBuffer::SetSize(Uint32 w, Uint32 h)
+void FrameBuffer::SetSize(Uint32 w, Uint32 h, Uint32 d)
 {
-	mSize = Vector2u(w, h);
+	mSize = Vector3u(w, h, d);
 }
 
 void FrameBuffer::SetMultisampled(bool ms)
@@ -76,20 +89,20 @@ void FrameBuffer::AttachColor(bool texture, const TextureOptions& options)
 		// Create texture
 		mColorTexture = Resource<Texture>::Create();
 
-		// Create empty image
-		Image img;
-		img.SetSize(mSize.x, mSize.y);
-		img.SetDataType(Image::Ubyte);
-
 		// Create empty texture
 		Uint32 format = options.mFormat ? options.mFormat : Texture::Rgb;
+		Uint32 dtype = options.mDataType ? options.mDataType : Image::Ubyte;
+		mColorTexture->SetDimensions(options.mDimensions);
 		mColorTexture->Bind();
-		mColorTexture->SetImage(&img, false, format);
-		mColorTexture->SetImage(0);
+		mColorTexture->Create(format, dtype, mSize.x, mSize.y, mSize.z);
 		mColorTexture->SetWrap(options.mWrap);
 		mColorTexture->SetFilter(options.mFilter);
 
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mColorTexture->GetID(), 0);
+		if (options.mDimensions == Texture::_2D)
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mColorTexture->GetID(), 0);
+		else if (options.mDimensions == Texture::_3D)
+			// Use first depth layer
+			glFramebufferTexture3D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_3D, mColorTexture->GetID(), 0, 0);
 	}
 	else
 	{
@@ -121,13 +134,18 @@ void FrameBuffer::AttachDepth(bool texture, const TextureOptions& options)
 
 		// Create empty texture
 		Uint32 format = options.mFormat ? options.mFormat : Texture::Depth;
+		Uint32 dtype = options.mDataType ? options.mDataType : Image::Float;
+		mDepthTexture->SetDimensions(options.mDimensions);
 		mDepthTexture->Bind();
-		mDepthTexture->SetImage(&img, false, format);
-		mDepthTexture->SetImage(0);
+		mDepthTexture->Create(format, dtype, mSize.x, mSize.y, mSize.z);
 		mDepthTexture->SetWrap(options.mWrap);
 		mDepthTexture->SetFilter(options.mFilter);
 
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, mDepthTexture->GetID(), 0);
+		if (options.mDimensions == Texture::_2D)
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, mDepthTexture->GetID(), 0);
+		else if (options.mDimensions == Texture::_3D)
+			// Use first depth layer
+			glFramebufferTexture3D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_3D, mDepthTexture->GetID(), 0, 0);
 	}
 	else
 	{
@@ -139,6 +157,31 @@ void FrameBuffer::AttachDepth(bool texture, const TextureOptions& options)
 
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mDepthID);
 	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void FrameBuffer::SetZValue(Uint32 z)
+{
+	assert(mID == sCurrentBound);
+
+	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	GLenum fail = GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT;
+
+	if (mColorTexture)
+	{
+		mColorTexture->Bind();
+		glFramebufferTexture3D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_3D, mColorTexture->GetID(), 0, z);
+	}
+
+	if (mDepthTexture)
+	{
+		mDepthTexture->Bind();
+		glFramebufferTexture3D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_3D, mDepthTexture->GetID(), 0, z);
+	}
+
+	status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	fail = GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -12,9 +12,25 @@ public:
 	~Atmosphere();
 
 	/* Do precalculations */
-	void DoCalculations();
+	void Init();
 
-	FrameBuffer* mFB;
+public:
+	/* Precomputed transmittance table */
+	FrameBuffer* mTransmittanceBuffer;
+	/* Precomputed scattering table */
+	FrameBuffer* mScatteringBuffer;
+	/* Flag so only initialized once */
+	bool mInitialized;
+
+	/* Transmittance texture sizes */
+	int mTransmittanceTexture_W;
+	int mTransmittanceTexture_H;
+
+	/* Scattering texture sizes */
+	int mScatteringTexture_R;
+	int mScatteringTexture_Mu;
+	int mScatteringTexture_MuS;
+	int mScatteringTexture_Nu;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

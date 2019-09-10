@@ -84,13 +84,16 @@ void PostProcess::Render(FrameBuffer* fb)
 	FrameBuffer::Default.Bind();
 
 	Graphics::Disable(Graphics::DepthTest);
+	Graphics::Disable(Graphics::CullFace);
 	Graphics::Clear(Graphics::ColorBuffer);
 
 	// Uniforms
 	mShader->Bind();
 
-	fb->GetColorTexture()->Bind(0);
 	mShader->SetUniform("color", 0);
+	mShader->ApplyUniforms();
+
+	fb->GetColorTexture()->Bind(0);
 
 
 	// Render

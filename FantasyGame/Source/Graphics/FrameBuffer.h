@@ -1,10 +1,11 @@
 #ifndef FRAME_BUFFER_H
 #define FRAME_BUFFER_H
 
-#include <Math/Vector2.h>
+#include <Math/Vector3.h>
 
 #include <Graphics/GLObject.h>
 #include <Graphics/Texture.h>
+#include <Graphics/Image.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -18,16 +19,24 @@ public:
 		TextureOptions(
 			Texture::Wrap wrap = Texture::ClampToEdge,
 			Texture::Filter filter = Texture::Linear,
-			Uint32 format = 0) :
+			Uint32 dtype = 0,
+			Uint32 format = 0,
+			Texture::Dimensions dims = Texture::_2D) :
 			mWrap		(wrap),
 			mFilter		(filter),
-			mFormat		(format)
+			mDataType	(dtype),
+			mFormat		(format),
+			mDimensions	(dims)
 		{ }
 
 		/* Wrap option */
 		Texture::Wrap mWrap;
 		/* Filter option */
 		Texture::Filter mFilter;
+		/* Texture data type */
+		Uint32 mDataType;
+		/* Number of dimensions */
+		Texture::Dimensions mDimensions;
 		/* Format option */
 		Uint32 mFormat;
 	};
@@ -43,13 +52,15 @@ public:
 	void Bind();
 
 	/* Set size of framebuffer (Call before creating attachments) */
-	void SetSize(Uint32 w, Uint32 h);
+	void SetSize(Uint32 w, Uint32 h, Uint32 d = 0);
 	/* Make framebuffer multisampled (Call before creating attachments) (NOT IMPLEMENTED YET) */
 	void SetMultisampled(bool ms);
 	/* Create color attachment */
 	void AttachColor(bool texture, const TextureOptions& options = TextureOptions());
 	/* Create depth attachment */
 	void AttachDepth(bool texture, const TextureOptions& options = TextureOptions());
+	/* Set z-component of texture */
+	void SetZValue(Uint32 z);
 
 	/* Get color texture */
 	Texture* GetColorTexture() const;
@@ -63,7 +74,7 @@ private:
 
 private:
 	/* Resolution of framebuffer */
-	Vector2u mSize;
+	Vector3u mSize;
 
 	/* Color texture */
 	Texture* mColorTexture;

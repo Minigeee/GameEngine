@@ -10,7 +10,8 @@
 
 Uint32 Texture::sCurrentBound = 0;
 
-Texture::Texture()
+Texture::Texture(Dimensions dimensions) :
+	mDimensions		(dimensions)
 {
 	glGenTextures(1, &mID);
 }
@@ -28,8 +29,20 @@ Texture::~Texture()
 void Texture::Bind(Uint32 slot)
 {
 	glActiveTexture(GL_TEXTURE0 + slot);
-	glBindTexture(GL_TEXTURE_2D, mID);
+	glBindTexture(mDimensions, mID);
 	sCurrentBound = mID;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void Texture::Create(Uint32 format, Uint32 dtype, Uint32 w, Uint32 h, Uint32 d)
+{
+	assert(sCurrentBound == mID);
+
+	if (mDimensions == _2D)
+		glTexImage2D(GL_TEXTURE_2D, 0, format, w, h, 0, format, dtype, 0);
+	else if (mDimensions == _3D)
+		glTexImage3D(GL_TEXTURE_3D, 0, format, w, h, d, 0, format, dtype, 0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -37,7 +50,8 @@ void Texture::Bind(Uint32 slot)
 void Texture::SetImage(Image* image, bool mipmap, Uint32 fmt)
 {
 	mImage = image;
-	if (!image) return;
+	// This function only usable with 2D images
+	if (!image || mDimensions != _2D) return;
 
 	assert(sCurrentBound == mID);
 
@@ -62,7 +76,10 @@ void Texture::SetImage(Image* image, bool mipmap, Uint32 fmt)
 	}
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	// Buffer data
 	glTexImage2D(GL_TEXTURE_2D, 0, format, w, h, 0, format, image->GetDataType(), data);
+
 	if (mipmap)
 		glGenerateMipmap(GL_TEXTURE_2D);
 }
@@ -79,7 +96,8 @@ void Texture::SetSubImage(Image* image, Uint32 x, Uint32 y)
 	Uint32 c = image->GetNumChannels();
 
 	// If image has no data, can't update texture
-	if (!data) return;
+	// This function only usable with 2D images
+	if (!data || mDimensions != _2D) return;
 
 	Uint32 format = GL_RED;
 	if (c == 2)
@@ -99,15 +117,25 @@ void Texture::SetSubImage(Image* image, Uint32 x, Uint32 y)
 void Texture::SetWrap(Wrap wrap)
 {
 	assert(sCurrentBound == mID);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
+	glTexParameteri(mDimensions, GL_TEXTURE_WRAP_S, wrap);
+	glTexParameteri(mDimensions, GL_TEXTURE_WRAP_T, wrap);
+	glTexParameteri(mDimensions, GL_TEXTURE_WRAP_R, wrap);
 }
 
 void Texture::SetFilter(Filter filter)
 {
 	assert(sCurrentBound == mID);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
+	glTexParameteri(mDimensions, GL_TEXTURE_MIN_FILTER, filter);
+	glTexParameteri(mDimensions, GL_TEXTURE_MAG_FILTER, filter);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void Texture::SetDimensions(Texture::Dimensions dim)
+{
+	mDimensions = dim;
+	if (sCurrentBound == mID)
+		glBindTexture(mDimensions, mID);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

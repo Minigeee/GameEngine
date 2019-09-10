@@ -35,13 +35,22 @@ public:
 		Depth	= 0x1902
 	};
 
+	enum Dimensions
+	{
+		_1D	= 0x0DE0,
+		_2D	= 0x0DE1,
+		_3D	= 0x806F
+	};
+
 public:
-	Texture();
+	Texture(Dimensions dimensions = _2D);
 	~Texture();
 
 	/* Bind texture */
 	void Bind(Uint32 slot = 0);
 
+	/* Create empty texture (Texture::Format, Image::DataType, and texture sizes) */
+	void Create(Uint32 format, Uint32 dtype, Uint32 w, Uint32 h = 0, Uint32 d = 0);
 	/* Set image (Update texture data) */
 	void SetImage(Image* image, bool mipmap = false, Uint32 format = 0);
 	/* Set subregion of image */
@@ -50,6 +59,8 @@ public:
 	void SetWrap(Wrap wrap);
 	/* Set texture filter */
 	void SetFilter(Filter filter);
+	/* Set number of dimensions */
+	void SetDimensions(Dimensions dim);
 
 	/* Get source image */
 	Image* GetImage() const;
@@ -57,6 +68,8 @@ public:
 private:
 	/*  Keep pointer to image */
 	Image* mImage;
+	/* Number of dimensions */
+	Dimensions mDimensions;
 
 private:
 	/* Current bounded texture */

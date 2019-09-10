@@ -200,11 +200,10 @@ void Renderer::DoRenderPass(RenderPass& pass, FrameBuffer* out)
 		pass.mOutput->Bind();
 
 	// Clear
-	Graphics::SetClearColor(0.2f, 0.2f, 0.3f);
-	Graphics::Clear();
-
 	Graphics::Enable(Graphics::DepthTest);
 	Graphics::EnableCull(false);
+
+	Graphics::Clear();
 
 	// Get camera projection-view matrix
 	Camera& camera = mScene->GetCamera();

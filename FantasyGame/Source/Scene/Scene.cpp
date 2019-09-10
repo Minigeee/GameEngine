@@ -41,7 +41,7 @@ void Scene::Create(Engine* engine)
 	// Create skybox
 	mSkybox = new Skybox();
 
-	atm.DoCalculations();
+	atm.Init();
 
 	OnCreate();
 }
@@ -74,7 +74,7 @@ void Scene::Update(float dt)
 
 	// Render post process effects
 	if (mPostProcess.IsEnabled())
-		mPostProcess.Render(atm.mFB);
+		mPostProcess.Render(atm.mScatteringBuffer);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
