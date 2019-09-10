@@ -431,7 +431,7 @@ vec3 GetScattering(
 
     vec4 uv4 = GetScatteringUV4(r, mu, mu_s, nu, intersects_ground);
     float x_scaled = uv4.x * SCATTERING_TEXTURE_NU_SIZE;
-    float u_x = floor(u_nu_factor);
+    float u_x = floor(x_scaled);
     float factor = x_scaled - u_x;
 
     vec3 uv1 = vec3(
@@ -445,7 +445,7 @@ vec3 GetScattering(
 
     return
         texture(mScatteringTexture, uv1).rgb * (1.0f - factor) +
-        texture(mScatteringTexture, uv1).rgb * factor;
+        texture(mScatteringTexture, uv2).rgb * factor;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
