@@ -18,6 +18,8 @@ uniform float mHm;
 uniform vec3 mBr;
 // Mie extinction factor
 uniform vec3 mBm;
+// Mie phase function G variable
+uniform float mMiePhaseG;
 
 uniform int TRANSMITTANCE_TEXTURE_WIDTH = 256;
 uniform int TRANSMITTANCE_TEXTURE_HEIGHT = 64;
@@ -31,6 +33,8 @@ uniform int SCATTERING_TEXTURE_NU_SIZE = 8;
 uniform sampler2D mTransmittanceTexture;
 // Scattering precalculation texture
 uniform sampler3D mScatteringTexture;
+
+const float PI = 3.14159265358979323846;
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -88,6 +92,12 @@ float DistToNearest(float r, float mu, bool intersects_ground)
         return DistToBot(r, mu);
     else
         return DistToTop(r, mu);
+}
+
+bool RayIntersectsGround(float r, float mu)
+{
+  return mu < 0.0f && r * r * (mu * mu - 1.0f) +
+      mBotRadius * mBotRadius >= 0.0f;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -423,8 +433,19 @@ void CalcScatteringUV3(vec3 uv3, out vec3 rayleigh, out vec3 mie)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-vec3 GetScattering(
-    float r, float mu, float mu_s, float nu, bool intersects_ground)
+// Get Mie scattering from combined scattering
+vec3 GetMieFromCombined(vec4 scattering)
+{
+    if (scattering.r == 0.0f)
+        return vec3(0.0f);
+
+    return scattering.rgb * scattering.a / scattering.r *
+        (mBr.r / mBm.r) * (mBm / mBr);
+}
+
+void Scattering(
+    float r, float mu, float mu_s, float nu, bool intersects_ground,
+    out vec3 rayleigh, out vec3 mie)
 {
     float nu_size = 1.0f / SCATTERING_TEXTURE_NU_SIZE;
     float mu_s_size = 1.0f / SCATTERING_TEXTURE_MU_S_SIZE;
@@ -443,10 +464,50 @@ vec3 GetScattering(
         uv4.z, uv4.w
     );
 
-    return
-        texture(mScatteringTexture, uv1).rgb * (1.0f - factor) +
-        texture(mScatteringTexture, uv2).rgb * factor;
+    vec4 combined =
+        texture(mScatteringTexture, uv1) * (1.0f - factor) +
+        texture(mScatteringTexture, uv2) * factor;
+
+    rayleigh = combined.rgb;
+    mie = GetMieFromCombined(combined);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+float RayleighPhaseFunction(float nu)
+{
+  float k = 3.0f / (16.0f * PI);
+  return k * (1.0f + nu * nu);
+}
+
+float MiePhaseFunction(float g, float nu)
+{
+    float k = 3.0f / (8.0f * PI) * (1.0f - g * g) / (2.0f + g * g);
+    return k * (1.0f + nu * nu) / pow(1.0f + g * g - 2.0f * g * nu, 1.5f);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+// Returns color of sky in direction and transmittance of path
+vec3 GetSkyRadiance(float r, vec3 dir, vec3 sun_dir, out vec3 transmittance)
+{
+    vec3 pos = vec3(0, r, 0);
+    float mu = dot(pos, dir) / r;
+    float mu_s = dot(pos, sun_dir) / r;
+    float nu = dot(dir, sun_dir);
+    bool intersects_ground = RayIntersectsGround(r, mu);
+
+    // Calc transmittance (Since this is for sky, doesn't calculate transmittance for ground intersections)
+    transmittance = intersects_ground ? vec3(0.0f) : TransmittanceToTop(r, mu);
+
+    // Calc scattering
+    vec3 scattering, mie;
+    Scattering(r, mu, mu_s, nu, intersects_ground, scattering, mie);
+
+    return
+        scattering * RayleighPhaseFunction(nu) +
+        mie * MiePhaseFunction(mMiePhaseG, nu);
+}
+
 ///////////////////////////////////////////////////////////////////////////////

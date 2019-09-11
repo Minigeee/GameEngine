@@ -74,7 +74,7 @@ void Scene::Update(float dt)
 
 	// Render post process effects
 	if (mPostProcess.IsEnabled())
-		mPostProcess.Render(atm.mScatteringBuffer);
+		mPostProcess.Render();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

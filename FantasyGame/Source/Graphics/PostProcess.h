@@ -18,7 +18,7 @@ public:
 	void Enable();
 
 	/* Render post process effects */
-	void Render(FrameBuffer* fb);
+	void Render();
 
 	/* Returns if system is enabled */
 	bool IsEnabled() const;

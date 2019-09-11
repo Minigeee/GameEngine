@@ -6,7 +6,7 @@
 
 in vec2 TexCoord;
 
-uniform sampler3D color;
+uniform sampler2D color;
 
 out vec4 FragColor;
 
@@ -16,7 +16,7 @@ out vec4 FragColor;
 
 void main()
 {
-    vec3 result = texture(color, vec3(TexCoord, 0.5f)).rgb;
+    vec3 result = texture(color, TexCoord).rgb;
 
     FragColor = vec4(result, 1.0f);
     FragColor.rgb = pow(FragColor.rgb, vec3(1.0f / 2.2f));

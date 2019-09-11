@@ -78,7 +78,7 @@ void PostProcess::Enable()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void PostProcess::Render(FrameBuffer* fb)
+void PostProcess::Render()
 {
 	// Bind default framebuffer
 	FrameBuffer::Default.Bind();
@@ -93,7 +93,7 @@ void PostProcess::Render(FrameBuffer* fb)
 	mShader->SetUniform("color", 0);
 	mShader->ApplyUniforms();
 
-	fb->GetColorTexture()->Bind(0);
+	mFrameBuffer->GetColorTexture()->Bind(0);
 
 
 	// Render

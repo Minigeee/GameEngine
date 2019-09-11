@@ -14,6 +14,16 @@
 Atmosphere::Atmosphere() :
 	mInitialized				(false),
 
+	mSolarIrradiance			(1.0f),
+	mSunAngularRadius			(0.1f),
+	mTopRadius					(6420.0f),
+	mBotRadius					(6360.0f),
+	mScaleHeight_R				(8.0f),
+	mScaleHeight_M				(1.2f),
+	mScattering_R				(5.8e-3f, 13.5e-3f, 33.1e-3f),
+	mScattering_M				(4.0e-3f / 0.9f),
+	mMiePhase_G					(0.8f),
+
 	mTransmittanceTexture_W		(256),
 	mTransmittanceTexture_H		(64),
 
@@ -96,14 +106,7 @@ void Atmosphere::Init()
 	Graphics::Clear(Graphics::ColorBuffer);
 
 	transmittanceShader->Bind();
-	transmittanceShader->SetUniform("TRANSMITTANCE_TEXTURE_WIDTH", mTransmittanceTexture_W);
-	transmittanceShader->SetUniform("TRANSMITTANCE_TEXTURE_HEIGHT", mTransmittanceTexture_H);
-	transmittanceShader->SetUniform("mTopRadius", 6420.0f);
-	transmittanceShader->SetUniform("mBotRadius", 6360.0f);
-	transmittanceShader->SetUniform("mHr", 8.0f);
-	transmittanceShader->SetUniform("mHm", 1.2f);
-	transmittanceShader->SetUniform("mBr", Vector3f(5.8e-3f, 13.5e-3f, 33.1e-3f));
-	transmittanceShader->SetUniform("mBm", Vector3f(4.0e-3f / 0.9f));
+	SetUniforms(transmittanceShader);
 	transmittanceShader->ApplyUniforms();
 
 	vao->DrawArrays(6);
@@ -112,19 +115,8 @@ void Atmosphere::Init()
 	mScatteringBuffer->Bind();
 
 	scatterShader->Bind();
-	scatterShader->SetUniform("SCATTERING_TEXTURE_R_SIZE", mScatteringTexture_R);
-	scatterShader->SetUniform("SCATTERING_TEXTURE_MU_SIZE", mScatteringTexture_Mu);
-	scatterShader->SetUniform("SCATTERING_TEXTURE_MU_S_SIZE", mScatteringTexture_MuS);
-	scatterShader->SetUniform("SCATTERING_TEXTURE_NU_SIZE", mScatteringTexture_Nu);
-	scatterShader->SetUniform("mTransmittanceTexture", 1);
-	scatterShader->SetUniform("mSolarIrradiance", Vector3f(1.0f));
-	scatterShader->SetUniform("mSunAngularRadius", 0.1f);
-	scatterShader->SetUniform("mTopRadius", 6420.0f);
-	scatterShader->SetUniform("mBotRadius", 6360.0f);
-	scatterShader->SetUniform("mHr", 8.0f);
-	scatterShader->SetUniform("mHm", 1.2f);
-	scatterShader->SetUniform("mBr", Vector3f(5.8e-3f, 13.5e-3f, 33.1e-3f));
-	scatterShader->SetUniform("mBm", Vector3f(4.0e-3f / 0.9f));
+	SetUniforms(scatterShader);
+	BindTransmittance(scatterShader, 1);
 	scatterShader->ApplyUniforms();
 
 	mTransmittanceBuffer->GetColorTexture()->Bind(1);
@@ -151,6 +143,55 @@ void Atmosphere::Init()
 	Resource<Shader>::Free(scatterShader);
 
 	mInitialized = true;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+void Atmosphere::SetUniforms(Shader* shader)
+{
+	shader->SetUniform("TRANSMITTANCE_TEXTURE_WIDTH", mTransmittanceTexture_W);
+	shader->SetUniform("TRANSMITTANCE_TEXTURE_HEIGHT", mTransmittanceTexture_H);
+	shader->SetUniform("SCATTERING_TEXTURE_R_SIZE", mScatteringTexture_R);
+	shader->SetUniform("SCATTERING_TEXTURE_MU_SIZE", mScatteringTexture_Mu);
+	shader->SetUniform("SCATTERING_TEXTURE_MU_S_SIZE", mScatteringTexture_MuS);
+	shader->SetUniform("SCATTERING_TEXTURE_NU_SIZE", mScatteringTexture_Nu);
+
+	shader->SetUniform("mSolarIrradiance", mSolarIrradiance);
+	shader->SetUniform("mSunAngularRadius", mSunAngularRadius);
+	shader->SetUniform("mTopRadius", mTopRadius);
+	shader->SetUniform("mBotRadius", mBotRadius);
+	shader->SetUniform("mHr", mScaleHeight_R);
+	shader->SetUniform("mHm", mScaleHeight_M);
+	shader->SetUniform("mBr", mScattering_R);
+	shader->SetUniform("mBm", mScattering_M);
+	shader->SetUniform("mMiePhaseG", mMiePhase_G);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+FrameBuffer* Atmosphere::GetTransmittanceBuffer() const
+{
+	return mTransmittanceBuffer;
+}
+
+FrameBuffer* Atmosphere::GetScatteringBuffer() const
+{
+	return mScatteringBuffer;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void Atmosphere::BindTransmittance(Shader* shader, Uint32 slot)
+{
+	mTransmittanceBuffer->GetColorTexture()->Bind(slot);
+	shader->SetUniform("mTransmittanceTexture", (int)slot);
+}
+
+void Atmosphere::BindScattering(Shader* shader, Uint32 slot)
+{
+	mScatteringBuffer->GetColorTexture()->Bind(slot);
+	shader->SetUniform("mScatteringTexture", (int)slot);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
