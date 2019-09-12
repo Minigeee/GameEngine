@@ -3,19 +3,23 @@
 
 #include <Math/Vector3.h>
 
+#include <Graphics/PostProcess.h>
+
 ///////////////////////////////////////////////////////////////////////////////
 
-class FrameBuffer;
-class Shader;
+class Scene;
 
-class Atmosphere
+class Atmosphere : public PostProcess::Effect
 {
 public:
 	Atmosphere();
 	~Atmosphere();
 
 	/* Do precalculations */
-	void Init();
+	void Init(Scene* scene);
+
+	/* Render as post processing effect */
+	void Render(VertexArray* vao) override;
 
 	/* Set uniforms needed for atmosphere shaders */
 	void SetUniforms(Shader* shader);
@@ -66,6 +70,9 @@ private:
 	FrameBuffer* mScatteringBuffer;
 	/* Flag so only initialized once */
 	bool mInitialized;
+
+	/* Scene pointer */
+	Scene* mScene;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

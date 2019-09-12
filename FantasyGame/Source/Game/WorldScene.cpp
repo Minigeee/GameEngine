@@ -2,6 +2,8 @@
 
 #include <Core/LogFile.h>
 
+#include <Graphics/Atmosphere.h>
+
 #include <Game/Systems/InputSystem.h>
 #include <Game/Systems/TerrainSystem.h>
 
@@ -39,12 +41,17 @@ void WorldScene::OnCreate()
 	RegisterSystem<TerrainSystem>();
 
 
-	mDirLight.SetDirection(0.0f, -0.5f, 1.0f);
+	mDirLight.SetDirection(0.0f, -0.1f, 1.0f);
 	mCamera.SetPosition(0.0f, 2.0f, 4.0f);
 
 
 	// PP effects
 	mPostProcess.Enable();
+
+	Atmosphere* atm = mPostProcess.AddEffect<Atmosphere>();
+	atm->Init(this);
+
+	mPostProcess.AddEffect<GammaCorrection>();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

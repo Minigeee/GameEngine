@@ -165,9 +165,6 @@ void FrameBuffer::SetZValue(Uint32 z)
 {
 	assert(mID == sCurrentBound);
 
-	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	GLenum fail = GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT;
-
 	if (mColorTexture)
 	{
 		mColorTexture->Bind();
@@ -179,9 +176,6 @@ void FrameBuffer::SetZValue(Uint32 z)
 		mDepthTexture->Bind();
 		glFramebufferTexture3D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_3D, mDepthTexture->GetID(), 0, z);
 	}
-
-	status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	fail = GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -194,6 +188,11 @@ Texture* FrameBuffer::GetColorTexture() const
 Texture* FrameBuffer::GetDepthTexture() const
 {
 	return mDepthTexture;
+}
+
+const Vector3u& FrameBuffer::GetSize() const
+{
+	return mSize;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

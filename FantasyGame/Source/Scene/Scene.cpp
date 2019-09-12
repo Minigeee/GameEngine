@@ -25,10 +25,6 @@ Scene::~Scene()
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <Graphics/Atmosphere.h>
-
-Atmosphere atm;
-
 void Scene::Create(Engine* engine)
 {
 	mEngine = engine;
@@ -40,8 +36,6 @@ void Scene::Create(Engine* engine)
 
 	// Create skybox
 	mSkybox = new Skybox();
-
-	atm.Init();
 
 	OnCreate();
 }
@@ -65,16 +59,10 @@ void Scene::Update(float dt)
 	for (Uint32 i = 0; i < mUpdateList.Size(); ++i)
 		mUpdateList[i]->Update(dt);
 
-	// Render
-	FrameBuffer* fb = 0;
-	if (mPostProcess.IsEnabled())
-		fb = mPostProcess.GetFrameBuffer();
 
-	mRenderer.Render(fb);
-
+	mRenderer.Render(mPostProcess.GetInput());
 	// Render post process effects
-	if (mPostProcess.IsEnabled())
-		mPostProcess.Render();
+	mPostProcess.Render();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

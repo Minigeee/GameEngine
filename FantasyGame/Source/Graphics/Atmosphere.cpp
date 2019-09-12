@@ -8,6 +8,8 @@
 #include <Graphics/Shader.h>
 #include <Graphics/FrameBuffer.h>
 
+#include <Scene/Scene.h>
+
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -37,14 +39,18 @@ Atmosphere::Atmosphere() :
 
 Atmosphere::~Atmosphere()
 {
-
+	if (mShader)
+		Resource<Shader>::Free(mShader);
+	mShader = 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-void Atmosphere::Init()
+void Atmosphere::Init(Scene* scene)
 {
+	mScene = scene;
+
 	// Create quad
 	float verts[] =
 	{
@@ -68,6 +74,7 @@ void Atmosphere::Init()
 	// Load shaders
 	Shader* transmittanceShader = Resource<Shader>::Load("Shaders/Atmosphere/Transmittance.xml");
 	Shader* scatterShader = Resource<Shader>::Load("Shaders/Atmosphere/SingleScatter.xml");
+	mShader = Resource<Shader>::Load("Shaders/Atmosphere/Render.xml");
 
 
 	// Create framebuffers
@@ -146,6 +153,35 @@ void Atmosphere::Init()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+void Atmosphere::Render(VertexArray* vao)
+{
+	Camera& cam = mScene->GetCamera();
+
+	Matrix4f invProjView;
+	bool inv = Inverse(cam.GetProjection() * cam.GetView(), invProjView);
+
+	// Shader uniforms
+	mShader->Bind();
+	SetUniforms(mShader);
+	mShader->SetUniform("mColor", 0);
+	mShader->SetUniform("mDepth", 1);
+	BindTransmittance(mShader, 2);
+	BindScattering(mShader, 3);
+
+	mShader->SetUniform("mInvProjView", invProjView);
+	mShader->SetUniform("mCamPos", cam.GetPosition());
+	mShader->SetUniform("mSunDir", -mScene->GetDirLight().GetDirection());
+	mShader->ApplyUniforms();
+
+	mInput->GetColorTexture()->Bind(0);
+	mInput->GetDepthTexture()->Bind(1);
+
+	// Render
+	vao->DrawArrays(6);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void Atmosphere::SetUniforms(Shader* shader)

@@ -1,4 +1,0 @@
-<program>
-    <shader type = "Vertex">Shaders/PostProcess.vert</shader>
-    <shader type = "Fragment">Shaders/PostProcess.frag</shader>
-</program>

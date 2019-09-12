@@ -12,8 +12,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 PostProcess::PostProcess() :
-	mFrameBuffer		(0),
-	mShader				(0),
 	mVertexArray		(0),
 	mVertexBuffer		(0),
 	mIsEnabled			(false)
@@ -23,13 +21,17 @@ PostProcess::PostProcess() :
 
 PostProcess::~PostProcess()
 {
-	if (mFrameBuffer)
-		delete mFrameBuffer;
+	// Free all effects
+	for (Uint32 i = 0; i < mRenderQueue.Size(); ++i)
+		delete mRenderQueue[i];
 
-	Resource<VertexArray>::Free(mVertexArray);
-	Resource<VertexBuffer>::Free(mVertexBuffer);
+	if (mVertexArray)
+		Resource<VertexArray>::Free(mVertexArray);
+	if (mVertexBuffer)
+		Resource<VertexBuffer>::Free(mVertexBuffer);
 
-	mFrameBuffer = 0;
+	mVertexArray = 0;
+	mVertexBuffer = 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -37,80 +39,156 @@ PostProcess::~PostProcess()
 
 void PostProcess::Enable()
 {
-	if (!mFrameBuffer)
+	if (mIsEnabled) return;
+
+	float verts[] =
 	{
-		mFrameBuffer = new FrameBuffer();
-		mFrameBuffer->Bind();
-		mFrameBuffer->SetSize(1280, 720);
-		mFrameBuffer->AttachColor(true);
-		mFrameBuffer->AttachDepth(true);
-	}
+		-1.0f,  1.0f,
+		-1.0f, -1.0f,
+		 1.0f,  1.0f,
 
-	if (!mShader)
-	{
-		mShader = Resource<Shader>::Load("Shaders/PostProcess.xml");
-	}
+		-1.0f, -1.0f,
+		 1.0f, -1.0f,
+		 1.0f,  1.0f
+	};
 
-	if (!mVertexArray || !mVertexBuffer)
-	{
-		float verts[] =
-		{
-			-1.0f,  1.0f,
-			-1.0f, -1.0f,
-			 1.0f,  1.0f,
+	mVertexBuffer = Resource<VertexBuffer>::Create();
+	mVertexBuffer->Bind(VertexBuffer::Array);
+	mVertexBuffer->BufferData(verts, sizeof(verts), VertexBuffer::Static);
 
-			-1.0f, -1.0f,
-			 1.0f, -1.0f,
-			 1.0f,  1.0f
-		};
+	mVertexArray = Resource<VertexArray>::Create();
+	mVertexArray->Bind();
+	mVertexArray->VertexAttrib(0, 2);
 
-		mVertexBuffer = Resource<VertexBuffer>::Create();
-		mVertexBuffer->Bind(VertexBuffer::Array);
-		mVertexBuffer->BufferData(verts, sizeof(verts), VertexBuffer::Static);
+	mRenderQueue.Resize(4);
 
-		mVertexArray = Resource<VertexArray>::Create();
-		mVertexArray->Bind();
-		mVertexArray->VertexAttrib(0, 2);
-	}
 
 	mIsEnabled = true;
 }
-
-///////////////////////////////////////////////////////////////////////////////
-
-void PostProcess::Render()
-{
-	// Bind default framebuffer
-	FrameBuffer::Default.Bind();
-
-	Graphics::Disable(Graphics::DepthTest);
-	Graphics::Disable(Graphics::CullFace);
-	Graphics::Clear(Graphics::ColorBuffer);
-
-	// Uniforms
-	mShader->Bind();
-
-	mShader->SetUniform("color", 0);
-	mShader->ApplyUniforms();
-
-	mFrameBuffer->GetColorTexture()->Bind(0);
-
-
-	// Render
-	mVertexArray->Bind();
-	mVertexArray->DrawArrays(6);
-}
-
-///////////////////////////////////////////////////////////////////////////////
 
 bool PostProcess::IsEnabled() const
 {
 	return mIsEnabled;
 }
 
-FrameBuffer* PostProcess::GetFrameBuffer() const
+///////////////////////////////////////////////////////////////////////////////
+
+void PostProcess::Render(FrameBuffer* output)
 {
-	return mFrameBuffer;
+	if (!mIsEnabled || !mRenderQueue.Size()) return;
+
+	// Bind VAO
+	mVertexArray->Bind();
+
+	// Set graphics options
+	Graphics::Disable(Graphics::DepthTest);
+	Graphics::Disable(Graphics::CullFace);
+
+	for (Uint32 i = 0; i < mRenderQueue.Size() - 1; ++i)
+	{
+		// Bind next input buffer
+		mRenderQueue[i + 1]->GetInput()->Bind();
+
+		// Render
+		Graphics::Clear(Graphics::ColorBuffer);
+		mRenderQueue[i]->Render(mVertexArray);
+	}
+
+	// Render last effect
+	output->Bind();
+	Graphics::Clear(Graphics::ColorBuffer);
+	mRenderQueue.Back()->Render(mVertexArray);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void PostProcess::RenderEffect(Effect* effect, FrameBuffer* output)
+{
+	// Bind next output buffer
+	output->Bind();
+
+	// Clear
+	Graphics::Disable(Graphics::DepthTest);
+	Graphics::Disable(Graphics::CullFace);
+	Graphics::Clear(Graphics::ColorBuffer);
+
+	// Render
+	mVertexArray->Bind();
+	effect->Render(mVertexArray);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+FrameBuffer* PostProcess::GetInput() const
+{
+	if (!mRenderQueue.Size())
+		return 0;
+
+	return mRenderQueue[0]->GetInput();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+PostProcess::Effect::Effect() :
+	mInput		(0),
+	mShader		(0)
+{
+	mInput = Resource<FrameBuffer>::Create();
+
+	// Uses default framebuffer size
+	const Vector3u& size = FrameBuffer::Default.GetSize();
+
+	mInput->Bind();
+	mInput->SetSize(size.x, size.y);
+	mInput->AttachColor(true);
+}
+
+PostProcess::Effect::~Effect()
+{
+	if (mInput)
+		Resource<FrameBuffer>::Free(mInput);
+	mInput = 0;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+FrameBuffer* PostProcess::Effect::GetInput() const
+{
+	return mInput;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+GammaCorrection::GammaCorrection() :
+	mGamma		(2.2f)
+{
+	mShader = Resource<Shader>::Load("Shaders/PostProcess/GammaCorrection.xml");
+}
+
+GammaCorrection::~GammaCorrection()
+{
+	if (mShader)
+		Resource<Shader>::Free(mShader);
+	mShader = 0;
+}
+
+void GammaCorrection::Render(VertexArray* vao)
+{
+	mShader->Bind();
+	mShader->SetUniform("mColor", 0);
+	mShader->SetUniform("mGamma", mGamma);
+	mShader->ApplyUniforms();
+
+	mInput->GetColorTexture()->Bind(0);
+
+	// Render
+	vao->DrawArrays(6);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

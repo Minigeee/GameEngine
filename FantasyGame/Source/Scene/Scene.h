@@ -38,6 +38,11 @@ public:
 
 	/* Get engine pointer */
 	Engine* GetEngine() const;
+	/* Get rendering system */
+	Renderer& GetRenderer();
+	/* Get post processing system */
+	PostProcess& GetPostProcess();
+
 	/* Get scene camera */
 	Camera& GetCamera();
 	/* Get ambient color */

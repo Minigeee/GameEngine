@@ -282,7 +282,7 @@ void Renderer::DoRenderPass(RenderPass& pass, FrameBuffer* out)
 
 	// ======================== Skybox ========================
 	Graphics::SetDepthFunc(Graphics::Lequal);
-	mScene->GetSkybox()->Render(projView);
+	// mScene->GetSkybox()->Render(projView);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

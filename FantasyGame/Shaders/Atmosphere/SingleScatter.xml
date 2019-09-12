@@ -1,5 +1,5 @@
 <program>
-    <shader type = "Vertex">Shaders/Atmosphere/Render.vert</shader>
+    <shader type = "Vertex">Shaders/Quad.vert</shader>
     <shader type = "Fragment">Shaders/Atmosphere/Functions.frag</shader>
     <shader type = "Fragment">Shaders/Atmosphere/SingleScatter.frag</shader>
 </program>

@@ -66,6 +66,8 @@ public:
 	Texture* GetColorTexture() const;
 	/* Get depth texture */
 	Texture* GetDepthTexture() const;
+	/* Get size of framebuffer */
+	const Vector3u& GetSize() const;
 
 private:
 	FrameBuffer(Uint32 id);
