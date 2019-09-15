@@ -35,14 +35,47 @@ void Texture::Bind(Uint32 slot)
 
 ///////////////////////////////////////////////////////////////////////////////
 
+Uint32 GetInternalFormat(Uint32 format, Uint32 dtype)
+{
+	Uint32 fmt = format;
+	if (dtype == Image::Ushort)
+	{
+		if (format == Texture::Red)
+			fmt = GL_R16F;
+		else if (format == Texture::Rg)
+			fmt = GL_RG16F;
+		else if (format == Texture::Rgb)
+			fmt = GL_RGB16F;
+		else if (format == Texture::Rgba)
+			fmt = GL_RGBA16F;
+	}
+	else if (dtype == Image::Float)
+	{
+		if (format == Texture::Red)
+			fmt = GL_R32F;
+		else if (format == Texture::Rg)
+			fmt = GL_RG32F;
+		else if (format == Texture::Rgb)
+			fmt = GL_RGB32F;
+		else if (format == Texture::Rgba)
+			fmt = GL_RGBA32F;
+	}
+
+	return fmt;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 void Texture::Create(Uint32 format, Uint32 dtype, Uint32 w, Uint32 h, Uint32 d)
 {
 	assert(sCurrentBound == mID);
 
+	Uint32 internalFmt = GetInternalFormat(format, dtype);
+
 	if (mDimensions == _2D)
-		glTexImage2D(GL_TEXTURE_2D, 0, format, w, h, 0, format, dtype, 0);
+		glTexImage2D(GL_TEXTURE_2D, 0, internalFmt, w, h, 0, format, dtype, 0);
 	else if (mDimensions == _3D)
-		glTexImage3D(GL_TEXTURE_3D, 0, format, w, h, d, 0, format, dtype, 0);
+		glTexImage3D(GL_TEXTURE_3D, 0, internalFmt, w, h, d, 0, format, dtype, 0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -75,10 +108,14 @@ void Texture::SetImage(Image* image, bool mipmap, Uint32 fmt)
 			return;
 	}
 
+	// Get internal format
+	Uint32 dtype = image->GetDataType();
+	Uint32 internalFmt = GetInternalFormat(format, dtype);
+
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	// Buffer data
-	glTexImage2D(GL_TEXTURE_2D, 0, format, w, h, 0, format, image->GetDataType(), data);
+	glTexImage2D(GL_TEXTURE_2D, 0, format, w, h, 0, format, dtype, data);
 
 	if (mipmap)
 		glGenerateMipmap(GL_TEXTURE_2D);

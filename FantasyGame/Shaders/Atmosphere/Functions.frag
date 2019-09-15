@@ -94,6 +94,12 @@ float DistToNearest(float r, float mu, bool intersects_ground)
         return DistToTop(r, mu);
 }
 
+bool RayIntersectsGround(float r, float mu)
+{
+  return mu < 0.0 && r * r * (mu * mu - 1.0) +
+      mBotRadius * mBotRadius >= 0.0;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -197,12 +203,12 @@ vec3 TransmittanceToTop(float r, float mu)
 }
 
 // Get transmittance along path of certain float
-vec3 Transmittance(float r, float mu, float d)
+vec3 Transmittance(float r, float mu, float d, bool intersects_ground)
 {
     float r_d = ClampRadius(sqrt(d * d + 2.0f * r * mu * d + r * r));
     float mu_d = ClampCosine((r * mu + d) / r_d);
 
-    if (mu < 0.0f)
+    if (intersects_ground)
     {
         return min(
             TransmittanceToTop(r_d, -mu_d) /
@@ -243,7 +249,7 @@ vec3 TransmittanceToSun(float r, float mu_s)
 
 // Calculate effect of inscattering of single ray from sun
 void CalcIntegrand(
-    float r, float mu, float mu_s, float nu, float d,
+    float r, float mu, float mu_s, float nu, float d, bool intersects_ground,
     out vec3 rayleigh, out vec3 mie)
 {
     float r_d = ClampRadius(sqrt(d * d + 2.0f * r * mu * d + r * r));
@@ -251,7 +257,7 @@ void CalcIntegrand(
 
     // Transmittance from sun to P to camera
     vec3 transmittance =
-        Transmittance(r, mu, d) *
+        Transmittance(r, mu, d, intersects_ground) *
         TransmittanceToSun(r_d, mu_s_d);
 
     rayleigh = exp(-(r_d - mBotRadius) / mHr) * transmittance;
@@ -260,20 +266,18 @@ void CalcIntegrand(
 
 // Calculate effect of single scattering along path given angle of sun-zenith and view-sun
 void CalcSingleScattering(
-    float r, float mu, float mu_s, float nu,
+    float r, float mu, float mu_s, float nu, bool intersects_ground,
     out vec3 rayleigh, out vec3 mie)
 {
     const int SAMPLE_COUNT = 50;
 
     // float of single integration step
-    float rho = SafeSqrt(r * r - mBotRadius * mBotRadius);
-    bool intersects_ground = mu < -rho / r;
     float dx = DistToNearest(r, mu, intersects_ground) / SAMPLE_COUNT;
 
     // Calculate first step
     vec3 rayleigh_i, mie_i;
     CalcIntegrand(
-        r, mu, mu_s, nu, 0.0f, rayleigh_i, mie_i
+        r, mu, mu_s, nu, 0.0f, intersects_ground, rayleigh_i, mie_i
     );
 
     // Integrate
@@ -284,7 +288,7 @@ void CalcSingleScattering(
         // Calc scattering effect at current step
         vec3 rayleigh_j, mie_j;
         CalcIntegrand(
-            r, mu, mu_s, nu, x_i, rayleigh_j, mie_j
+            r, mu, mu_s, nu, x_i, intersects_ground, rayleigh_j, mie_j
         );
 
         // TRS
@@ -302,7 +306,7 @@ void CalcSingleScattering(
 ///////////////////////////////////////////////////////////////////////////////
 
 vec4 GetScatteringUV4(
-    float r, float mu, float mu_s, float nu)
+    float r, float mu, float mu_s, float nu, bool intersects_ground)
 {
     // Distance to top atmosphere boundary for a horizontal ray at ground level.
     float H = sqrt(mTopRadius * mTopRadius -
@@ -312,8 +316,33 @@ vec4 GetScatteringUV4(
         SafeSqrt(r * r - mBotRadius * mBotRadius);
     float u_r = GetTexCoordFromUnitRange(rho / H, SCATTERING_TEXTURE_R_SIZE);
 
-    // Mu
-    float u_mu = mu * 0.5f + 0.5f;
+    // Discriminant of the quadratic equation for the intersections of the ray
+    // (r,mu) with the ground (see RayIntersectsGround).
+    float r_mu = r * mu;
+    float discriminant =
+        r_mu * r_mu - r * r + mBotRadius * mBotRadius;
+    float u_mu;
+    if (intersects_ground)
+    {
+        // Distance to the ground for the ray (r,mu), and its minimum and maximum
+        // values over all mu - obtained for (r,-1) and (r,mu_horizon).
+        float d = -r_mu - SafeSqrt(discriminant);
+        float d_min = r - mBotRadius;
+        float d_max = rho;
+        u_mu = 0.5 - 0.5 * GetTexCoordFromUnitRange(d_max == d_min ? 0.0 :
+            (d - d_min) / (d_max - d_min), SCATTERING_TEXTURE_MU_SIZE / 2);
+    }
+    else
+    {
+        // Distance to the top atmosphere boundary for the ray (r,mu), and its
+        // minimum and maximum values over all mu - obtained for (r,1) and
+        // (r,mu_horizon).
+        float d = -r_mu + SafeSqrt(discriminant + H * H);
+        float d_min = mTopRadius - r;
+        float d_max = rho + H;
+        u_mu = 0.5 + 0.5 * GetTexCoordFromUnitRange(
+            (d - d_min) / (d_max - d_min), SCATTERING_TEXTURE_MU_SIZE / 2);
+    }
 
     float d = DistToTop(mBotRadius, mu_s);
     float d_min = mTopRadius - mBotRadius;
@@ -329,7 +358,7 @@ vec4 GetScatteringUV4(
 }
 
 void GetScatteringRMuMuSNu(
-    vec4 uvwz, out float r, out float mu, out float mu_s, out float nu)
+    vec4 uvwz, out float r, out float mu, out float mu_s, out float nu, out bool intersects_ground)
 {
     // Distance to top atmosphere boundary for a horizontal ray at ground level.
     float H = sqrt(mTopRadius * mTopRadius -
@@ -339,8 +368,32 @@ void GetScatteringRMuMuSNu(
         H * GetUnitRangeFromTexCoord(uvwz.w, SCATTERING_TEXTURE_R_SIZE);
     r = sqrt(rho * rho + mBotRadius * mBotRadius);
 
-    // Mu
-    mu = uvwz.z * 2.0f - 1.0f;
+    if (uvwz.z < 0.5)
+    {
+        // Distance to the ground for the ray (r,mu), and its minimum and maximum
+        // values over all mu - obtained for (r,-1) and (r,mu_horizon) - from which
+        // we can recover mu:
+        float d_min = r - mBotRadius;
+        float d_max = rho;
+        float d = d_min + (d_max - d_min) * GetUnitRangeFromTexCoord(
+            1.0 - 2.0 * uvwz.z, SCATTERING_TEXTURE_MU_SIZE / 2);
+        mu = d == 0.0 ? float(-1.0) :
+            ClampCosine(-(rho * rho + d * d) / (2.0 * r * d));
+        intersects_ground = true;
+    }
+    else
+    {
+        // Distance to the top atmosphere boundary for the ray (r,mu), and its
+        // minimum and maximum values over all mu - obtained for (r,1) and
+        // (r,mu_horizon) - from which we can recover mu:
+        float d_min = mTopRadius - r;
+        float d_max = rho + H;
+        float d = d_min + (d_max - d_min) * GetUnitRangeFromTexCoord(
+            2.0 * uvwz.z - 1.0, SCATTERING_TEXTURE_MU_SIZE / 2);
+        mu = d == 0.0 ? float(1.0) :
+            ClampCosine((H * H - rho * rho - d * d) / (2.0 * r * d));
+        intersects_ground = false;
+    }
 
     float x_mu_s =
         GetUnitRangeFromTexCoord(uvwz.y, SCATTERING_TEXTURE_MU_S_SIZE);
@@ -358,16 +411,16 @@ void GetScatteringRMuMuSNu(
 
 // Get values from UV3
 void GetScatteringRMuMuSNuFromUV3(
-    vec3 uv3, out float r, out float mu, out float mu_s, out float nu)
+    vec3 uv3, out float r, out float mu, out float mu_s, out float nu, out bool intersects_ground)
 {
     float x_scaled = uv3.x * SCATTERING_TEXTURE_NU_SIZE;
     float u_nu = floor(x_scaled);
     float u_mu_s = x_scaled - u_nu;
-    u_nu /= SCATTERING_TEXTURE_NU_SIZE;
+    u_nu /= SCATTERING_TEXTURE_NU_SIZE - 1;
 
     // Get values
     vec4 uv4 = vec4(u_nu, u_mu_s, uv3.y, uv3.z);
-    GetScatteringRMuMuSNu(uv4, r, mu, mu_s, nu);
+    GetScatteringRMuMuSNu(uv4, r, mu, mu_s, nu, intersects_ground);
 
     // Clamp nu
     nu = clamp(nu, mu * mu_s - sqrt((1.0f - mu * mu) * (1.0f - mu_s * mu_s)),
@@ -378,10 +431,10 @@ void GetScatteringRMuMuSNuFromUV3(
 void CalcScatteringUV3(vec3 uv3, out vec3 rayleigh, out vec3 mie)
 {
     float r, mu, mu_s, nu;
+    bool intersects_ground;
 
-    GetScatteringRMuMuSNuFromUV3(uv3, r, mu, mu_s, nu);
-    CalcSingleScattering(r, mu, mu_s, nu, rayleigh, mie);
-    // CalcIntegrand(r, mu, mu_s, nu, 50.0f, rayleigh, mie);
+    GetScatteringRMuMuSNuFromUV3(uv3, r, mu, mu_s, nu, intersects_ground);
+    CalcSingleScattering(r, mu, mu_s, nu, intersects_ground, rayleigh, mie);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -397,11 +450,11 @@ vec3 GetMieFromCombined(vec4 scattering)
 }
 
 void Scattering(
-    float r, float mu, float mu_s, float nu,
+    float r, float mu, float mu_s, float nu, bool intersects_ground,
     out vec3 rayleigh, out vec3 mie)
 {
-    vec4 uv4 = GetScatteringUV4(r, mu, mu_s, nu);
-    float x_scaled = uv4.x * SCATTERING_TEXTURE_NU_SIZE;
+    vec4 uv4 = GetScatteringUV4(r, mu, mu_s, nu, intersects_ground);
+    float x_scaled = uv4.x * (SCATTERING_TEXTURE_NU_SIZE - 1);
     float u_x = floor(x_scaled);
     float factor = x_scaled - u_x;
 
@@ -446,13 +499,51 @@ vec3 GetSkyRadiance(float r, vec3 dir, vec3 sun_dir, out vec3 transmittance)
     float mu = dot(pos, dir) / r;
     float mu_s = dot(pos, sun_dir) / r;
     float nu = dot(dir, sun_dir);
+    bool intersects_ground = RayIntersectsGround(r, mu);
 
-    // Calc transmittance (Since this is for sky, doesn't calculate transmittance for ground intersections)
+    // Calc transmittance
     transmittance = TransmittanceToTop(r, mu);
 
     // Calc scattering
     vec3 scattering, mie;
-    Scattering(r, mu, mu_s, nu, scattering, mie);
+    Scattering(r, mu, mu_s, nu, intersects_ground, scattering, mie);
+
+    return
+        scattering * RayleighPhaseFunction(nu) +
+        mie * MiePhaseFunction(mMiePhaseG, nu);
+}
+
+/* Get scattering over certain distance */
+vec3 GetSkyRadianceToPoint(
+    float r, vec3 dir, float d, vec3 sun_dir, out vec3 transmittance)
+{
+    vec3 pos = vec3(0, r, 0);
+    float mu = dot(pos, dir) / r;
+    float mu_s = dot(pos, sun_dir) / r;
+    float nu = dot(dir, sun_dir);
+    bool intersects_ground = RayIntersectsGround(r, mu);
+
+    // Get transmittance
+    transmittance = Transmittance(r, mu, d, intersects_ground);
+
+    // Calc scattering at first point
+    vec3 scattering, mie;
+    Scattering(r, mu, mu_s, nu, intersects_ground, scattering, mie);
+
+    // Calc parameters for second point
+    float r_p = ClampRadius(sqrt(d * d + 2.0 * r * mu * d + r * r));
+    float mu_p = (r * mu + d) / r_p;
+    float mu_s_p = (r * mu_s + d * nu) / r_p;
+
+    // Calc scattering at second point
+    vec3 scattering_p, mie_p;
+    Scattering(r_p, mu_p, mu_s_p, nu, intersects_ground, scattering_p, mie_p);
+
+    // Calc scattering between points
+    scattering -= transmittance * scattering_p;
+    mie -= transmittance * mie_p;
+    mie = GetMieFromCombined(vec4(scattering, mie.r));
+    mie *= smoothstep(0.0f, 0.01f, mu_s);
 
     return
         scattering * RayleighPhaseFunction(nu) +

@@ -41,7 +41,7 @@ void WorldScene::OnCreate()
 	RegisterSystem<TerrainSystem>();
 
 
-	mDirLight.SetDirection(0.0f, -0.1f, 1.0f);
+	mDirLight.SetDirection(0.0f, -0.5f, 1.0f);
 	mCamera.SetPosition(0.0f, 2.0f, 4.0f);
 
 
@@ -50,8 +50,6 @@ void WorldScene::OnCreate()
 
 	Atmosphere* atm = mPostProcess.AddEffect<Atmosphere>();
 	atm->Init(this);
-
-	mPostProcess.AddEffect<GammaCorrection>();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

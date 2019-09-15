@@ -36,7 +36,7 @@ void TerrainSystem::OnInit()
 	Array<float> lod(4);
 	lod.Push(30.0f);
 	lod.Push(100.0f);
-	lod.Push(200.0f);
+	lod.Push(400.0f);
 
 	mTerrain.SetSize(1000.0f);
 	mTerrain.SetLodLevels(lod);

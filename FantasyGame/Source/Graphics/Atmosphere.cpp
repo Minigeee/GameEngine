@@ -17,7 +17,7 @@ Atmosphere::Atmosphere() :
 	mInitialized				(false),
 
 	mSolarIrradiance			(1.0f),
-	mSunAngularRadius			(0.1f),
+	mSunAngularRadius			(0.00935f / 2.0f),
 	mTopRadius					(6420.0f),
 	mBotRadius					(6360.0f),
 	mScaleHeight_R				(8.0f),
@@ -34,7 +34,8 @@ Atmosphere::Atmosphere() :
 	mScatteringTexture_MuS		(32),
 	mScatteringTexture_Nu		(8)
 {
-
+	mSunSize.x = tan(mSunAngularRadius);
+	mSunSize.y = cos(mSunAngularRadius);
 }
 
 Atmosphere::~Atmosphere()
@@ -87,7 +88,8 @@ void Atmosphere::Init(Scene* scene)
 		mTransmittanceTexture_H
 	);
 
-	options.mDataType = Image::Ushort;
+	options.mDataType = Image::Float;
+	options.mFormat = Texture::Rgba;
 	mTransmittanceBuffer->AttachColor(true, options);
 
 
@@ -100,8 +102,8 @@ void Atmosphere::Init(Scene* scene)
 	);
 
 	options.mDataType = Image::Ushort;
-	options.mDimensions = Texture::_3D;
 	options.mFormat = Texture::Rgba;
+	options.mDimensions = Texture::_3D;
 	mScatteringBuffer->AttachColor(true, options);
 
 
@@ -173,6 +175,7 @@ void Atmosphere::Render(VertexArray* vao)
 	mShader->SetUniform("mInvProjView", invProjView);
 	mShader->SetUniform("mCamPos", cam.GetPosition());
 	mShader->SetUniform("mSunDir", -mScene->GetDirLight().GetDirection());
+	mShader->SetUniform("mSunSize", mSunSize);
 	mShader->ApplyUniforms();
 
 	mInput->GetColorTexture()->Bind(0);

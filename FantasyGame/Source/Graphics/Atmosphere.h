@@ -64,6 +64,10 @@ public:
 	int mScatteringTexture_Nu;
 
 private:
+	/* Save atmospheric model */
+	bool SaveModel(const char* fname);
+
+private:
 	/* Precomputed transmittance table */
 	FrameBuffer* mTransmittanceBuffer;
 	/* Precomputed scattering table */
@@ -73,6 +77,9 @@ private:
 
 	/* Scene pointer */
 	Scene* mScene;
+
+	/* Size of sun computed from angular radius */
+	Vector2f mSunSize;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
