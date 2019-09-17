@@ -19,9 +19,9 @@ Material::Material() :
 
 void Material::Use()
 {
-	mShader->SetUniform("material.diffuse", mDiffuse);
-	mShader->SetUniform("material.specular", mSpecular);
-	mShader->SetUniform("material.specFactor", mSpecFactor);
+	mShader->SetUniform("mMaterial.mDiffuse", mDiffuse);
+	mShader->SetUniform("mMaterial.mSpecular", mSpecular);
+	mShader->SetUniform("mMaterial.mSpecFactor", mSpecFactor);
 
 	// Apply all textures
 	for (Uint32 i = 0; i < mTextures.Size(); ++i)

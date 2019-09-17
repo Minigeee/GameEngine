@@ -7,6 +7,8 @@
 
 #include <Graphics/RenderPass.h>
 
+#include <unordered_map>
+
 ///////////////////////////////////////////////////////////////////////////////
 
 class VertexArray;
@@ -59,12 +61,16 @@ public:
 	~Renderer();
 
 	/* Initialize renderer */
-	void Init();
+	void Init(Scene* scene);
+	/* Post initialization */
+	void PostInit();
 	/* Render stuff */
 	void Render(FrameBuffer* fb = 0);
 
-	/* Set scene to render */
-	void SetScene(Scene* scene);
+	/* Add render pass (Use new operator. Object is automatically destroyed by renderer) */
+	void AddRenderPass(RenderPass* pass, const char* lighting_name = 0);
+	/* Add lighting pass (Use new operator. Object is automatically destroyed by renderer) */
+	void AddLightingPass(LightingPass* lighting, const char* name);
 
 	/* Register model */
 	void RegisterModel(Model* model, bool isStatic = true, Uint32 num = 64);
@@ -76,7 +82,6 @@ public:
 	void AddDynamic(Renderable* object);
 
 private:
-
 	/* Update render queue */
 	void UpdateQueue(bool isStatic);
 	/* Pre-render update */
@@ -89,7 +94,16 @@ private:
 	/* Scene to render */
 	Scene* mScene;
 	/* List of render passes */
-	Array<RenderPass> mRenderPasses;
+	Array<RenderPass*> mRenderPasses;
+	/* Map of available lighting passes */
+	std::unordered_map<const char*, LightingPass*> mLightingPasses;
+
+	/* G-buffer for deffered rendering */
+	FrameBuffer* mGBuffer;
+	/* Vertex array for rendering lighting pass */
+	VertexArray* mQuadVao;
+	/* Vertex buffer for rendering lighting pass */
+	VertexBuffer* mQuadVbo;
 
 	/* List of vertex arrays */
 	Array<VertexArrayData> mVaoData;

@@ -29,14 +29,40 @@ Renderer::Renderer() :
 
 Renderer::~Renderer()
 {
+	if (mDynamicBuffer)
+		Resource<VertexBuffer>::Free(mDynamicBuffer);
+	if (mGBuffer)
+		Resource<FrameBuffer>::Free(mGBuffer);
+	if (mQuadVao)
+		Resource<VertexArray>::Free(mQuadVao);
+	if (mQuadVbo)
+		Resource<VertexBuffer>::Free(mQuadVbo);
+	
+	mDynamicBuffer = 0;
+	mGBuffer = 0;
+	mQuadVao = 0;
+	mQuadVbo = 0;
 
+	for (Uint32 i = 0; i < mStaticRenderData.Size(); ++i)
+	{
+		if (mStaticRenderData[i].mInstanceBuffer)
+			Resource<VertexBuffer>::Free(mStaticRenderData[i].mInstanceBuffer);
+	}
+
+	for (Uint32 i = 0; i < mRenderPasses.Size(); ++i)
+		delete mRenderPasses[i];
+
+	for (auto it : mLightingPasses)
+		delete it.second;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-void Renderer::Init()
+void Renderer::Init(Scene* scene)
 {
+	mScene = scene;
+
 	Uint32 initSize = 64;
 
 	mVaoData.Resize(initSize);
@@ -57,9 +83,75 @@ void Renderer::Init()
 
 	// Default render passes
 	mRenderPasses.Resize(4);
-	mRenderPasses.Push(RenderPass(RenderPass::Normal, &FrameBuffer::Default));
+
+
+	// Create G-buffer
+	mGBuffer = Resource<FrameBuffer>::Create();
+	mGBuffer->Bind();
+
+	FrameBuffer::TextureOptions options;
+	const Vector3u& size = FrameBuffer::Default.GetSize();
+	mGBuffer->SetSize(size.x, size.y);
+
+	// Position
+	options.mDimensions = Texture::_2D;
+	options.mFormat = Texture::Rgb;
+	options.mDataType = Image::Float;
+	mGBuffer->AttachColor(true, options);
+	// Normals + Specular factor
+	options.mDimensions = Texture::_2D;
+	options.mFormat = Texture::Rgba;
+	options.mDataType = Image::Ushort;
+	mGBuffer->AttachColor(true, options);
+	// Albedo
+	options.mDimensions = Texture::_2D;
+	options.mFormat = Texture::Rgb;
+	options.mDataType = Image::Ubyte;
+	mGBuffer->AttachColor(true, options);
+	// Specular
+	options.mDimensions = Texture::_2D;
+	options.mFormat = Texture::Rgb;
+	options.mDataType = Image::Ubyte;
+	mGBuffer->AttachColor(true, options);
+	// Depth
+	mGBuffer->AttachDepth(true);
+
+	// Create quad
+	float verts[] =
+	{
+		-1.0f,  1.0f,
+		-1.0f, -1.0f,
+		 1.0f,  1.0f,
+
+		-1.0f, -1.0f,
+		 1.0f, -1.0f,
+		 1.0f,  1.0f
+	};
+
+	mQuadVbo = Resource<VertexBuffer>::Create();
+	mQuadVbo->Bind(VertexBuffer::Array);
+	mQuadVbo->BufferData(verts, sizeof(verts), VertexBuffer::Static);
+
+	mQuadVao = Resource<VertexArray>::Create();
+	mQuadVao->Bind();
+	mQuadVao->VertexAttrib(0, 2);
+
+	// Add default lighting pass
+	AddLightingPass(new DefaultLighting(mScene), "Default");
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+void Renderer::PostInit()
+{
+	// Create default rendering order, if no custom rendering order
+	if (!mRenderPasses.Size())
+	{
+		AddRenderPass(new RenderPass("Normal", RenderPass::Normal));
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
 void Renderer::Update()
@@ -173,10 +265,8 @@ void Renderer::Update()
 void BindShader(Shader* shader, const Matrix4f& projView, Scene* scene)
 {
 	shader->Bind();
-	shader->SetUniform("camPos", scene->GetCamera().GetPosition());
-	shader->SetUniform("projView", projView);
-	shader->SetUniform("ambient", scene->GetAmbient());
-	scene->GetDirLight().Use(shader);
+	shader->SetUniform("mCamPos", scene->GetCamera().GetPosition());
+	shader->SetUniform("mProjView", projView);
 
 	shader->ApplyUniforms();
 }
@@ -185,19 +275,20 @@ void Renderer::Render(FrameBuffer* out)
 {
 	Update();
 
+	// Use default framebuffer is no output buffer
+	if (!out)
+		out = &FrameBuffer::Default;
+
 	for (Uint32 i = 0; i < mRenderPasses.Size(); ++i)
 	{
-		DoRenderPass(mRenderPasses[i], i == mRenderPasses.Size() - 1 ? out : 0);
+		DoRenderPass(*mRenderPasses[i], i == mRenderPasses.Size() - 1 ? out : 0);
 	}
 }
 
 void Renderer::DoRenderPass(RenderPass& pass, FrameBuffer* out)
 {
-	// Bind framebuffer
-	if (out)
-		out->Bind();
-	else
-		pass.mOutput->Bind();
+	// Bind G-Buffer
+	mGBuffer->Bind();
 
 	// Clear
 	Graphics::Enable(Graphics::DepthTest);
@@ -234,6 +325,7 @@ void Renderer::DoRenderPass(RenderPass& pass, FrameBuffer* out)
 
 				// Use material
 				data.mMaterial->Use();
+				shader->ApplyUniforms();
 			}
 
 			// Render vao
@@ -269,6 +361,7 @@ void Renderer::DoRenderPass(RenderPass& pass, FrameBuffer* out)
 
 				// Use material
 				data.mMaterial->Use();
+				shader->ApplyUniforms();
 			}
 
 			// Render vao
@@ -280,9 +373,26 @@ void Renderer::DoRenderPass(RenderPass& pass, FrameBuffer* out)
 	}
 
 
-	// ======================== Skybox ========================
-	Graphics::SetDepthFunc(Graphics::Lequal);
-	// mScene->GetSkybox()->Render(projView);
+
+	// Render lighting pass
+	pass.GetLightingPass()->Render(mGBuffer);
+
+	// Graphics options
+	Graphics::Disable(Graphics::DepthTest);
+
+	// Bind output framebuffer
+	if (out)
+		out->Bind();
+	else if (pass.GetOutput())
+		pass.GetOutput()->Bind();
+	else
+		FrameBuffer::Default.Bind();
+	
+	Graphics::Clear(Graphics::ColorBuffer);
+
+	// Render
+	mQuadVao->Bind();
+	mQuadVao->DrawArrays(6);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -457,9 +567,21 @@ void Renderer::AddDynamic(Renderable* renderable)
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-void Renderer::SetScene(Scene* scene)
+void Renderer::AddRenderPass(RenderPass* pass, const char* lighting_name)
 {
-	mScene = scene;
+	mRenderPasses.Push(pass);
+
+	// If there is no lighting pass, use specified lighting pass or default
+	LightingPass* lighting = mLightingPasses[lighting_name ? lighting_name : "Default"];
+	if (!pass->GetLightingPass())
+		mRenderPasses.Back()->SetLightingPass(lighting);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void Renderer::AddLightingPass(LightingPass* pass, const char* name)
+{
+	mLightingPasses[name] = pass;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

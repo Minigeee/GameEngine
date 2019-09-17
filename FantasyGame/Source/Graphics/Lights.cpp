@@ -24,9 +24,9 @@ DirLight::DirLight() :
 
 void DirLight::Use(Shader* shader)
 {
-	shader->SetUniform("dirLight.diffuse", mDiffuse);
-	shader->SetUniform("dirLight.specular", mSpecular);
-	shader->SetUniform("dirLight.direction", mDirection);
+	shader->SetUniform("mDirLight.mDiffuse", mDiffuse);
+	shader->SetUniform("mDirLight.mSpecular", mSpecular);
+	shader->SetUniform("mDirLight.mDirection", mDirection);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

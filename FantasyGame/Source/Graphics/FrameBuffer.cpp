@@ -16,7 +16,7 @@ Uint32 FrameBuffer::sCurrentBound = 0;
 
 FrameBuffer::FrameBuffer() :
 	mSize			(1280, 720, 0),
-	mColorTexture	(0),
+	mColorTextures	(4),
 	mDepthTexture	(0),
 	mColorID		(0),
 	mDepthID		(0),
@@ -27,7 +27,7 @@ FrameBuffer::FrameBuffer() :
 
 FrameBuffer::FrameBuffer(Uint32 id) :
 	mSize			(1280, 720, 0),
-	mColorTexture	(0),
+	mColorTextures	(4),
 	mDepthTexture	(0),
 	mColorID		(0),
 	mDepthID		(0),
@@ -40,8 +40,6 @@ FrameBuffer::~FrameBuffer()
 {
 	if (mID)
 		glDeleteFramebuffers(1, &mID);
-	if (mColorTexture)
-		Resource<Texture>::Free(mColorTexture);
 	if (mDepthTexture)
 		Resource<Texture>::Free(mDepthTexture);
 	if (mColorID)
@@ -49,8 +47,10 @@ FrameBuffer::~FrameBuffer()
 	if (mDepthID)
 		glDeleteRenderbuffers(1, &mDepthID);
 
+	for (Uint32 i = 0; i < mColorTextures.Size(); ++i)
+		Resource<Texture>::Free(mColorTextures[i]);
+
 	mID = 0;
-	mColorTexture = 0;
 	mDepthTexture = 0;
 	mColorID = 0;
 	mDepthID = 0;
@@ -80,29 +80,35 @@ void FrameBuffer::SetMultisampled(bool ms)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void FrameBuffer::AttachColor(bool texture, const TextureOptions& options)
+Uint32 FrameBuffer::AttachColor(bool texture, const TextureOptions& options)
 {
 	assert(mID == sCurrentBound);
+
+	// Used to determine attachment number
+	Uint32 index = mColorTextures.Size();
 
 	if (texture)
 	{
 		// Create texture
-		mColorTexture = Resource<Texture>::Create();
+		Texture* texture = Resource<Texture>::Create();
 
 		// Create empty texture
 		Uint32 format = options.mFormat ? options.mFormat : Texture::Rgb;
 		Uint32 dtype = options.mDataType ? options.mDataType : Image::Ubyte;
-		mColorTexture->SetDimensions(options.mDimensions);
-		mColorTexture->Bind();
-		mColorTexture->Create(format, dtype, mSize.x, mSize.y, mSize.z);
-		mColorTexture->SetWrap(options.mWrap);
-		mColorTexture->SetFilter(options.mFilter);
+		texture->SetDimensions(options.mDimensions);
+		texture->Bind();
+		texture->Create(format, dtype, mSize.x, mSize.y, mSize.z);
+		texture->SetWrap(options.mWrap);
+		texture->SetFilter(options.mFilter);
 
 		if (options.mDimensions == Texture::_2D)
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mColorTexture->GetID(), 0);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, GL_TEXTURE_2D, texture->GetID(), 0);
 		else if (options.mDimensions == Texture::_3D)
 			// Use first depth layer
-			glFramebufferTexture3D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_3D, mColorTexture->GetID(), 0, 0);
+			glFramebufferTexture3D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, GL_TEXTURE_3D, texture->GetID(), 0, 0);
+
+		// Add texture to list
+		mColorTextures.Push(texture);
 	}
 	else
 	{
@@ -112,8 +118,18 @@ void FrameBuffer::AttachColor(bool texture, const TextureOptions& options)
 
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_RGB, mSize.x, mSize.y);
 
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, mColorID);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, GL_RENDERBUFFER, mColorID);
 	}
+
+	// Specify color attachments to draw
+	Array<Uint32> buffers(mColorTextures.Size());
+	for (Uint32 i = 0; i < mColorTextures.Size(); ++i)
+		buffers.Push(GL_COLOR_ATTACHMENT0 + i);
+	glDrawBuffers(buffers.Size(), &buffers[0]);
+
+	Uint32 error = glGetError();
+
+	return index;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -165,10 +181,11 @@ void FrameBuffer::SetZValue(Uint32 z)
 {
 	assert(mID == sCurrentBound);
 
-	if (mColorTexture)
+	for (Uint32 i = 0; i < mColorTextures.Size(); ++i)
 	{
-		mColorTexture->Bind();
-		glFramebufferTexture3D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_3D, mColorTexture->GetID(), 0, z);
+		Texture* texture = mColorTextures[i];
+		texture->Bind();
+		glFramebufferTexture3D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_3D, texture->GetID(), 0, z);
 	}
 
 	if (mDepthTexture)
@@ -180,9 +197,9 @@ void FrameBuffer::SetZValue(Uint32 z)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Texture* FrameBuffer::GetColorTexture() const
+Texture* FrameBuffer::GetColorTexture(Uint32 index) const
 {
-	return mColorTexture;
+	return mColorTextures[index];
 }
 
 Texture* FrameBuffer::GetDepthTexture() const

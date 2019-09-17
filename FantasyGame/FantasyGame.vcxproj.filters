@@ -224,6 +224,9 @@
     <ClCompile Include="Source\Graphics\Atmosphere.cpp">
       <Filter>Source\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Graphics\RenderPass.cpp">
+      <Filter>Source\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Core\DataTypes.h">

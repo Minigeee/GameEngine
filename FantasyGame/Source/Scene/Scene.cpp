@@ -29,8 +29,7 @@ void Scene::Create(Engine* engine)
 {
 	mEngine = engine;
 
-	mRenderer.Init();
-	mRenderer.SetScene(this);
+	mRenderer.Init(this);
 
 	mUpdateList.Resize(16);
 
@@ -38,6 +37,8 @@ void Scene::Create(Engine* engine)
 	mSkybox = new Skybox();
 
 	OnCreate();
+
+	mRenderer.PostInit();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

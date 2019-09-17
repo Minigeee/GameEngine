@@ -1,6 +1,8 @@
 #ifndef FRAME_BUFFER_H
 #define FRAME_BUFFER_H
 
+#include <Core/Array.h>
+
 #include <Math/Vector3.h>
 
 #include <Graphics/GLObject.h>
@@ -56,14 +58,14 @@ public:
 	/* Make framebuffer multisampled (Call before creating attachments) (NOT IMPLEMENTED YET) */
 	void SetMultisampled(bool ms);
 	/* Create color attachment */
-	void AttachColor(bool texture, const TextureOptions& options = TextureOptions());
+	Uint32 AttachColor(bool texture, const TextureOptions& options = TextureOptions());
 	/* Create depth attachment */
 	void AttachDepth(bool texture, const TextureOptions& options = TextureOptions());
 	/* Set z-component of texture */
 	void SetZValue(Uint32 z);
 
 	/* Get color texture */
-	Texture* GetColorTexture() const;
+	Texture* GetColorTexture(Uint32 index = 0) const;
 	/* Get depth texture */
 	Texture* GetDepthTexture() const;
 	/* Get size of framebuffer */
@@ -78,8 +80,8 @@ private:
 	/* Resolution of framebuffer */
 	Vector3u mSize;
 
-	/* Color texture */
-	Texture* mColorTexture;
+	/* Color textures */
+	Array<Texture*> mColorTextures;
 	/* Depth texture */
 	Texture* mDepthTexture;
 

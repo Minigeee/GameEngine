@@ -46,10 +46,6 @@ void WorldScene::OnCreate()
 
 
 	// PP effects
-	mPostProcess.Enable();
-
-	Atmosphere* atm = mPostProcess.AddEffect<Atmosphere>();
-	atm->Init(this);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

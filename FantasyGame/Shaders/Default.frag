@@ -4,61 +4,29 @@
 
 struct Material
 {
-    vec3 diffuse;
-    vec3 specular;
-    float specFactor;
-};
-
-struct DirLight
-{
-    vec3 diffuse;
-    vec3 specular;
-    vec3 direction;
+    vec3 mDiffuse;
+    vec3 mSpecular;
+    float mSpecFactor;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-uniform Material material;
-
-uniform vec3 camPos;
-
-uniform vec3 ambient;
-uniform DirLight dirLight;
-
+uniform Material mMaterial;
 
 in vec3 FragPos;
 in vec3 Normal;
 
-out vec4 FragColor;
-
-const float diffFactor = 0.1f;
-
-///////////////////////////////////////////////////////////////////////////////
-
-vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
-{
-    float diff = dot(normal, -light.direction);
-    if (diff <= 0.0f)
-        diff = diffFactor * diff + diffFactor;
-    else
-        diff = (1.0f - diffFactor) * diff + diffFactor;
-    vec3 diffuse = diff * light.diffuse * material.diffuse;
-
-    vec3 reflectDir = reflect(light.direction, normal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0f), material.specFactor);
-    vec3 specular = spec * light.specular * material.specular;
-
-    return diffuse + specular;
-}
+layout (location = 0) out vec3 gPosition;
+layout (location = 1) out vec4 gNormalSpec;
+layout (location = 2) out vec3 gAlbedo;
+layout (location = 3) out vec3 gSpecular;
 
 ///////////////////////////////////////////////////////////////////////////////
 
 void main()
 {
-    vec3 viewDir = normalize(camPos - FragPos);
-    vec3 result = ambient * material.diffuse;
-
-    result += CalcDirLight(dirLight, Normal, viewDir);
-
-    FragColor = vec4(result, 1.0f);
+    gPosition = FragPos;
+    gNormalSpec = vec4(Normal, mMaterial.mSpecFactor);
+    gAlbedo = mMaterial.mDiffuse;
+    gSpecular = mMaterial.mSpecular;
 }

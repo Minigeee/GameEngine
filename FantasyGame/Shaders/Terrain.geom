@@ -7,8 +7,8 @@ in vec2 Vertex[];
 in vec2 Ind[];
 in float Lod[];
 
-uniform mat4 projView;
-uniform vec3 camPos;
+uniform mat4 mProjView;
+uniform vec3 mCamPos;
 uniform float res;
 
 uniform float terrainSize;
@@ -36,7 +36,7 @@ float calcHeight(vec2 p, vec2 ind, float lod)
         texCoord = (p - ind) / terrainSize * 0.5f + 0.5f;
         float h2 = texture(heightMap, texCoord).r * 10.0f;
 
-        vec2 dist = vec2(lod) - abs(p - camPos.xz);
+        vec2 dist = vec2(lod) - abs(p - mCamPos.xz);
         float factor = clamp(min(dist.x, dist.y) / (0.5f * res), 0.0f, 1.0f);
 
         return mix(0.5f * (h1 + h2), h, factor);
@@ -47,7 +47,7 @@ float calcHeight(vec2 p, vec2 ind, float lod)
 
 void main()
 {
-    vec2 offset = round(camPos.xz / res) * res;
+    vec2 offset = round(mCamPos.xz / res) * res;
 
     vec2 p1 = Vertex[0] + offset;
     float h1 = calcHeight(p1, Ind[0], Lod[0]);
@@ -70,15 +70,15 @@ void main()
     Color = texture(colorMap, texCoord).rgb;
 
     // Create triangle
-    gl_Position = projView * vec4(v1, 1.0f);
+    gl_Position = mProjView * vec4(v1, 1.0f);
     FragPos = v1;
     EmitVertex();
     
-    gl_Position = projView * vec4(v2, 1.0f);
+    gl_Position = mProjView * vec4(v2, 1.0f);
     FragPos = v2;
     EmitVertex();
     
-    gl_Position = projView * vec4(v3, 1.0f);
+    gl_Position = mProjView * vec4(v3, 1.0f);
     FragPos = v3;
     EmitVertex();
 

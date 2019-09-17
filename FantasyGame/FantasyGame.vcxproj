@@ -182,6 +182,7 @@
     <ClCompile Include="Source\Graphics\PostProcess.cpp" />
     <ClCompile Include="Source\Graphics\Renderable.cpp" />
     <ClCompile Include="Source\Graphics\Renderer.cpp" />
+    <ClCompile Include="Source\Graphics\RenderPass.cpp" />
     <ClCompile Include="Source\Graphics\Shader.cpp" />
     <ClCompile Include="Source\Graphics\Skybox.cpp" />
     <ClCompile Include="Source\Graphics\Terrain.cpp" />
