@@ -11,6 +11,33 @@
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
+/* Used to specify up to 20 draw buffers */
+Uint32 gDrawBuffers[] =
+{
+	GL_COLOR_ATTACHMENT0,
+	GL_COLOR_ATTACHMENT1,
+	GL_COLOR_ATTACHMENT2,
+	GL_COLOR_ATTACHMENT3,
+	GL_COLOR_ATTACHMENT4,
+	GL_COLOR_ATTACHMENT5,
+	GL_COLOR_ATTACHMENT6,
+	GL_COLOR_ATTACHMENT7,
+	GL_COLOR_ATTACHMENT8,
+	GL_COLOR_ATTACHMENT9,
+	GL_COLOR_ATTACHMENT10,
+	GL_COLOR_ATTACHMENT11,
+	GL_COLOR_ATTACHMENT12,
+	GL_COLOR_ATTACHMENT13,
+	GL_COLOR_ATTACHMENT14,
+	GL_COLOR_ATTACHMENT15,
+	GL_COLOR_ATTACHMENT16,
+	GL_COLOR_ATTACHMENT17,
+	GL_COLOR_ATTACHMENT18,
+	GL_COLOR_ATTACHMENT19
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 FrameBuffer FrameBuffer::Default = FrameBuffer(0);
 Uint32 FrameBuffer::sCurrentBound = 0;
 
@@ -122,12 +149,7 @@ Uint32 FrameBuffer::AttachColor(bool texture, const TextureOptions& options)
 	}
 
 	// Specify color attachments to draw
-	Array<Uint32> buffers(mColorTextures.Size());
-	for (Uint32 i = 0; i < mColorTextures.Size(); ++i)
-		buffers.Push(GL_COLOR_ATTACHMENT0 + i);
-	glDrawBuffers(buffers.Size(), &buffers[0]);
-
-	Uint32 error = glGetError();
+	glDrawBuffers(mColorTextures.Size(), gDrawBuffers);
 
 	return index;
 }

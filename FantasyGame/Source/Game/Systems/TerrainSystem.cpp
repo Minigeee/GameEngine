@@ -28,9 +28,9 @@ void TerrainSystem::OnInit()
 	// Create biome map
 	mBiomeMap.SetHeightMap(&mHeightMap);
 	mBiomeMap.AddColor(Vector3f(0.651f, 0.616f, 0.325f), 0.2f);
-	mBiomeMap.AddColor(Vector3f(0.267f, 0.541f, 0.259f), 1.0f);
-	mBiomeMap.AddColorFilter(Vector3f(1.0f, 0.0f, 0.0f), 1, 0.05f, 0.02f);
-	mBiomeMap.AddColorFilter(Vector3f(0.0f, 0.0f, 1.0f), 1, 0.05f, 0.02f);
+	mBiomeMap.AddColor(Vector3f(0.247f, 0.401f, 0.179f), 1.0f);
+	mBiomeMap.AddColorFilter(Vector3f(1.0f, 0.0f, 0.0f), 1, 0.05f, 0.015f);
+	mBiomeMap.AddColorFilter(Vector3f(0.0f, 0.0f, 1.0f), 1, 0.05f, 0.015f);
 	mBiomeMap.Generate();
 
 	Array<float> lod(4);

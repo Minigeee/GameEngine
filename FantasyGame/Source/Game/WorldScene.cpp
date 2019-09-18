@@ -44,8 +44,13 @@ void WorldScene::OnCreate()
 	mDirLight.SetDirection(0.0f, -0.5f, 1.0f);
 	mCamera.SetPosition(0.0f, 2.0f, 4.0f);
 
+	// Atmospheric lighting
+	Atmosphere* atm = new Atmosphere(this);
+	atm->Init();
+	mRenderer.AddLightingPass(atm, "Atmosphere");
 
-	// PP effects
+	// Render passes
+	mRenderer.AddRenderPass(new RenderPass("Normal", RenderPass::Normal), "Atmosphere");
 }
 
 ///////////////////////////////////////////////////////////////////////////////

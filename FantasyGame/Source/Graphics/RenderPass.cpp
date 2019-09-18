@@ -26,6 +26,7 @@ RenderPass::RenderPass(const char* name, Type type, bool create_fb) :
 		mOutput->Bind();
 		mOutput->SetSize(size.x, size.y);
 
+		// Use half float for HDR rendering
 		options.mFormat = Texture::Rgb;
 		options.mDataType = Image::Ushort;
 		mOutput->AttachColor(true, options);

@@ -13,9 +13,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-Atmosphere::Atmosphere() :
+Atmosphere::Atmosphere(Scene* scene) :
+	LightingPass				(scene),
+
 	mInitialized				(false),
 
+	mSolarIntensity				(10.0f),
 	mSolarIrradiance			(1.0f),
 	mSunAngularRadius			(0.00935f / 2.0f),
 	mTopRadius					(6420.0f),
@@ -25,6 +28,8 @@ Atmosphere::Atmosphere() :
 	mScattering_R				(5.8e-3f, 13.5e-3f, 33.1e-3f),
 	mScattering_M				(4.0e-3f / 0.9f),
 	mMiePhase_G					(0.8f),
+	mBaseHeight					(0.8f),
+	mDistScale					(50.0f),
 
 	mTransmittanceTexture_W		(256),
 	mTransmittanceTexture_H		(64),
@@ -32,7 +37,10 @@ Atmosphere::Atmosphere() :
 	mScatteringTexture_R		(32),
 	mScatteringTexture_Mu		(128),
 	mScatteringTexture_MuS		(32),
-	mScatteringTexture_Nu		(8)
+	mScatteringTexture_Nu		(8),
+
+	mIrradianceTexture_W		(64),
+	mIrradianceTexture_H		(16)
 {
 	mSunSize.x = tan(mSunAngularRadius);
 	mSunSize.y = cos(mSunAngularRadius);
@@ -42,16 +50,24 @@ Atmosphere::~Atmosphere()
 {
 	if (mShader)
 		Resource<Shader>::Free(mShader);
+	if (mTransmittanceBuffer)
+		Resource<FrameBuffer>::Free(mTransmittanceBuffer);
+	if (mScatteringBuffer)
+		Resource<FrameBuffer>::Free(mScatteringBuffer);
+	if (mIrradianceBuffer)
+		Resource<FrameBuffer>::Free(mIrradianceBuffer);
+
 	mShader = 0;
+	mTransmittanceBuffer = 0;
+	mScatteringBuffer = 0;
+	mIrradianceBuffer = 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-void Atmosphere::Init(Scene* scene)
+void Atmosphere::Init()
 {
-	mScene = scene;
-
 	// Create quad
 	float verts[] =
 	{
@@ -75,6 +91,7 @@ void Atmosphere::Init(Scene* scene)
 	// Load shaders
 	Shader* transmittanceShader = Resource<Shader>::Load("Shaders/Atmosphere/Transmittance.xml");
 	Shader* scatterShader = Resource<Shader>::Load("Shaders/Atmosphere/SingleScatter.xml");
+	Shader* irradianceShader = Resource<Shader>::Load("Shaders/Atmosphere/Irradiance.xml");
 	mShader = Resource<Shader>::Load("Shaders/Atmosphere/Render.xml");
 
 
@@ -89,7 +106,7 @@ void Atmosphere::Init(Scene* scene)
 	);
 
 	options.mDataType = Image::Float;
-	options.mFormat = Texture::Rgba;
+	options.mFormat = Texture::Rgb;
 	mTransmittanceBuffer->AttachColor(true, options);
 
 
@@ -105,6 +122,19 @@ void Atmosphere::Init(Scene* scene)
 	options.mFormat = Texture::Rgba;
 	options.mDimensions = Texture::_3D;
 	mScatteringBuffer->AttachColor(true, options);
+
+	
+	mIrradianceBuffer = Resource<FrameBuffer>::Create();
+	mIrradianceBuffer->Bind();
+	mIrradianceBuffer->SetSize(
+		mIrradianceTexture_W,
+		mIrradianceTexture_H
+	);
+
+	options.mDataType = Image::Float;
+	options.mFormat = Texture::Rgb;
+	options.mDimensions = Texture::_2D;
+	mIrradianceBuffer->AttachColor(true, options);
 
 
 	// Do calculations
@@ -128,8 +158,6 @@ void Atmosphere::Init(Scene* scene)
 	BindTransmittance(scatterShader, 1);
 	scatterShader->ApplyUniforms();
 
-	mTransmittanceBuffer->GetColorTexture()->Bind(1);
-
 	for (Uint32 r = 0; r < mScatteringTexture_R; ++r)
 	{
 		// Update z-component of render texture
@@ -144,12 +172,24 @@ void Atmosphere::Init(Scene* scene)
 		vao->DrawArrays(6);
 	}
 
+	// Irradiance
+	mIrradianceBuffer->Bind();
+
+	irradianceShader->Bind();
+	SetUniforms(irradianceShader);
+	BindTransmittance(irradianceShader, 1);
+	BindScattering(irradianceShader, 2);
+	irradianceShader->ApplyUniforms();
+
+	vao->DrawArrays(6);
+
 
 	// Free resources
 	Resource<VertexBuffer>::Free(vbo);
 	Resource<VertexArray>::Free(vao);
 	Resource<Shader>::Free(transmittanceShader);
 	Resource<Shader>::Free(scatterShader);
+	Resource<Shader>::Free(irradianceShader);
 
 	mInitialized = true;
 }
@@ -157,32 +197,39 @@ void Atmosphere::Init(Scene* scene)
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-void Atmosphere::Render(VertexArray* vao)
+void Atmosphere::Render(FrameBuffer* gbuffer)
 {
+	// Calculate inverse proj-view matrix
 	Camera& cam = mScene->GetCamera();
-
 	Matrix4f invProjView;
-	bool inv = Inverse(cam.GetProjection() * cam.GetView(), invProjView);
+	Inverse(cam.GetProjection() * cam.GetView(), invProjView);
 
 	// Shader uniforms
 	mShader->Bind();
+
+	mShader->SetUniform("mNormalSpec", 1);
+	mShader->SetUniform("mAlbedo", 2);
+	mShader->SetUniform("mSpecular", 3);
+	mShader->SetUniform("mDepth", 4);
+	gbuffer->GetColorTexture(0)->Bind(0);
+	gbuffer->GetColorTexture(1)->Bind(1);
+	gbuffer->GetColorTexture(2)->Bind(2);
+	gbuffer->GetColorTexture(3)->Bind(3);
+	gbuffer->GetDepthTexture()->Bind(4);
+	BindTransmittance(mShader, 5);
+	BindScattering(mShader, 6);
+	BindIrradiance(mShader, 7);
+
 	SetUniforms(mShader);
-	mShader->SetUniform("mColor", 0);
-	mShader->SetUniform("mDepth", 1);
-	BindTransmittance(mShader, 2);
-	BindScattering(mShader, 3);
 
 	mShader->SetUniform("mInvProjView", invProjView);
 	mShader->SetUniform("mCamPos", cam.GetPosition());
 	mShader->SetUniform("mSunDir", -mScene->GetDirLight().GetDirection());
 	mShader->SetUniform("mSunSize", mSunSize);
+	mShader->SetUniform("mBaseHeight", mBaseHeight);
+	mShader->SetUniform("mDistScale", mDistScale);
+
 	mShader->ApplyUniforms();
-
-	mInput->GetColorTexture()->Bind(0);
-	mInput->GetDepthTexture()->Bind(1);
-
-	// Render
-	vao->DrawArrays(6);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -195,7 +242,10 @@ void Atmosphere::SetUniforms(Shader* shader)
 	shader->SetUniform("SCATTERING_TEXTURE_MU_SIZE", mScatteringTexture_Mu);
 	shader->SetUniform("SCATTERING_TEXTURE_MU_S_SIZE", mScatteringTexture_MuS);
 	shader->SetUniform("SCATTERING_TEXTURE_NU_SIZE", mScatteringTexture_Nu);
+	shader->SetUniform("IRRADIANCE_TEXTURE_WIDTH", mIrradianceTexture_W);
+	shader->SetUniform("IRRADIANCE_TEXTURE_HEIGHT", mIrradianceTexture_H);
 
+	shader->SetUniform("mSolarIntensity", mSolarIntensity);
 	shader->SetUniform("mSolarIrradiance", mSolarIrradiance);
 	shader->SetUniform("mSunAngularRadius", mSunAngularRadius);
 	shader->SetUniform("mTopRadius", mTopRadius);
@@ -219,6 +269,11 @@ FrameBuffer* Atmosphere::GetScatteringBuffer() const
 	return mScatteringBuffer;
 }
 
+FrameBuffer* Atmosphere::GetIrradianceBuffer() const
+{
+	return mScatteringBuffer;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void Atmosphere::BindTransmittance(Shader* shader, Uint32 slot)
@@ -231,6 +286,12 @@ void Atmosphere::BindScattering(Shader* shader, Uint32 slot)
 {
 	mScatteringBuffer->GetColorTexture()->Bind(slot);
 	shader->SetUniform("mScatteringTexture", (int)slot);
+}
+
+void Atmosphere::BindIrradiance(Shader* shader, Uint32 slot)
+{
+	mIrradianceBuffer->GetColorTexture()->Bind(slot);
+	shader->SetUniform("mIrradianceTexture", (int)slot);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

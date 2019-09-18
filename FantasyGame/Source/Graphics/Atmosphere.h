@@ -3,23 +3,23 @@
 
 #include <Math/Vector3.h>
 
-#include <Graphics/PostProcess.h>
+#include <Graphics/RenderPass.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 
 class Scene;
 
-class Atmosphere : public PostProcess::Effect
+class Atmosphere : public LightingPass
 {
 public:
-	Atmosphere();
+	Atmosphere(Scene* scene);
 	~Atmosphere();
 
 	/* Do precalculations */
-	void Init(Scene* scene);
+	void Init();
 
-	/* Render as post processing effect */
-	void Render(VertexArray* vao) override;
+	/* Render as lighting effect */
+	void Render(FrameBuffer* gbuffer) override;
 
 	/* Set uniforms needed for atmosphere shaders */
 	void SetUniforms(Shader* shader);
@@ -28,12 +28,18 @@ public:
 	FrameBuffer* GetTransmittanceBuffer() const;
 	/* Get scattering buffer */
 	FrameBuffer* GetScatteringBuffer() const;
+	/* Get irradiance buffer */
+	FrameBuffer* GetIrradianceBuffer() const;
 	/* Bind transmittance texture and set uniform */
 	void BindTransmittance(Shader* shader, Uint32 slot);
 	/* Bind scattering texture and set uniform */
 	void BindScattering(Shader* shader, Uint32 slot);
+	/* Bind irradiance texture and set uniform */
+	void BindIrradiance(Shader* shader, Uint32 slot);
 
 public:
+	/* Intensity of sunlight */
+	float mSolarIntensity;
 	/* Color of sunlight */
 	Vector3f mSolarIrradiance;
 	/* Radius of sun in radians (angle from viewer) */
@@ -53,6 +59,11 @@ public:
 	/* G-constant for Mie phase function */
 	float mMiePhase_G;
 
+	/* Base altitude */
+	float mBaseHeight;
+	/* Distance multiplier */
+	float mDistScale;
+
 	/* Transmittance texture sizes */
 	int mTransmittanceTexture_W;
 	int mTransmittanceTexture_H;
@@ -63,6 +74,10 @@ public:
 	int mScatteringTexture_MuS;
 	int mScatteringTexture_Nu;
 
+	/* Irradiance texture sizes */
+	int mIrradianceTexture_W;
+	int mIrradianceTexture_H;
+
 private:
 	/* Save atmospheric model */
 	bool SaveModel(const char* fname);
@@ -72,11 +87,10 @@ private:
 	FrameBuffer* mTransmittanceBuffer;
 	/* Precomputed scattering table */
 	FrameBuffer* mScatteringBuffer;
+	/* Precomputed irradiance table */
+	FrameBuffer* mIrradianceBuffer;
 	/* Flag so only initialized once */
 	bool mInitialized;
-
-	/* Scene pointer */
-	Scene* mScene;
 
 	/* Size of sun computed from angular radius */
 	Vector2f mSunSize;

@@ -9,6 +9,8 @@ uniform float mBotRadius;
 uniform vec3 mSolarIrradiance;
 // Radius of sun in radians (Based on view point)
 uniform float mSunAngularRadius;
+// Solar intensity
+uniform float mSolarIntensity; 
 
 // Rayleigh density
 uniform float mHr;
@@ -21,18 +23,23 @@ uniform vec3 mBm;
 // Mie phase function G variable
 uniform float mMiePhaseG;
 
-uniform int TRANSMITTANCE_TEXTURE_WIDTH = 256;
-uniform int TRANSMITTANCE_TEXTURE_HEIGHT = 64;
+uniform int TRANSMITTANCE_TEXTURE_WIDTH;
+uniform int TRANSMITTANCE_TEXTURE_HEIGHT;
 
-uniform int SCATTERING_TEXTURE_R_SIZE = 32;
-uniform int SCATTERING_TEXTURE_MU_SIZE = 128;
-uniform int SCATTERING_TEXTURE_MU_S_SIZE = 32;
-uniform int SCATTERING_TEXTURE_NU_SIZE = 8;
+uniform int SCATTERING_TEXTURE_R_SIZE;
+uniform int SCATTERING_TEXTURE_MU_SIZE;
+uniform int SCATTERING_TEXTURE_MU_S_SIZE;
+uniform int SCATTERING_TEXTURE_NU_SIZE;
+
+uniform int IRRADIANCE_TEXTURE_WIDTH;
+uniform int IRRADIANCE_TEXTURE_HEIGHT;
 
 // Transmittance precalculation texture
 uniform sampler2D mTransmittanceTexture;
 // Scattering precalculation texture
 uniform sampler3D mScatteringTexture;
+// Irradiance precalculation texture
+uniform sampler2D mIrradianceTexture;
 
 const float PI = 3.14159265358979323846;
 
@@ -299,8 +306,8 @@ void CalcSingleScattering(
         mie_i = mie_j;
     }
 
-    rayleigh = rayleigh * mSolarIrradiance * mBr;
-    mie = mie * mSolarIrradiance * mBm;
+    rayleigh = rayleigh * mSolarIrradiance * mBr * mSolarIntensity;
+    mie = mie * mSolarIrradiance * mBm * mSolarIntensity;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -476,7 +483,6 @@ void Scattering(
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
 
 float RayleighPhaseFunction(float nu)
 {
@@ -490,6 +496,78 @@ float MiePhaseFunction(float g, float nu)
     return k * (1.0f + nu * nu) / pow(1.0f + g * g - 2.0f * g * nu, 1.5f);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+vec3 CalcIndirectIrradiance(float r, float mu_s)
+{
+    const int SAMPLE_COUNT = 32;
+    // Length of change in angle
+    float dphi = PI / SAMPLE_COUNT;
+    float dtheta = PI / SAMPLE_COUNT;
+
+    vec3 result = vec3(0.0f);
+    vec3 omega_s = vec3(sqrt(1.0f - mu_s * mu_s), 0.0f, mu_s);
+
+    // Two integrations because integrating over hemisphere
+    for (int i_phi = 0; i_phi < 2 * SAMPLE_COUNT; ++i_phi)
+    {
+        float phi = (i_phi + 0.5f) * dphi;
+        for (int i_theta = 0; i_theta < SAMPLE_COUNT / 2; ++i_theta)
+        {
+            float theta = (i_theta + 0.5f) * dtheta;
+            vec3 omega =
+                vec3(cos(phi) * sin(theta), sin(phi) * sin(theta), cos(theta));
+            float domega = dtheta * dphi * sin(theta);
+            float nu = dot(omega, omega_s);
+
+            vec3 rayleigh, mie;
+            Scattering(r, omega.z, mu_s, nu, false, rayleigh, mie);
+            vec3 radiance =
+                rayleigh * RayleighPhaseFunction(nu) +
+                mie * MiePhaseFunction(mMiePhaseG, nu);
+
+            result += radiance * omega.z * domega;
+        }
+    }
+    
+    return result;
+}
+
+vec2 GetIrradianceUV(float r, float mu_s)
+{
+    float x_r = (r - mBotRadius) / (mTopRadius - mBotRadius);
+    float x_mu_s = mu_s * 0.5f + 0.5f;
+    return vec2(
+        GetTexCoordFromUnitRange(x_mu_s, IRRADIANCE_TEXTURE_WIDTH),
+        GetTexCoordFromUnitRange(x_r, IRRADIANCE_TEXTURE_HEIGHT)
+    );
+}
+
+void GetIrradianceRMuS(vec2 uv, out float r, out float mu_s)
+{
+    float x_mu_s = GetUnitRangeFromTexCoord(uv.x, IRRADIANCE_TEXTURE_WIDTH);
+    float x_r = GetUnitRangeFromTexCoord(uv.y, IRRADIANCE_TEXTURE_HEIGHT);
+    r = mBotRadius + x_r * (mTopRadius - mBotRadius);
+    mu_s = ClampCosine(2.0f * x_mu_s - 1.0f);
+}
+
+vec3 CalcIrradianceUV(vec2 uv)
+{
+    float r, mu_s;
+    GetIrradianceRMuS(uv, r, mu_s);
+    return CalcIndirectIrradiance(r, mu_s);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+vec3 Irradiance(float r, float mu_s)
+{
+    vec2 uv = GetIrradianceUV(r, mu_s);
+    return texture(mIrradianceTexture, uv).rgb;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
 // Returns color of sky in direction and transmittance of path
@@ -548,6 +626,19 @@ vec3 GetSkyRadianceToPoint(
     return
         scattering * RayleighPhaseFunction(nu) +
         mie * MiePhaseFunction(mMiePhaseG, nu);
+}
+
+/* Get irradiance from sun and sky */
+vec3 GetSunAndSkyIrradiance(
+    float r, vec3 sun_dir, vec3 normal, out vec3 sky_irradiance)
+{
+    vec3 pos = vec3(0, r, 0);
+    float mu_s = dot(pos, sun_dir) / r;
+
+    sky_irradiance = Irradiance(r, mu_s) * (1.0f + dot(normal, pos) / r) * 0.5f;
+
+    return mSolarIrradiance * TransmittanceToSun(r, mu_s) *
+        max(dot(normal, sun_dir), 0.0f) * 0.5f * mSolarIntensity;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
