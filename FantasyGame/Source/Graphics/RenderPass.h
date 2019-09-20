@@ -54,7 +54,7 @@ public:
 	};
 
 public:
-	RenderPass(const char* name, Type type, bool create_fb = true);
+	RenderPass(Type type, bool create_fb = true);
 	~RenderPass();
 
 	/* Set lighting pass object */
@@ -62,8 +62,6 @@ public:
 	/* Free output buffer */
 	void FreeOutput();
 
-	/* Get render pass name */
-	const char* GetName() const;
 	/* Get render pass type */
 	Type GetType() const;
 	/* Get render pass output buffer */
@@ -72,9 +70,6 @@ public:
 	LightingPass* GetLightingPass() const;
 
 private:
-	/* Render pass name (Used for access) */
-	const char* mName;
-
 	/* Render pass type */
 	Type mType;
 	/* Ouptput framebuffer */

@@ -36,7 +36,7 @@ void Material::Use()
 void Material::AddTexture(Texture* texture, const char* uniform)
 {
 	if (!mTextures.Capacity())
-		mTextures.Resize(4);
+		mTextures.Reserve(4);
 
 	mTextures.Push(MaterialTexture{ texture, uniform });
 }

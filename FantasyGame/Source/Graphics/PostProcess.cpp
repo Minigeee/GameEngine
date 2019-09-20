@@ -60,7 +60,7 @@ void PostProcess::Enable()
 	mVertexArray->Bind();
 	mVertexArray->VertexAttrib(0, 2);
 
-	mRenderQueue.Resize(4);
+	mRenderQueue.Reserve(4);
 
 
 	mIsEnabled = true;

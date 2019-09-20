@@ -65,13 +65,13 @@ void Renderer::Init(Scene* scene)
 
 	Uint32 initSize = 64;
 
-	mVaoData.Resize(initSize);
-	mDataMap.Resize(initSize);
-	mStaticRenderData.Resize(initSize);
-	mDynamicRenderData.Resize(initSize);
-	mStaticQueue.Resize(initSize);
-	mDynamicQueue.Resize(initSize);
-	mIsStatic.Resize(initSize);
+	mVaoData.Reserve(initSize);
+	mDataMap.Reserve(initSize);
+	mStaticRenderData.Reserve(initSize);
+	mDynamicRenderData.Reserve(initSize);
+	mStaticQueue.Reserve(initSize);
+	mDynamicQueue.Reserve(initSize);
+	mIsStatic.Reserve(initSize);
 
 	// Create dynamic instance buffer
 	const Uint32 bufferSize = 1 * 1024 * 1024;
@@ -82,7 +82,7 @@ void Renderer::Init(Scene* scene)
 	mDynamicOffset = 0;
 
 	// Default render passes
-	mRenderPasses.Resize(4);
+	mRenderPasses.Reserve(4);
 
 
 	// Create G-buffer
@@ -136,8 +136,8 @@ void Renderer::Init(Scene* scene)
 	mQuadVao->Bind();
 	mQuadVao->VertexAttrib(0, 2);
 
-	// Add default lighting pass
-	AddLightingPass(new DefaultLighting(mScene), "Default");
+	// Create default lighting pass
+	CreateLightingPass(new DefaultLighting(mScene), "Default");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -147,7 +147,7 @@ void Renderer::PostInit()
 	// Create default rendering order, if no custom rendering order
 	if (!mRenderPasses.Size())
 	{
-		AddRenderPass(new RenderPass("Normal", RenderPass::Normal));
+		AddRenderPass(new RenderPass(RenderPass::Normal));
 	}
 }
 
@@ -169,7 +169,7 @@ void Renderer::Update()
 					// Recreate buffer
 					data.mInstanceBuffer->Bind(VertexBuffer::Array);
 					data.mInstanceBuffer->BufferData(
-						&data.mTransforms.Front(),
+						&data.mTransforms.GetData().Front(),
 						size * sizeof(Matrix4f),
 						VertexBuffer::Static
 					);
@@ -181,7 +181,7 @@ void Renderer::Update()
 					// Otherwise, just update data
 					data.mInstanceBuffer->Bind(VertexBuffer::Array);
 					data.mInstanceBuffer->UpdateData(
-						&data.mTransforms.Front(),
+						&data.mTransforms.GetData().Front(),
 						size * sizeof(Matrix4f)
 					);
 				}
@@ -413,7 +413,7 @@ void Renderer::RegisterModel(Model* model, bool isStatic, Uint32 num)
 		mStaticRenderData.Push(StaticRenderData());
 
 		StaticRenderData& data = mStaticRenderData.Back();
-		data.mTransforms.Resize(num);
+		data.mTransforms.Reserve(num);
 		data.mBufferSize = 0;
 		data.mNeedsUpdate = false;
 
@@ -427,7 +427,7 @@ void Renderer::RegisterModel(Model* model, bool isStatic, Uint32 num)
 		mDynamicRenderData.Push(DynamicRenderData());
 
 		DynamicRenderData& data = mDynamicRenderData.Back();
-		data.mRenderables.Resize(num);
+		data.mRenderables.Reserve(num);
 		data.mDataOffset = 0;
 	}
 
@@ -501,7 +501,7 @@ void Renderer::UpdateQueue(bool isStatic)
 		// Add if group does not exist
 		Array<VertexArrayData*>& list = byShader[id];
 		if (!list.Capacity())
-			list.Resize(8);
+			list.Reserve(8);
 
 		// Add data to group
 		list.Push(&data);
@@ -520,9 +520,6 @@ void Renderer::UpdateQueue(bool isStatic)
 
 void Renderer::AddStatic(Renderable* renderable)
 {
-	// Make sure this is first time adding object
-	if (renderable->mInstanceID) return;
-
 	Model* model = renderable->GetModel();
 
 	// Make sure model has been registered
@@ -531,22 +528,17 @@ void Renderer::AddStatic(Renderable* renderable)
 		RegisterModel(model, true);
 
 	StaticRenderData& data = mStaticRenderData[mDataMap[id]];
-	data.mTransforms.Push(renderable->GetTransform());
 	data.mNeedsUpdate = true;
+	// Add transform to handle array and store handle as instance ID
+	renderable->mInstanceID = data.mTransforms.Add(renderable->GetTransform());
 
 	mStaticDataUpdated = true;
-
-	// Give instance ID
-	renderable->mInstanceID = data.mTransforms.Size();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 void Renderer::AddDynamic(Renderable* renderable)
 {
-	// Make sure this is first time adding object
-	if (renderable->mInstanceID) return;
-
 	Model* model = renderable->GetModel();
 
 	// Make sure model has been registered
@@ -579,7 +571,7 @@ void Renderer::AddRenderPass(RenderPass* pass, const char* lighting_name)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Renderer::AddLightingPass(LightingPass* pass, const char* name)
+void Renderer::CreateLightingPass(LightingPass* pass, const char* name)
 {
 	mLightingPasses[name] = pass;
 }

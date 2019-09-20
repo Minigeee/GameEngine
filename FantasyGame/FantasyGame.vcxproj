@@ -210,6 +210,7 @@
     <ClInclude Include="Source\Core\Array.h" />
     <ClInclude Include="Source\Core\Clock.h" />
     <ClInclude Include="Source\Core\DataTypes.h" />
+    <ClInclude Include="Source\Core\HandleArray.h" />
     <ClInclude Include="Source\Core\LogFile.h" />
     <ClInclude Include="Source\Core\Macros.h" />
     <ClInclude Include="Source\Core\ObjectPool.h" />

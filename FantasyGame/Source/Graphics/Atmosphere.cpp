@@ -44,6 +44,8 @@ Atmosphere::Atmosphere(Scene* scene) :
 {
 	mSunSize.x = tan(mSunAngularRadius);
 	mSunSize.y = cos(mSunAngularRadius);
+
+	Init();
 }
 
 Atmosphere::~Atmosphere()

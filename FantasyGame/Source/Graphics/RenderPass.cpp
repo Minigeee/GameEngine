@@ -10,8 +10,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-RenderPass::RenderPass(const char* name, Type type, bool create_fb) :
-	mName				(name),
+RenderPass::RenderPass(Type type, bool create_fb) :
 	mType				(type),
 	mOutput				(0),
 	mLightingPass		(0),
@@ -54,11 +53,6 @@ void RenderPass::FreeOutput()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-const char* RenderPass::GetName() const
-{
-	return mName;
-}
 
 RenderPass::Type RenderPass::GetType() const
 {

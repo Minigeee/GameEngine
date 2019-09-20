@@ -41,7 +41,7 @@ void BiomeMap::AddColor(const Vector3f& color, float h)
 void BiomeMap::AddColorFilter(const Vector3f& color, Uint32 octaves, float freq, float amp)
 {
 	if (!mFilters.Capacity())
-		mFilters.Resize(4);
+		mFilters.Reserve(4);
 
 	mFilters.Push(ColorFilter());
 	ColorFilter& filter = mFilters.Back();

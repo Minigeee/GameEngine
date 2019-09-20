@@ -28,7 +28,7 @@ public:
 		mLast		(0),
 		mEnd		(0)
 	{
-		Resize(size);
+		Reserve(size);
 	}
 
 	~Array()
@@ -43,7 +43,7 @@ public:
 		mEnd		(0)
 	{
 		// Reserve own memory
-		Resize(other.Capacity());
+		Reserve(other.Capacity());
 
 		// Copy all elements
 		Uint32 size = other.Size();
@@ -62,7 +62,7 @@ public:
 
 			if (other.Capacity() != Capacity())
 				// Reserve own memory if capacity is different
-				Resize(other.Capacity());
+				Reserve(other.Capacity());
 
 			// Copy all elements
 			Uint32 size = other.Size();
@@ -134,7 +134,7 @@ public:
 	void Push(const T& element)
 	{
 		if (mLast == mEnd)
-			Resize(Capacity() * 2);
+			Reserve(Capacity() * 2);
 
 		new(mLast++)T(element);
 	}
@@ -143,7 +143,7 @@ public:
 	void Push(T&& element)
 	{
 		if (mLast == mEnd)
-			Resize(Capacity() * 2);
+			Reserve(Capacity() * 2);
 
 		new(mLast++)T(std::move(element));
 	}
@@ -184,8 +184,8 @@ public:
 		mLast = mStart;
 	}
 
-	/* Resize array */
-	void Resize(Uint32 size)
+	/* Reserve array */
+	void Reserve(Uint32 size)
 	{
 		T* start = mStart;
 		Uint32 prevSize = Size();
@@ -206,6 +206,36 @@ public:
 			// Free prev memory
 			::Free(start);
 		}
+	}
+
+	/* Resize and fill array with default value */
+	void Resize(Uint32 size)
+	{
+		// Free any previous data
+		if (mStart) Free();
+
+		mStart = (T*)Alloc(size * sizeof(T), alignof(T));
+		mLast = mStart + size;
+		mEnd = mLast;
+
+		// Fill with default constructor
+		for (T* ptr = mStart; ptr < mLast; ++ptr)
+			new(ptr)T();
+	}
+
+	/* Resize and fill array with custom value */
+	void Resize(Uint32 size, const T& val)
+	{
+		// Free any previous data
+		if (mStart) Free();
+
+		mStart = (T*)Alloc(size * sizeof(T), alignof(T));
+		mLast = mStart + size;
+		mEnd = mLast;
+
+		// Fill with copy constructor
+		for (T* ptr = mStart; ptr < mLast; ++ptr)
+			new(ptr)T(val);
 	}
 
 	/* Free memory */

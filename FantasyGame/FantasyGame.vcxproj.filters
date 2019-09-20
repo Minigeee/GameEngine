@@ -421,5 +421,8 @@
     <ClInclude Include="Source\Graphics\Atmosphere.h">
       <Filter>Include\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Core\HandleArray.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

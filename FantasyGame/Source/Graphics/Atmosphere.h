@@ -59,7 +59,7 @@ public:
 	/* G-constant for Mie phase function */
 	float mMiePhase_G;
 
-	/* Base altitude */
+	/* Base altitude (km) */
 	float mBaseHeight;
 	/* Distance multiplier */
 	float mDistScale;

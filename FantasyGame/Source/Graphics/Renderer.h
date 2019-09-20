@@ -1,7 +1,7 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
-#include <Core/Array.h>
+#include <Core/HandleArray.h>
 
 #include <Math/Matrix4.h>
 
@@ -33,8 +33,8 @@ struct VertexArrayData
 
 struct StaticRenderData
 {
-	/* Transform matrices */
-	Array<Matrix4f> mTransforms;
+	/* Transform matrices (Use handle array to keep protect from shifting of transforms in memory to keep data continuous) */
+	HandleArray<Matrix4f> mTransforms;
 	/* Instance data buffer */
 	VertexBuffer* mInstanceBuffer;
 	/* Keeps track of buffer size */
@@ -70,7 +70,7 @@ public:
 	/* Add render pass (Use new operator. Object is automatically destroyed by renderer) */
 	void AddRenderPass(RenderPass* pass, const char* lighting_name = 0);
 	/* Add lighting pass (Use new operator. Object is automatically destroyed by renderer) */
-	void AddLightingPass(LightingPass* lighting, const char* name);
+	void CreateLightingPass(LightingPass* lighting, const char* name);
 
 	/* Register model */
 	void RegisterModel(Model* model, bool isStatic = true, Uint32 num = 64);

@@ -31,7 +31,7 @@ void Scene::Create(Engine* engine)
 
 	mRenderer.Init(this);
 
-	mUpdateList.Resize(16);
+	mUpdateList.Reserve(16);
 
 	// Create skybox
 	mSkybox = new Skybox();
@@ -111,7 +111,7 @@ void Scene::RegisterListener(EventListener* listener, Uint32 type)
 {
 	Array<EventListener*>& list = mListeners[type];
 	if (!list.Capacity())
-		list.Resize(16);
+		list.Reserve(16);
 
 	list.Push(listener);
 }

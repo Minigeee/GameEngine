@@ -43,7 +43,7 @@ Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene)
 	if (mesh->HasVertexColors(0))
 		vertexSize += 3;
 
-	data.Resize(mesh->mNumVertices * vertexSize);
+	data.Reserve(mesh->mNumVertices * vertexSize);
 
 	// Keep track of min and max for bounding box
 	aiVector3D& first = mesh->mVertices[0];
@@ -140,8 +140,8 @@ bool Model::Load(const char* fname)
 		return false;
 	}
 
-	// Resize mesh array
-	mMeshes.Resize(scene->mNumMeshes > 4 ? scene->mNumMeshes : 4);
+	// Reserve mesh array
+	mMeshes.Reserve(scene->mNumMeshes > 4 ? scene->mNumMeshes : 4);
 	// Temporary array
 	Array<Mesh> meshes(mMeshes.Capacity());
 
@@ -164,14 +164,14 @@ bool Model::Load(const char* fname)
 
 void Model::SetMaxMeshes(Uint32 max)
 {
-	mMeshes.Resize(max);
+	mMeshes.Reserve(max);
 }
 
 void Model::AddMesh(const Mesh& mesh)
 {
 	// Make sure mesh array is allocated
 	if (!mMeshes.Capacity())
-		mMeshes.Resize(4);
+		mMeshes.Reserve(4);
 
 	if (mMeshes.Size())
 	{

@@ -45,12 +45,10 @@ void WorldScene::OnCreate()
 	mCamera.SetPosition(0.0f, 2.0f, 4.0f);
 
 	// Atmospheric lighting
-	Atmosphere* atm = new Atmosphere(this);
-	atm->Init();
-	mRenderer.AddLightingPass(atm, "Atmosphere");
+	mRenderer.CreateLightingPass(new Atmosphere(this), "Atmosphere");
 
 	// Render passes
-	mRenderer.AddRenderPass(new RenderPass("Normal", RenderPass::Normal), "Atmosphere");
+	mRenderer.AddRenderPass(new RenderPass(RenderPass::Normal), "Atmosphere");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
