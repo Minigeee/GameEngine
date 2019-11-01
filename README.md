@@ -57,3 +57,22 @@ This effect is probably my favorite part of the engine so far. This atmosphere e
 This folder isn't inteded to part of the engine, it is just there for development and testing. It includes a basic scene, a few systems, and a game object.
 
 ## Pictures
+
+Here are some examples of the game engins so far:
+
+![alt text](https://github.com/MiniGee/GameEngine/blob/master/Examples/Pictures/1.png)
+![alt text](https://github.com/MiniGee/GameEngine/blob/master/Examples/Pictures/2.png)
+![alt text](https://github.com/MiniGee/GameEngine/blob/master/Examples/Pictures/3.png)
+![alt text](https://github.com/MiniGee/GameEngine/blob/master/Examples/Pictures/4.png)
+![alt text](https://github.com/MiniGee/GameEngine/blob/master/Examples/Pictures/5.png)
+![alt text](https://github.com/MiniGee/GameEngine/blob/master/Examples/Pictures/6.png)
+
+## Future Plans
+
+I plan to continue working on this project as a hobby because this project is very fun and it is also very educational. Here are some features I plan on adding (in this order):
+* Improved instanced rendering (so that frustum culling and LODing is more efficient)
+* Water rendering (with reflections, vertex displacements, etc.)
+* Textured models and skeletal animations
+* Particle effects
+* Wind effect
+* Volumetrics clouds (possibly using a similar method to the atmospheric scattering)
