@@ -191,7 +191,9 @@
     <ClCompile Include="Source\Graphics\VertexBuffer.cpp" />
     <ClCompile Include="Source\Main.cpp" />
     <ClCompile Include="Source\Math\BoundingBox.cpp" />
+    <ClCompile Include="Source\Math\Frustum.cpp" />
     <ClCompile Include="Source\Math\Math.cpp" />
+    <ClCompile Include="Source\Math\Plane.cpp" />
     <ClCompile Include="Source\Math\Quaternion.cpp" />
     <ClCompile Include="Source\Math\Transform.cpp" />
     <ClCompile Include="Source\Resource\Loadable.cpp" />
@@ -249,10 +251,12 @@
     <ClInclude Include="Source\Graphics\VertexArray.h" />
     <ClInclude Include="Source\Graphics\VertexBuffer.h" />
     <ClInclude Include="Source\Math\BoundingBox.h" />
+    <ClInclude Include="Source\Math\Frustum.h" />
     <ClInclude Include="Source\Math\Math.h" />
     <ClInclude Include="Source\Math\Matrix2.h" />
     <ClInclude Include="Source\Math\Matrix3.h" />
     <ClInclude Include="Source\Math\Matrix4.h" />
+    <ClInclude Include="Source\Math\Plane.h" />
     <ClInclude Include="Source\Math\Quaternion.h" />
     <ClInclude Include="Source\Math\Rect.h" />
     <ClInclude Include="Source\Math\Transform.h" />

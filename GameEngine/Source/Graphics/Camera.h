@@ -4,6 +4,7 @@
 #include <Math/Vector2.h>
 #include <Math/Vector3.h>
 #include <Math/Matrix4.h>
+#include <Math/Frustum.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -59,6 +60,9 @@ public:
 	const Matrix4f& GetProjection();
 	/* Get view matrix */
 	const Matrix4f& GetView();
+	/* Get camera frustum */
+	Frustum GetFrustum();
+
 	/* Get FOV */
 	float GetFOV() const;
 	/* Get aspect ratio */

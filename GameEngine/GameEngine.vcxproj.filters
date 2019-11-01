@@ -227,6 +227,12 @@
     <ClCompile Include="Source\Graphics\RenderPass.cpp">
       <Filter>Source\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Math\Plane.cpp">
+      <Filter>Source\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Math\Frustum.cpp">
+      <Filter>Source\Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Core\DataTypes.h">
@@ -423,6 +429,12 @@
     </ClInclude>
     <ClInclude Include="Source\Core\HandleArray.h">
       <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Math\Frustum.h">
+      <Filter>Include\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Math\Plane.h">
+      <Filter>Include\Math</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

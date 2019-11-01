@@ -197,6 +197,57 @@ const Matrix4f& Camera::GetView()
 	return mView;
 }
 
+Frustum Camera::GetFrustum()
+{
+	Matrix4f m = GetProjection() * GetView();
+
+	Frustum frustum;
+
+	frustum.SetPlane(Plane(
+		m.x.w + m.x.x,
+		m.y.w + m.y.x,
+		m.z.w + m.z.x,
+		m.w.w + m.w.x
+	), Frustum::Left);
+
+	frustum.SetPlane(Plane(
+		m.x.w - m.x.x,
+		m.y.w - m.y.x,
+		m.z.w - m.z.x,
+		m.w.w - m.w.x
+	), Frustum::Right);
+
+	frustum.SetPlane(Plane(
+		m.x.w + m.x.y,
+		m.y.w + m.y.y,
+		m.z.w + m.z.y,
+		m.w.w + m.w.y
+	), Frustum::Bottom);
+
+	frustum.SetPlane(Plane(
+		m.x.w - m.x.y,
+		m.y.w - m.y.y,
+		m.z.w - m.z.y,
+		m.w.w - m.w.y
+	), Frustum::Top);
+
+	frustum.SetPlane(Plane(
+		m.x.w + m.x.z,
+		m.y.w + m.y.z,
+		m.z.w + m.z.z,
+		m.w.w + m.w.z
+	), Frustum::Near);
+
+	frustum.SetPlane(Plane(
+		m.x.w - m.x.z,
+		m.y.w - m.y.z,
+		m.z.w - m.z.z,
+		m.w.w - m.w.z
+	), Frustum::Far);
+
+	return frustum;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 float Camera::GetFOV() const
