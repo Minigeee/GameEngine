@@ -1,0 +1,14 @@
+#ifndef HASH_H
+#define HASH_H
+
+#include <Core/DataTypes.h>
+
+///////////////////////////////////////////////////////////////////////////////
+
+Uint32 Hash32(void* ptr, Uint32 size);
+Uint64 Hash64(void* ptr, Uint32 size);
+inline Uint32 GetHash(void* ptr, Uint32 size) { return Hash32(ptr, size); }
+
+///////////////////////////////////////////////////////////////////////////////
+
+#endif

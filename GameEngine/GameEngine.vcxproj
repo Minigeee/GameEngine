@@ -155,6 +155,7 @@
     <ClCompile Include="..\extlibs\SimplexNoise.cpp" />
     <ClCompile Include="Source\Core\Allocate.cpp" />
     <ClCompile Include="Source\Core\Clock.cpp" />
+    <ClCompile Include="Source\Core\Hash.cpp" />
     <ClCompile Include="Source\Core\LogFile.cpp" />
     <ClCompile Include="Source\Core\Sleep.cpp" />
     <ClCompile Include="Source\Core\StringHash.cpp" />
@@ -213,6 +214,7 @@
     <ClInclude Include="Source\Core\Clock.h" />
     <ClInclude Include="Source\Core\DataTypes.h" />
     <ClInclude Include="Source\Core\HandleArray.h" />
+    <ClInclude Include="Source\Core\Hash.h" />
     <ClInclude Include="Source\Core\LogFile.h" />
     <ClInclude Include="Source\Core\Macros.h" />
     <ClInclude Include="Source\Core\ObjectPool.h" />

@@ -46,7 +46,7 @@ void TerrainSystem::OnInit()
 	mTerrain.SetHeightMap(&mHeightMap);
 	mTerrain.SetColorMap(&mBiomeMap);
 
-	mScene->AddRenderable(&mTerrain, true);
+	mTerrain.AddToScene(mScene);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

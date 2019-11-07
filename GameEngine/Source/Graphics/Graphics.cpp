@@ -27,10 +27,11 @@ void Graphics::Disable(Options opt)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Graphics::EnableCull(bool front)
+void Graphics::EnableCull(Options side)
 {
+	assert(side == Front || side == Back);
 	glEnable(GL_CULL_FACE);
-	glCullFace(front ? GL_FRONT : GL_BACK);
+	glCullFace(side);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -24,7 +24,9 @@ public:
 	{
 		DepthTest		= 0x0B71,
 		CullFace		= 0x0B44,
-		ClipPlane
+		ClipPlane,
+		Front			= 0x0404,
+		Back			= 0x0405
 	};
 
 	enum DepthFunc
@@ -46,7 +48,7 @@ public:
 	/* Disable graphics option */
 	static void Disable(Options opt);
 	/* Enable face culling */
-	static void EnableCull(bool front);
+	static void EnableCull(Options side);
 
 	/* Set rendering depth function */
 	static void SetDepthFunc(DepthFunc func);

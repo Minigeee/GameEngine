@@ -28,9 +28,9 @@ bool Frustum::Contains(const BoundingBox& box) const
 		const Plane& plane = mPlanes[i];
 
 		Vector3f vmin;
-		vmin.x = plane.n.x > 0.0f ? min.x : max.x;
-		vmin.y = plane.n.y > 0.0f ? min.y : max.y;
-		vmin.z = plane.n.z > 0.0f ? min.z : max.z;
+		vmin.x = plane.n.x > 0.0f ? max.x : min.x;
+		vmin.y = plane.n.y > 0.0f ? max.y : min.y;
+		vmin.z = plane.n.z > 0.0f ? max.z : min.z;
 
 		if (plane.Dist(vmin) < 0.0f)
 			return false;

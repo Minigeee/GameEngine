@@ -140,9 +140,6 @@
     <ClCompile Include="Source\Math\Transform.cpp">
       <Filter>Source\Math</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Graphics\Renderer.cpp">
-      <Filter>Source\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Graphics\Camera.cpp">
       <Filter>Source\Graphics</Filter>
     </ClCompile>
@@ -232,6 +229,12 @@
     </ClCompile>
     <ClCompile Include="Source\Math\Frustum.cpp">
       <Filter>Source\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Graphics\Renderer.cpp">
+      <Filter>Source\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\Hash.cpp">
+      <Filter>Source\Core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -334,9 +337,6 @@
     <ClInclude Include="Source\Math\Transform.h">
       <Filter>Include\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Graphics\Renderer.h">
-      <Filter>Include\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Graphics\Camera.h">
       <Filter>Include\Graphics</Filter>
     </ClInclude>
@@ -435,6 +435,12 @@
     </ClInclude>
     <ClInclude Include="Source\Math\Plane.h">
       <Filter>Include\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Graphics\Renderer.h">
+      <Filter>Include\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Hash.h">
+      <Filter>Include\Core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -74,6 +74,11 @@ Engine* Scene::GetEngine() const
 	return mEngine;
 }
 
+Renderer& Scene::GetRenderer()
+{
+	return mRenderer;
+}
+
 Camera& Scene::GetCamera()
 {
 	return mCamera;
@@ -99,9 +104,10 @@ Skybox* Scene::GetSkybox() const
 void Scene::AddRenderable(Renderable* object, bool isStatic)
 {
 	if (isStatic)
-		mRenderer.AddStatic(object);
-	else
-		mRenderer.AddDynamic(object);
+		mRenderer.AddStaticObject(object);
+	// else
+		/* TODO : Dynamic objects */
+		// mRenderer.AddDynamic(object);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

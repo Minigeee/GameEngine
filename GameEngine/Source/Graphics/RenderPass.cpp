@@ -2,7 +2,6 @@
 
 #include <Resource/Resource.h>
 
-#include <Graphics/FrameBuffer.h>
 #include <Graphics/Shader.h>
 
 #include <Scene/Scene.h>
@@ -10,32 +9,32 @@
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-RenderPass::RenderPass(Type type, bool create_fb) :
-	mType				(type),
-	mOutput				(0),
+RenderPass::RenderPass() :
+	mType				(None),
+	mTarget				(0),
 	mLightingPass		(0),
 	mReflectionPlane	(0.0f)
 {
-	if (create_fb)
-	{
-		FrameBuffer::TextureOptions options;
-		const Vector3u& size = FrameBuffer::Default.GetSize();
+	
+}
 
-		mOutput = Resource<FrameBuffer>::Create();
-		mOutput->Bind();
-		mOutput->SetSize(size.x, size.y);
-
-		// Use half float for HDR rendering
-		options.mFormat = Texture::Rgb;
-		options.mDataType = Image::Ushort;
-		mOutput->AttachColor(true, options);
-		mOutput->AttachDepth(true);
-	}
+RenderPass::RenderPass(Type type) :
+	mType				(type),
+	mTarget				(0),
+	mLightingPass		(0),
+	mReflectionPlane	(0.0f)
+{
+	
 }
 
 RenderPass::~RenderPass()
 {
-	FreeOutput();
+	if (mTarget)
+		Resource<FrameBuffer>::Free(mTarget);
+	mTarget = 0;
+
+	// Delete lighting pass
+	delete mLightingPass;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -45,11 +44,20 @@ void RenderPass::SetLightingPass(LightingPass* pass)
 	mLightingPass = pass;
 }
 
-void RenderPass::FreeOutput()
+void RenderPass::CreateTarget(Texture::Format fmt, Image::DataType dtype)
 {
-	if (mOutput)
-		Resource<FrameBuffer>::Free(mOutput);
-	mOutput = 0;
+	FrameBuffer::TextureOptions options;
+	const Vector3u& size = FrameBuffer::Default.GetSize();
+
+	mTarget = Resource<FrameBuffer>::Create();
+	mTarget->Bind();
+	mTarget->SetSize(size.x, size.y);
+
+	// Use half float for HDR rendering
+	options.mFormat = fmt;
+	options.mDataType = dtype;
+	mTarget->AttachColor(true, options);
+	mTarget->AttachDepth(true);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -59,9 +67,9 @@ RenderPass::Type RenderPass::GetType() const
 	return mType;
 }
 
-FrameBuffer* RenderPass::GetOutput() const
+FrameBuffer* RenderPass::GetTarget() const
 {
-	return mOutput;
+	return mTarget;
 }
 
 LightingPass* RenderPass::GetLightingPass() const
@@ -101,7 +109,7 @@ DefaultLighting::~DefaultLighting()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void DefaultLighting::Render(FrameBuffer* gbuffer)
+void DefaultLighting::RenderSetup(FrameBuffer* gbuffer)
 {
 	mShader->Bind();
 

@@ -356,3 +356,4 @@ MigrationBackup/
 !extlibs/lib/Debug/
 !extlibs/lib/Release/
 
+*.bak

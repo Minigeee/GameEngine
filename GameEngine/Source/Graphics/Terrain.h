@@ -9,6 +9,7 @@
 
 class Texture;
 class Image;
+class Scene;
 
 class Terrain : public Renderable
 {
@@ -29,6 +30,9 @@ public:
 	void SetHeightMap(Texture* map);
 	/* Set color map */
 	void SetColorMap(Texture* map);
+
+	/* Add terrain to scene */
+	void AddToScene(Scene* scene);
 
 private:
 	/* Lod distances */

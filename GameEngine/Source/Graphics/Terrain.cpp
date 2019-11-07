@@ -13,6 +13,8 @@
 #include <Graphics/Image.h>
 #include <Graphics/Texture.h>
 
+#include <Scene/Scene.h>
+
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -350,6 +352,15 @@ void Terrain::SetColorMap(Texture* texture)
 		mColorMap->SetFilter(Texture::Linear);
 		mModel->GetMesh(0).mMaterial->AddTexture(mColorMap, "colorMap");
 	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void Terrain::AddToScene(Scene* scene)
+{
+	// Terrain shouldn't be cullable
+	scene->GetRenderer().RegisterModel(mModel, 0.0, false);
+	scene->GetRenderer().AddStaticObject(this);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

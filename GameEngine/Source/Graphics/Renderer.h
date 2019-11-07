@@ -3,55 +3,97 @@
 
 #include <Core/HandleArray.h>
 
+#include <Math/Vector3.h>
 #include <Math/Matrix4.h>
+#include <Math/BoundingBox.h>
 
 #include <Graphics/RenderPass.h>
 
 #include <unordered_map>
 
 ///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+class Scene;
 
 class VertexArray;
 class VertexBuffer;
-class Renderable;
 class Material;
+class Shader;
+class Mesh;
 class Model;
-class Scene;
 class FrameBuffer;
+
+class Renderable;
+class Camera;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-struct VertexArrayData
+struct RenderChunk
 {
-	/* Vertex array to render */
-	VertexArray* mVertexArray;
-	/* Material to render */
-	Material* mMaterial;
-	/* How many vertices to render */
-	Uint32 mNumVertices;
+	/* List of transform matrices */
+	HandleArray<Matrix4f> mTransforms;
+	/* Instance buffer w/ transform data */
+	VertexBuffer* mInstanceBuffer;
+	/* The current size of instance buffer */
+	Uint32 mBufferSize;
+
+	/* Bounding box of chunk */
+	BoundingBox mBoundingBox;
+	/* True if chunk has been updated */
+	bool mUpdated;
 };
+
+///////////////////////////////////////////////////////////////////////////////
 
 struct StaticRenderData
 {
-	/* Transform matrices (Use handle array to keep protect from shifting of transforms in memory to keep data continuous) */
-	HandleArray<Matrix4f> mTransforms;
-	/* Instance data buffer */
-	VertexBuffer* mInstanceBuffer;
-	/* Keeps track of buffer size */
-	Uint32 mBufferSize;
+public:
+	/* Array of chunks */
+	HandleArray<RenderChunk> mRenderChunks;
+	/* Map chunk index hash to chunk handle */
+	std::unordered_map<Uint32, Uint32> mIndexToHandle;
+	/* List of visible chunks (reconstructed every frame) */
+	Array<Uint32> mVisibleChunks;
 
-	/* Marks if needs update */
-	bool mNeedsUpdate;
+	/* Chunk size */
+	float mChunkSize;
+	/* True if culling is enabled for this model */
+	bool mCullable;
 };
 
-struct DynamicRenderData
+///////////////////////////////////////////////////////////////////////////////
+
+struct RenderData
 {
-	/* List of renderables */
-	Array<Renderable*> mRenderables;
-	/* Offset into instance buffer (in bytes) */
-	Uint32 mDataOffset;
+	/* Used to draw mesh */
+	VertexArray* mVertexArray;
+	/* Material used for mesh */
+	Material* mMaterial;
+	/* Shader for convenience */
+	Shader* mShader;
+
+	/* Number of vertices in mesh */
+	Uint32 mNumVertices;
+	/* Instance data */
+	Uint32 mDataIndex;
 };
 
+///////////////////////////////////////////////////////////////////////////////
+
+struct CommonUniforms
+{
+public:
+	/* Projection-view matrix */
+	Matrix4f mProjView;
+	/* Camera object */
+	Camera* mCamera;
+
+	/* Bind all common uniforms */
+	void ApplyToShader(Shader* shader);
+};
+
+///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
 class Renderer
@@ -64,73 +106,61 @@ public:
 	void Init(Scene* scene);
 	/* Post initialization */
 	void PostInit();
-	/* Render stuff */
-	void Render(FrameBuffer* fb = 0);
 
-	/* Add render pass (Use new operator. Object is automatically destroyed by renderer) */
-	void AddRenderPass(RenderPass* pass, const char* lighting_name = 0);
-	/* Add lighting pass (Use new operator. Object is automatically destroyed by renderer) */
-	void CreateLightingPass(LightingPass* lighting, const char* name);
+	/* Render scene */
+	void Render(FrameBuffer* target);
 
-	/* Register model */
-	void RegisterModel(Model* model, bool isStatic = true, Uint32 num = 64);
+	/* Register model for static renderables */
+	Uint32 RegisterModel(Model* model, float chunkSize, bool cullable = true);
 	/* Add static renderable object */
-	void AddStatic(Renderable* object);
-	/* Mark static object for update */
-	void UpdateStatic(Renderable* object);
-	/* Add dynamic renderable object */
-	void AddDynamic(Renderable* object);
+	void AddStaticObject(Renderable* object);
+
+	/* Add a render pass (Pass lighting pass type as template parameter) */
+	template <typename L> RenderPass* AddRenderPass(RenderPass::Type type)
+	{
+		RenderPass* pass = new RenderPass(type);
+		pass->SetLightingPass(new L(mScene));
+		mRenderPasses.Push(pass);
+
+		return pass;
+	}
 
 private:
-	/* Update render queue */
-	void UpdateQueue(bool isStatic);
-	/* Pre-render update */
+	/* Add render data to a queue */
+	void AddRenderData(const RenderData& data, Array<RenderData>& queue);
+
+	/* Do any pre-render updates */
 	void Update();
+	/* Update (cull) static objects */
+	void UpdateStatic();
 
 	/* Do a render pass */
-	void DoRenderPass(RenderPass& pass, FrameBuffer* out = 0);
+	void DoRenderPass(RenderPass* pass, FrameBuffer* target);
+	/* Render static objects */
+	void RenderStatic(CommonUniforms& uniforms);
 
 private:
 	/* Scene to render */
 	Scene* mScene;
+
+	/* List of model render data */
+	Array<StaticRenderData> mStaticRenderData;
+	/* Map model pointer to render data index */
+	std::unordered_map<Model*, Uint32> mModelToDataIndex;
+
 	/* List of render passes */
 	Array<RenderPass*> mRenderPasses;
-	/* Map of available lighting passes */
-	std::unordered_map<const char*, LightingPass*> mLightingPasses;
-
-	/* G-buffer for deffered rendering */
-	FrameBuffer* mGBuffer;
-	/* Vertex array for rendering lighting pass */
-	VertexArray* mQuadVao;
-	/* Vertex buffer for rendering lighting pass */
-	VertexBuffer* mQuadVbo;
-
-	/* List of vertex arrays */
-	Array<VertexArrayData> mVaoData;
-	/* Map vertex array to render data */
-	Array<int> mDataMap;
-	/* Static render data */
-	Array<StaticRenderData> mStaticRenderData;
-	/* Dynamic render data */
-	Array<DynamicRenderData> mDynamicRenderData;
 	/* Static render queue */
-	Array<VertexArrayData> mStaticQueue;
+	Array<RenderData> mStaticQueue;
 	/* Dynamic render queue */
-	Array<VertexArrayData> mDynamicQueue;
-	/* List of static labels*/
-	Array<bool> mIsStatic;
+	Array<RenderData> mDynamicQueue;
 
-	/* Dynamic instance buffer */
-	VertexBuffer* mDynamicBuffer;
-	/* Dynamic buffer size */
-	Uint32 mDynamicSize;
-	/* Dynamic buffer current offset */
-	Uint32 mDynamicOffset;
-	/* Keep track of number of dynamic objects */
-	Uint32 mNumDynamic;
-
-	/* Marks if render data updated */
-	bool mStaticDataUpdated;
+	/* G-buffer for deffered lighting */
+	FrameBuffer* mGBuffer;
+	/* Quad vertex array */
+	VertexArray* mQuadVao;
+	/* Quad vertex buffer */
+	VertexBuffer* mQuadVbo;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

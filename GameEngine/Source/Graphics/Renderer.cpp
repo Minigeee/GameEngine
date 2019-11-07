@@ -1,59 +1,32 @@
 #include <Graphics/Renderer.h>
 
-#include <Resource/Resource.h>
+#include <Core/Hash.h>
 
 #include <Graphics/Graphics.h>
+#include <Graphics/Renderable.h>
 #include <Graphics/VertexArray.h>
 #include <Graphics/VertexBuffer.h>
-#include <Graphics/Material.h>
-#include <Graphics/Model.h>
-#include <Graphics/Camera.h>
-#include <Graphics/Renderable.h>
-#include <Graphics/Shader.h>
-#include <Graphics/Skybox.h>
 #include <Graphics/FrameBuffer.h>
+#include <Graphics/Model.h>
+#include <Graphics/Material.h>
+#include <Graphics/Shader.h>
+
+#include <Resource/Resource.h>
 
 #include <Scene/Scene.h>
 
-#include <map>
-
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-Renderer::Renderer() :
-	mStaticDataUpdated		(false),
-	mNumDynamic				(0)
+Renderer::Renderer()
 {
-	
+
 }
 
 Renderer::~Renderer()
 {
-	if (mDynamicBuffer)
-		Resource<VertexBuffer>::Free(mDynamicBuffer);
-	if (mGBuffer)
-		Resource<FrameBuffer>::Free(mGBuffer);
-	if (mQuadVao)
-		Resource<VertexArray>::Free(mQuadVao);
-	if (mQuadVbo)
-		Resource<VertexBuffer>::Free(mQuadVbo);
-	
-	mDynamicBuffer = 0;
-	mGBuffer = 0;
-	mQuadVao = 0;
-	mQuadVbo = 0;
-
-	for (Uint32 i = 0; i < mStaticRenderData.Size(); ++i)
-	{
-		if (mStaticRenderData[i].mInstanceBuffer)
-			Resource<VertexBuffer>::Free(mStaticRenderData[i].mInstanceBuffer);
-	}
-
 	for (Uint32 i = 0; i < mRenderPasses.Size(); ++i)
 		delete mRenderPasses[i];
-
-	for (auto it : mLightingPasses)
-		delete it.second;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -63,29 +36,14 @@ void Renderer::Init(Scene* scene)
 {
 	mScene = scene;
 
-	Uint32 initSize = 64;
-
-	mVaoData.Reserve(initSize);
-	mDataMap.Reserve(initSize);
-	mStaticRenderData.Reserve(initSize);
-	mDynamicRenderData.Reserve(initSize);
-	mStaticQueue.Reserve(initSize);
-	mDynamicQueue.Reserve(initSize);
-	mIsStatic.Reserve(initSize);
-
-	// Create dynamic instance buffer
-	const Uint32 bufferSize = 1 * 1024 * 1024;
-	mDynamicBuffer = Resource<VertexBuffer>::Create();
-	mDynamicBuffer->Bind(VertexBuffer::Array);
-	mDynamicBuffer->BufferData(NULL, bufferSize, VertexBuffer::Stream);
-	mDynamicSize = bufferSize;
-	mDynamicOffset = 0;
-
-	// Default render passes
+	// Containers
+	mStaticRenderData.Reserve(32);
+	mStaticQueue.Reserve(32);
+	mDynamicQueue.Reserve(32);
 	mRenderPasses.Reserve(4);
 
 
-	// Create G-buffer
+	// G-buffer
 	mGBuffer = Resource<FrameBuffer>::Create();
 	mGBuffer->Bind();
 
@@ -116,6 +74,7 @@ void Renderer::Init(Scene* scene)
 	// Depth
 	mGBuffer->AttachDepth(true);
 
+
 	// Create quad
 	float verts[] =
 	{
@@ -135,9 +94,6 @@ void Renderer::Init(Scene* scene)
 	mQuadVao = Resource<VertexArray>::Create();
 	mQuadVao->Bind();
 	mQuadVao->VertexAttrib(0, 2);
-
-	// Create default lighting pass
-	CreateLightingPass(new DefaultLighting(mScene), "Default");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -147,7 +103,16 @@ void Renderer::PostInit()
 	// Create default rendering order, if no custom rendering order
 	if (!mRenderPasses.Size())
 	{
-		AddRenderPass(new RenderPass(RenderPass::Normal));
+		AddRenderPass<DefaultLighting>(RenderPass::Normal);
+	}
+
+	// Create target framebuffers if necessary (Except for the last one)
+	for (Uint32 i = 0; i < mRenderPasses.Size() - 1; ++i)
+	{
+		RenderPass* pass = mRenderPasses[i];
+
+		if (!pass->GetTarget())
+			pass->CreateTarget();
 	}
 }
 
@@ -156,424 +121,354 @@ void Renderer::PostInit()
 
 void Renderer::Update()
 {
-	if (mStaticDataUpdated)
+	UpdateStatic();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void Renderer::UpdateStatic()
+{
+	// Get camera frustum
+	Frustum frustum = mScene->GetCamera().GetFrustum();
+
+
+	for (Uint32 i = 0; i < mStaticRenderData.Size(); ++i)
 	{
-		for (Uint32 i = 0; i < mStaticRenderData.Size(); ++i)
+		StaticRenderData& data = mStaticRenderData[i];
+		Array<RenderChunk>& chunks = data.mRenderChunks.GetData();
+
+		// Clear list of visible chunks
+		data.mVisibleChunks.Clear();
+
+		for (Uint32 chunk_n = 0; chunk_n < chunks.Size(); ++chunk_n)
 		{
-			StaticRenderData& data = mStaticRenderData[i];
-			if (data.mNeedsUpdate)
+			RenderChunk& chunk = chunks[chunk_n];
+
+			// Update instance buffer if needed
+			if (chunk.mUpdated)
 			{
-				Uint32 size = data.mTransforms.Size();
-				if (size > data.mBufferSize)
+				Uint32 size = chunk.mTransforms.Size();
+
+				// If there is not enough space in instance buffer
+				if (size > chunk.mBufferSize)
 				{
-					// Recreate buffer
-					data.mInstanceBuffer->Bind(VertexBuffer::Array);
-					data.mInstanceBuffer->BufferData(
-						&data.mTransforms.GetData().Front(),
+					// Recreate (allocate new) buffer
+					chunk.mInstanceBuffer->Bind(VertexBuffer::Array);
+					chunk.mInstanceBuffer->BufferData(
+						&chunk.mTransforms.GetData().Front(),
 						size * sizeof(Matrix4f),
 						VertexBuffer::Static
 					);
 
-					data.mBufferSize = size;
+					chunk.mBufferSize = size;
 				}
 				else
 				{
-					// Otherwise, just update data
-					data.mInstanceBuffer->Bind(VertexBuffer::Array);
-					data.mInstanceBuffer->UpdateData(
-						&data.mTransforms.GetData().Front(),
+					// Otherwise, just update the buffer
+					chunk.mInstanceBuffer->Bind(VertexBuffer::Array);
+					chunk.mInstanceBuffer->UpdateData(
+						&chunk.mTransforms.GetData().Front(),
 						size * sizeof(Matrix4f)
 					);
 				}
 
-				data.mNeedsUpdate = false;
+				chunk.mUpdated = false;
 			}
+
+
+			// If chunk is visible, add it to the list
+			if (!data.mCullable || frustum.Contains(chunk.mBoundingBox))
+				data.mVisibleChunks.Push(chunk_n);
+		}
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+void CommonUniforms::ApplyToShader(Shader* shader)
+{
+	shader->SetUniform("mProjView", mProjView);
+	shader->SetUniform("mCamPos", mCamera->GetPosition());
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void Renderer::Render(FrameBuffer* target)
+{
+	// Update stuff
+	Update();
+
+	for (Uint32 i = 0; i < mRenderPasses.Size(); ++i)
+	{
+		RenderPass* pass = mRenderPasses[i];
+		FrameBuffer* fbuffer = pass->GetTarget();
+		if (i == mRenderPasses.Size() - 1)
+		{
+			if (target)
+				fbuffer = target;
+			else
+				fbuffer = &FrameBuffer::Default;
 		}
 
-		mStaticDataUpdated = false;
-	}
-
-	// ===========================================================================
-
-	// Update dynamic objects
-	if (!mDynamicRenderData.Size()) return;
-
-	// Bind dynamic instance buffer
-	mDynamicBuffer->Bind(VertexBuffer::Array);
-
-	// Map buffer
-	Matrix4f* buffer = 0;
-	Uint32 mapSize = mNumDynamic * sizeof(Matrix4f);
-	if (mDynamicOffset + mapSize > mDynamicSize)
-	{
-		// Unsynchronized for speed
-		buffer = (Matrix4f*)mDynamicBuffer->MapWrite(
-			mapSize,
-			VertexBuffer::Unsynchronized,
-			mDynamicOffset);
-	}
-	else
-	{
-		// Reset buffer
-		buffer = (Matrix4f*)mDynamicBuffer->MapWrite(
-			mapSize,
-			VertexBuffer::InvalidateBuffer,
-			0);
-		mDynamicOffset = 0;
-	}
-
-	for (Uint32 i = 0; i < mDynamicRenderData.Size(); ++i)
-	{
-		// Update all transforms
-		DynamicRenderData& data = mDynamicRenderData[i];
-		Array<Renderable*>& objs = data.mRenderables;
-
-		// Copy transforms
-		for (Uint32 inst = 0; inst < objs.Size(); ++inst, ++buffer)
-			* buffer = objs[i]->GetTransform();
-
-		// Update data offsets
-		data.mDataOffset = mDynamicOffset;
-		mDynamicOffset += objs.Size() * sizeof(Matrix4f);
-	}
-
-	// Unmap buffer
-	mDynamicBuffer->Unmap();
-
-	for (Uint32 i = 1; i < mVaoData.Size(); ++i)
-	{
-		if (mIsStatic[i]) continue;
-
-		VertexArrayData& vaoData = mVaoData[i];
-		DynamicRenderData& data = mDynamicRenderData[mDataMap[i]];
-		VertexArray* vao = vaoData.mVertexArray;
-		if (!vao) continue;
-
-		// Set up vertex attribs
-		Uint32 offset = data.mDataOffset;
-
-		vao->Bind();
-		vao->VertexAttrib(4, 4, sizeof(Matrix4f), offset + 0, 1);
-		vao->VertexAttrib(5, 4, sizeof(Matrix4f), offset + 16, 1);
-		vao->VertexAttrib(6, 4, sizeof(Matrix4f), offset + 32, 1);
-		vao->VertexAttrib(7, 4, sizeof(Matrix4f), offset + 48, 1);
+		DoRenderPass(pass, fbuffer);
 	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void BindShader(Shader* shader, const Matrix4f& projView, Scene* scene)
+void Renderer::DoRenderPass(RenderPass* pass, FrameBuffer* target)
 {
-	shader->Bind();
-	shader->SetUniform("mCamPos", scene->GetCamera().GetPosition());
-	shader->SetUniform("mProjView", projView);
-
-	shader->ApplyUniforms();
-}
-
-void Renderer::Render(FrameBuffer* out)
-{
-	Update();
-
-	// Use default framebuffer is no output buffer
-	if (!out)
-		out = &FrameBuffer::Default;
-
-	for (Uint32 i = 0; i < mRenderPasses.Size(); ++i)
-	{
-		DoRenderPass(*mRenderPasses[i], i == mRenderPasses.Size() - 1 ? out : 0);
-	}
-}
-
-void Renderer::DoRenderPass(RenderPass& pass, FrameBuffer* out)
-{
-	// Bind G-Buffer
+	// Bind G-buffer
 	mGBuffer->Bind();
 
-	// Clear
+	// Set up render state
 	Graphics::Enable(Graphics::DepthTest);
-	Graphics::EnableCull(false);
-
+	Graphics::EnableCull(Graphics::Back);
 	Graphics::Clear();
 
-	// Get camera projection-view matrix
-	Camera& camera = mScene->GetCamera();
-	Matrix4f projView = camera.GetProjection() * camera.GetView();
+	// Get all common uniforms
+	CommonUniforms uniforms;
+	uniforms.mCamera = &mScene->GetCamera();
+	uniforms.mProjView = uniforms.mCamera->GetProjection() * uniforms.mCamera->GetView();
 
-	// ======================== Static ========================
-
-	if (mStaticQueue.Size())
-	{
-		// Set up initial shader
-		Shader* shader = mStaticQueue.Front().mMaterial->mShader;
-		BindShader(shader, projView, mScene);
-
-		// Render static renderables
-		for (Uint32 i = 0; i < mStaticQueue.Size(); ++i)
-		{
-			VertexArrayData& data = mStaticQueue[i];
-
-			if (data.mMaterial)
-			{
-				// Switch shader if needed
-				Shader* next = data.mMaterial->mShader;
-				if (next != shader)
-				{
-					shader = next;
-					BindShader(shader, projView, mScene);
-				}
-
-				// Use material
-				data.mMaterial->Use();
-				shader->ApplyUniforms();
-			}
-
-			// Render vao
-			VertexArray* vao = data.mVertexArray;
-			Uint32 id = vao->GetID();
-			vao->Bind();
-			vao->DrawArrays(data.mNumVertices, mStaticRenderData[mDataMap[id]].mBufferSize);
-		}
-	}
+	// Render static objects
+	RenderStatic(uniforms);
 
 
-	// ======================== Dynamic ========================
+	// Combine into final image
 
-	if (mDynamicQueue.Size())
-	{
-		Shader* shader = mDynamicQueue.Front().mMaterial->mShader;
-		BindShader(shader, projView, mScene);
+	// Setup lighting pass
+	pass->GetLightingPass()->RenderSetup(mGBuffer);
 
-		// Render dynamic renderables
-		for (Uint32 i = 0; i < mDynamicQueue.Size(); ++i)
-		{
-			VertexArrayData& data = mDynamicQueue[i];
-
-			if (data.mMaterial)
-			{
-				// Switch shader if needed
-				Shader* next = data.mMaterial->mShader;
-				if (next != shader)
-				{
-					shader = next;
-					BindShader(shader, projView, mScene);
-				}
-
-				// Use material
-				data.mMaterial->Use();
-				shader->ApplyUniforms();
-			}
-
-			// Render vao
-			VertexArray* vao = data.mVertexArray;
-			Uint32 id = vao->GetID();
-			vao->Bind();
-			vao->DrawArrays(data.mNumVertices, mDynamicRenderData[mDataMap[id]].mRenderables.Size());
-		}
-	}
-
-
-
-	// Render lighting pass
-	pass.GetLightingPass()->Render(mGBuffer);
-
-	// Graphics options
+	// Disable depth test for quad render
 	Graphics::Disable(Graphics::DepthTest);
 
-	// Bind output framebuffer
-	if (out)
-		out->Bind();
-	else if (pass.GetOutput())
-		pass.GetOutput()->Bind();
+	// Bind target framebuffer
+	if (target)
+		target->Bind();
 	else
 		FrameBuffer::Default.Bind();
-	
-	Graphics::Clear(Graphics::ColorBuffer);
 
-	// Render
+	// Clear buffers
+	Graphics::Clear();
+
+	// Draw quad
 	mQuadVao->Bind();
 	mQuadVao->DrawArrays(6);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+void Renderer::RenderStatic(CommonUniforms& uniforms)
+{
+	if (!mStaticQueue.Size()) return;
+
+	// Get first shader
+	Shader* shader = mStaticQueue.Front().mShader;
+	shader->Bind();
+	uniforms.ApplyToShader(shader);
+
+	// Iterate static queue
+	for (Uint32 i = 0; i < mStaticQueue.Size(); ++i)
+	{
+		RenderData& renderData = mStaticQueue[i];
+
+		// Change shaders if needed
+		if (renderData.mShader != shader)
+		{
+			shader = renderData.mShader;
+			shader->Bind();
+			uniforms.ApplyToShader(shader);
+		}
+
+		// Apply material
+		renderData.mMaterial->Use();
+		shader->ApplyUniforms();
+
+		// Bind vertex array
+		renderData.mVertexArray->Bind();
+
+		// Render all visible chunks
+		StaticRenderData& data = mStaticRenderData[renderData.mDataIndex];
+		Array<RenderChunk>& chunks = data.mRenderChunks.GetData();
+
+		for (Uint32 chunk_n = 0; chunk_n < data.mVisibleChunks.Size(); ++chunk_n)
+		{
+			RenderChunk& chunk = chunks[data.mVisibleChunks[chunk_n]];
+
+			// Bind instance buffer
+			chunk.mInstanceBuffer->Bind(VertexBuffer::Array);
+			renderData.mVertexArray->VertexAttrib(4, 4, sizeof(Matrix4f), 0 * sizeof(Vector4f), 1);
+			renderData.mVertexArray->VertexAttrib(5, 4, sizeof(Matrix4f), 1 * sizeof(Vector4f), 1);
+			renderData.mVertexArray->VertexAttrib(6, 4, sizeof(Matrix4f), 2 * sizeof(Vector4f), 1);
+			renderData.mVertexArray->VertexAttrib(7, 4, sizeof(Matrix4f), 3 * sizeof(Vector4f), 1);
+
+			// Draw objects
+			renderData.mVertexArray->DrawArrays(renderData.mNumVertices, chunk.mBufferSize);
+		}
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-void Renderer::RegisterModel(Model* model, bool isStatic, Uint32 num)
+void Renderer::AddRenderData(const RenderData& data, Array<RenderData>& queue)
 {
+	// Add data to end of queue
+	queue.Push(data);
+
+	// Return if this is the first data item
+	if (queue.Size() == 1) return;
+
+	// Start with second to last item
+	int dst = queue.Size() - 1;
+	int src = queue.Size() - 2;
+	Shader* shader = queue[src].mShader;
+
+	while (src > 0)
 	{
-		// Quit if already registered
-		Uint32 id = model->GetMesh(0).mVertexArray->GetID();
-		if (id < mDataMap.Size() && mDataMap[id] >= 0) return;
+		// If target shader group has been found, quit
+		if (shader == data.mShader) break;
+
+		// Find beggining of shader group
+		for (; src >= 0 && shader == queue[src].mShader; --src);
+
+		// Move item at (src + 1) to dst
+		queue[dst] = queue[src + 1];
+		// Update dst to (src + 1)
+		dst = src + 1;
+
+		// Update current shader
+		if (src >= 0)
+			shader = queue[src].mShader;
 	}
 
-	// Only static renderables need render data
-	if (isStatic)
-	{
-		// Set up render data
-		mStaticRenderData.Push(StaticRenderData());
+	// Dst now points to target location
+	queue[dst] = data;
+}
 
-		StaticRenderData& data = mStaticRenderData.Back();
-		data.mTransforms.Reserve(num);
-		data.mBufferSize = 0;
-		data.mNeedsUpdate = false;
+///////////////////////////////////////////////////////////////////////////////
 
-		data.mInstanceBuffer = Resource<VertexBuffer>::Create();
-		data.mInstanceBuffer->Bind(VertexBuffer::Array);
-	}
+Uint32 Renderer::RegisterModel(Model* model, float chunkSize, bool cullable)
+{
+	auto it = mModelToDataIndex.find(model);
+	// If ID exists, quit
+	if (it != mModelToDataIndex.end()) return it->second;
 
-	// Dynamic renderables are updated every frame
-	else
-	{
-		mDynamicRenderData.Push(DynamicRenderData());
+	StaticRenderData data;
+	data.mRenderChunks.Reserve(256);
+	data.mVisibleChunks.Reserve(64);
+	data.mChunkSize = chunkSize;
+	data.mCullable = cullable;
 
-		DynamicRenderData& data = mDynamicRenderData.Back();
-		data.mRenderables.Reserve(num);
-		data.mDataOffset = 0;
-	}
+	// Map model pointer to index
+	Uint32 id = mStaticRenderData.Size();
+	mModelToDataIndex[model] = id;
 
+	// Add data to list
+	mStaticRenderData.Push(data);
+
+	// Add all meshes to queue
 	for (Uint32 i = 0; i < model->GetNumMeshes(); ++i)
 	{
-		const Mesh& mesh = model->GetMesh(i);
+		Mesh& mesh = model->GetMesh(i);
 
-		// Copy VAO data
-		VertexArrayData data;
-		data.mVertexArray = mesh.mVertexArray;
-		data.mNumVertices = mesh.mNumVertices;
-		data.mMaterial = mesh.mMaterial;
-		
-		Uint32 id = mesh.mVertexArray->GetID();
+		// Create render data
+		RenderData renderData;
+		renderData.mDataIndex = id;
+		renderData.mNumVertices = mesh.mNumVertices;
+		renderData.mVertexArray = mesh.mVertexArray;
+		renderData.mMaterial = mesh.mMaterial;
+		renderData.mShader = mesh.mMaterial->mShader;
 
-		// Make sure there's enough space for vertex array
-		while (id >= mDataMap.Size())
-		{
-			mVaoData.Push(VertexArrayData());
-			mDataMap.Push(-1);
-			mIsStatic.Push(false);
-		}
+		// Add to queue
+		AddRenderData(renderData, mStaticQueue);
+	}
 
-		// Add vao data
-		mVaoData[id] = data;
-		mIsStatic[id] = isStatic;
-		if (isStatic)
-			mDataMap[id] = mStaticRenderData.Size() - 1;
+	return id;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void Renderer::AddStaticObject(Renderable* object)
+{
+	// Don't add if object is already added
+	if (object->mInstanceID) return;
+
+	/* TODO : Handle LOD models */
+
+	int modelID = 0;
+	{
+		auto it = mModelToDataIndex.find(object->GetModel());
+		// If model group does not exist, create it
+		if (it == mModelToDataIndex.end())
+			modelID = RegisterModel(object->GetModel(), 32.0f);
 		else
-			mDataMap[id] = mDynamicRenderData.Size() - 1;
+			modelID = it->second;
+	}
 
-		// Dynamic renderables vertex attribs updated every frame
-		if (isStatic)
+	// Get model group
+	StaticRenderData& data = mStaticRenderData[modelID];
+
+
+	// Get chunk handle
+	Vector3u index = object->GetPosition() / data.mChunkSize;
+	Uint32 indexHash = GetHash(&index, sizeof(index));
+	Uint32 chunkHandle = 0;
+
+	{
+		auto it = data.mIndexToHandle.find(indexHash);
+		if (it == data.mIndexToHandle.end())
 		{
-			// Set up vao
-			VertexArray* vao = data.mVertexArray;
-			vao->Bind();
-			vao->VertexAttrib(4, 4, sizeof(Matrix4f), 0, 1);
-			vao->VertexAttrib(5, 4, sizeof(Matrix4f), 16, 1);
-			vao->VertexAttrib(6, 4, sizeof(Matrix4f), 32, 1);
-			vao->VertexAttrib(7, 4, sizeof(Matrix4f), 48, 1);
+			// Create new chunk if it doesn't exist
+			RenderChunk chunk;
+			chunk.mTransforms.Reserve(4);
+			chunk.mInstanceBuffer = Resource<VertexBuffer>::Create();
+			chunk.mBufferSize = 0;
+			chunk.mUpdated = false;
+			chunk.mBoundingBox.mMax = (Vector3f)(index + 1u) * data.mChunkSize;
+			chunk.mBoundingBox.mMin = (Vector3f)(index)*data.mChunkSize;
+
+			// Add chunk to handled array
+			chunkHandle = data.mRenderChunks.Add(std::move(chunk));
+			data.mIndexToHandle[indexHash] = chunkHandle;
 		}
+		else
+			chunkHandle = it->second;
 	}
 
-	UpdateQueue(isStatic);
-}
+	// Get render chunk
+	RenderChunk& chunk = data.mRenderChunks[chunkHandle];
 
-///////////////////////////////////////////////////////////////////////////////
 
-void Renderer::UpdateQueue(bool isStatic)
-{
-	// Choose correct queue
-	Array<VertexArrayData>& queue = isStatic ? mStaticQueue : mDynamicQueue;
+	// Add transform to list
+	Uint32 transformHandle = chunk.mTransforms.Add(object->GetTransform());
 
-	queue.Clear();
+	// Update chunk bounding box
+	const BoundingBox& box = object->GetBoundingBox();
 
-	std::map<Uint32, Array<VertexArrayData*>> byShader;
+	if (box.mMin.x < chunk.mBoundingBox.mMin.x)
+		chunk.mBoundingBox.mMin.x = box.mMin.x;
+	if (box.mMax.x > chunk.mBoundingBox.mMax.x)
+		chunk.mBoundingBox.mMax.x = box.mMax.x;
 
-	for (Uint32 i = 1; i < mVaoData.Size(); ++i)
-	{
-		// Only add correct object types
-		if (mIsStatic[i] != isStatic) continue;
+	if (box.mMin.y < chunk.mBoundingBox.mMin.y)
+		chunk.mBoundingBox.mMin.y = box.mMin.y;
+	if (box.mMax.y > chunk.mBoundingBox.mMax.y)
+		chunk.mBoundingBox.mMax.y = box.mMax.y;
 
-		VertexArrayData& data = mVaoData[i];
-		// If vao isn't being used, skip
-		if (!data.mVertexArray) continue;
+	if (box.mMin.z < chunk.mBoundingBox.mMin.z)
+		chunk.mBoundingBox.mMin.z = box.mMin.z;
+	if (box.mMax.z > chunk.mBoundingBox.mMax.z)
+		chunk.mBoundingBox.mMax.z = box.mMax.z;
 
-		// Get shader id (used to sort vao data)
-		Uint32 id = data.mMaterial->mShader->GetID();
+	// Set instance ID
+	Uint32 instanceID = (chunkHandle << 16) | transformHandle;
+	object->mInstanceID = instanceID + 1;
 
-		// Add if group does not exist
-		Array<VertexArrayData*>& list = byShader[id];
-		if (!list.Capacity())
-			list.Reserve(8);
-
-		// Add data to group
-		list.Push(&data);
-	}
-
-	for (auto it = byShader.begin(); it != byShader.end(); ++it)
-	{
-		Array<VertexArrayData*>& list = it->second;
-		// Add all vao data
-		for (Uint32 i = 0; i < list.Size(); ++i)
-			queue.Push(*list[0]);
-	}
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-void Renderer::AddStatic(Renderable* renderable)
-{
-	Model* model = renderable->GetModel();
-
-	// Make sure model has been registered
-	Uint32 id = model->GetMesh(0).mVertexArray->GetID();
-	if (id >= mDataMap.Size() || mDataMap[id] < 0)
-		RegisterModel(model, true);
-
-	StaticRenderData& data = mStaticRenderData[mDataMap[id]];
-	data.mNeedsUpdate = true;
-	// Add transform to handle array and store handle as instance ID
-	renderable->mInstanceID = data.mTransforms.Add(renderable->GetTransform());
-
-	mStaticDataUpdated = true;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-void Renderer::AddDynamic(Renderable* renderable)
-{
-	Model* model = renderable->GetModel();
-
-	// Make sure model has been registered
-	Uint32 id = model->GetMesh(0).mVertexArray->GetID();
-	if (id >= mDataMap.Size() || mDataMap[id] < 0)
-		RegisterModel(model, false);
-
-	// Add to list of renderables
-	DynamicRenderData& data = mDynamicRenderData[mDataMap[id]];
-	data.mRenderables.Push(renderable);
-
-	// Give instance ID
-	renderable->mInstanceID = data.mRenderables.Size();
-
-	++mNumDynamic;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
-void Renderer::AddRenderPass(RenderPass* pass, const char* lighting_name)
-{
-	mRenderPasses.Push(pass);
-
-	// If there is no lighting pass, use specified lighting pass or default
-	LightingPass* lighting = mLightingPasses[lighting_name ? lighting_name : "Default"];
-	if (!pass->GetLightingPass())
-		mRenderPasses.Back()->SetLightingPass(lighting);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-void Renderer::CreateLightingPass(LightingPass* pass, const char* name)
-{
-	mLightingPasses[name] = pass;
+	// Mark for update
+	chunk.mUpdated = true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

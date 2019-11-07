@@ -19,7 +19,7 @@ public:
 	void Init();
 
 	/* Render as lighting effect */
-	void Render(FrameBuffer* gbuffer) override;
+	void RenderSetup(FrameBuffer* gbuffer) override;
 
 	/* Set uniforms needed for atmosphere shaders */
 	void SetUniforms(Shader* shader);

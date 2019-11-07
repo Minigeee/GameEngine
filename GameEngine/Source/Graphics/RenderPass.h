@@ -3,9 +3,10 @@
 
 #include <Math/Vector4.h>
 
+#include <Graphics/FrameBuffer.h>
+
 ///////////////////////////////////////////////////////////////////////////////
 
-class FrameBuffer;
 class Shader;
 class Scene;
 
@@ -17,7 +18,7 @@ public:
 	virtual ~LightingPass();
 
 	/* Bind shader, set uniforms */
-	virtual void Render(FrameBuffer* gbuffer) = 0;
+	virtual void RenderSetup(FrameBuffer* gbuffer) = 0;
 
 protected:
 	/* Shader used to render lighting */
@@ -35,7 +36,7 @@ public:
 	DefaultLighting(Scene* scene);
 	~DefaultLighting();
 
-	void Render(FrameBuffer* gbuffer) override;
+	void RenderSetup(FrameBuffer* gbuffer) override;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -54,26 +55,29 @@ public:
 	};
 
 public:
-	RenderPass(Type type, bool create_fb = true);
+	RenderPass();
+	RenderPass(Type type);
 	~RenderPass();
 
 	/* Set lighting pass object */
 	void SetLightingPass(LightingPass* pass);
-	/* Free output buffer */
-	void FreeOutput();
+	/* Create framebuffer as render pass target */
+	void CreateTarget(
+		Texture::Format fmt = Texture::Rgb,
+		Image::DataType dtype = Image::Ushort);
 
 	/* Get render pass type */
 	Type GetType() const;
-	/* Get render pass output buffer */
-	FrameBuffer* GetOutput() const;
+	/* Get render pass target buffer */
+	FrameBuffer* GetTarget() const;
 	/* Get lighting pass object */
 	LightingPass* GetLightingPass() const;
 
 private:
 	/* Render pass type */
 	Type mType;
-	/* Ouptput framebuffer */
-	FrameBuffer* mOutput;
+	/* Target framebuffer */
+	FrameBuffer* mTarget;
 	/* Lighting pass */
 	LightingPass* mLightingPass;
 
