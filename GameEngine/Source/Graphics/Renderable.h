@@ -3,7 +3,7 @@
 
 #include <Core/DataTypes.h>
 #include <Math/Matrix4.h>
-#include <Math/BoundingBox.h>
+#include <Math/BoundingSphere.h>
 
 #include <Scene/Transformable.h>
 
@@ -23,7 +23,7 @@ public:
 	/* Get transform matrix */
 	const Matrix4f& GetTransform();
 	/* Get bounding box that has been adjusted to transform (Not completely accurate) */
-	const BoundingBox& GetBoundingBox();
+	const BoundingSphere& GetBoundingSphere();
 
 	/* Set model */
 	void SetModel(Model* model);
@@ -35,8 +35,8 @@ public:
 protected:
 	/* Transform matrix */
 	Matrix4f mTransform;
-	/* Renderable bounding box */
-	BoundingBox mBoundingBox;
+	/* Renderable bounding sphere */
+	BoundingSphere mBoundingSphere;
 
 	/* ID used when updating instance data */
 	Uint32 mInstanceID;

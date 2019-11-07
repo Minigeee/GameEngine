@@ -236,6 +236,9 @@
     <ClCompile Include="Source\Core\Hash.cpp">
       <Filter>Source\Core</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Math\BoundingSphere.cpp">
+      <Filter>Source\Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Core\DataTypes.h">
@@ -441,6 +444,9 @@
     </ClInclude>
     <ClInclude Include="Source\Core\Hash.h">
       <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Math\BoundingSphere.h">
+      <Filter>Include\Math</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

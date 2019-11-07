@@ -3,6 +3,7 @@
 
 #include <Math/Plane.h>
 #include <Math/BoundingBox.h>
+#include <Math/BoundingSphere.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -27,6 +28,8 @@ public:
 
 	/* Returns true if frustum partially or fully contains a box */
 	bool Contains(const BoundingBox& box) const;
+	/* Returns true if frustum partially or fully contains a sphere */
+	bool Contains(const BoundingSphere& sphere) const;
 
 private:
 	Plane mPlanes[6];

@@ -446,7 +446,8 @@ void Renderer::AddStaticObject(Renderable* object)
 	Uint32 transformHandle = chunk.mTransforms.Add(object->GetTransform());
 
 	// Update chunk bounding box
-	const BoundingBox& box = object->GetBoundingBox();
+	const BoundingSphere& sphere = object->GetBoundingSphere();
+	BoundingBox box(sphere.p - sphere.r, sphere.p + sphere.r);
 
 	if (box.mMin.x < chunk.mBoundingBox.mMin.x)
 		chunk.mBoundingBox.mMin.x = box.mMin.x;

@@ -192,6 +192,7 @@
     <ClCompile Include="Source\Graphics\VertexBuffer.cpp" />
     <ClCompile Include="Source\Main.cpp" />
     <ClCompile Include="Source\Math\BoundingBox.cpp" />
+    <ClCompile Include="Source\Math\BoundingSphere.cpp" />
     <ClCompile Include="Source\Math\Frustum.cpp" />
     <ClCompile Include="Source\Math\Math.cpp" />
     <ClCompile Include="Source\Math\Plane.cpp" />
@@ -253,6 +254,7 @@
     <ClInclude Include="Source\Graphics\VertexArray.h" />
     <ClInclude Include="Source\Graphics\VertexBuffer.h" />
     <ClInclude Include="Source\Math\BoundingBox.h" />
+    <ClInclude Include="Source\Math\BoundingSphere.h" />
     <ClInclude Include="Source\Math\Frustum.h" />
     <ClInclude Include="Source\Math\Math.h" />
     <ClInclude Include="Source\Math\Matrix2.h" />

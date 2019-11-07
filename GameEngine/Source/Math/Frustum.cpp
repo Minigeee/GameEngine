@@ -40,3 +40,20 @@ bool Frustum::Contains(const BoundingBox& box) const
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+bool Frustum::Contains(const BoundingSphere& sphere) const
+{
+	bool contains = true;
+
+	for (Uint32 i = 0; i < 6; ++i)
+	{
+		const Plane& plane = mPlanes[i];
+
+		if (plane.Dist(sphere.p) + sphere.r < 0.0f)
+			contains = false;
+	}
+
+	return contains;
+}
+
+///////////////////////////////////////////////////////////////////////////////
