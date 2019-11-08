@@ -131,18 +131,17 @@ void Renderer::PostInit()
 
 void Renderer::Update()
 {
-	UpdateStatic();
-	UpdateDynamic();
+	// Get camera frustum
+	Frustum frustum = mScene->GetCamera().GetFrustum();
+
+	UpdateStatic(frustum);
+	UpdateDynamic(frustum);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Renderer::UpdateStatic()
+void Renderer::UpdateStatic(const Frustum& frustum)
 {
-	// Get camera frustum
-	Frustum frustum = mScene->GetCamera().GetFrustum();
-
-
 	for (Uint32 i = 0; i < mStaticRenderData.Size(); ++i)
 	{
 		StaticRenderData& data = mStaticRenderData[i];
@@ -196,7 +195,7 @@ void Renderer::UpdateStatic()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Renderer::UpdateDynamic()
+void Renderer::UpdateDynamic(const Frustum& frustum)
 {
 	// Map instance buffer
 	mDynamicBuffer->Bind(VertexBuffer::Array);
@@ -233,7 +232,7 @@ void Renderer::UpdateDynamic()
 		for (Uint32 n = 0; n < data.mRenderables.Size(); ++n)
 		{
 			// If visible, add transform
-			if (true)
+			if (frustum.Contains(data.mRenderables[n]->GetBoundingSphere()))
 				buffer[numVisible++] = data.mRenderables[n]->GetTransform();
 		}
 

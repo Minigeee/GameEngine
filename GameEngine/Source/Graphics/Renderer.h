@@ -6,6 +6,7 @@
 #include <Math/Vector3.h>
 #include <Math/Matrix4.h>
 #include <Math/BoundingBox.h>
+#include <Math/Frustum.h>
 
 #include <Graphics/RenderPass.h>
 
@@ -151,9 +152,9 @@ private:
 	/* Do any pre-render updates */
 	void Update();
 	/* Update (cull) static objects */
-	void UpdateStatic();
+	void UpdateStatic(const Frustum& frustum);
 	/* Update (cull) dynamic objects */
-	void UpdateDynamic();
+	void UpdateDynamic(const Frustum& frustum);
 
 	/* Do a render pass */
 	void DoRenderPass(RenderPass* pass, FrameBuffer* target);

@@ -31,7 +31,10 @@ void Renderable::UpdateTransform()
 
 		// Update bounding sphere
 		const BoundingBox& box = mModel->GetBoundingBox();
-		mBoundingSphere.p = box.GetPosition() + mPosition;
+		Vector3f boxPos = box.GetPosition();
+
+		mBoundingSphere.p = boxPos + mPosition;
+		mBoundingSphere.r = Distance(boxPos, box.mMin) * mScale;
 
 		mTransformDirty = false;
 	}
