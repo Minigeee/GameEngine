@@ -14,6 +14,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
+#define DYNAMIC_INSTANCE_BUFFER_SIZE 1024 * 1024
+
 class Scene;
 
 class VertexArray;
@@ -60,6 +62,19 @@ public:
 	float mChunkSize;
 	/* True if culling is enabled for this model */
 	bool mCullable;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+struct DynamicRenderData
+{
+public:
+	/* List of dynamic renderables */
+	HandleArray<Renderable*> mRenderables;
+	/* Matrix offset in instance buffer */
+	Uint32 mInstanceOffset;
+	/* Number of visible instances */
+	Uint32 mNumVisible;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -111,9 +126,13 @@ public:
 	void Render(FrameBuffer* target);
 
 	/* Register model for static renderables */
-	Uint32 RegisterModel(Model* model, float chunkSize, bool cullable = true);
+	Uint32 RegisterStaticModel(Model* model, float chunkSize, bool cullable = true);
+	/* Register model for dynamic renderables */
+	Uint32 RegisterDynamicModel(Model* model);
 	/* Add static renderable object */
 	void AddStaticObject(Renderable* object);
+	/* Add dynamic renderable object */
+	void AddDynamicObject(Renderable* object);
 
 	/* Add a render pass (Pass lighting pass type as template parameter) */
 	template <typename L> RenderPass* AddRenderPass(RenderPass::Type type)
@@ -133,18 +152,24 @@ private:
 	void Update();
 	/* Update (cull) static objects */
 	void UpdateStatic();
+	/* Update (cull) dynamic objects */
+	void UpdateDynamic();
 
 	/* Do a render pass */
 	void DoRenderPass(RenderPass* pass, FrameBuffer* target);
 	/* Render static objects */
 	void RenderStatic(CommonUniforms& uniforms);
+	/* Render dynamic objects */
+	void RenderDynamic(CommonUniforms& uniforms);
 
 private:
 	/* Scene to render */
 	Scene* mScene;
 
-	/* List of model render data */
+	/* List of static render data */
 	Array<StaticRenderData> mStaticRenderData;
+	/* List of dynamic render data */
+	Array<DynamicRenderData> mDynamicRenderData;
 	/* Map model pointer to render data index */
 	std::unordered_map<Model*, Uint32> mModelToDataIndex;
 
@@ -161,6 +186,15 @@ private:
 	VertexArray* mQuadVao;
 	/* Quad vertex buffer */
 	VertexBuffer* mQuadVbo;
+
+	/* Dynamic instance buffer */
+	VertexBuffer* mDynamicBuffer;
+	/* Dynamic buffer size */
+	Uint32 mDynBufferSize;
+	/* Dynamic buffer offset */
+	Uint32 mDynBufferOffset;
+	/* Number of dynamic instances */
+	Uint32 mNumDynInstances;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -32,7 +32,7 @@ void WorldScene::OnCreate()
 	LOG << "Creating world\n";
 
 	Array<PlayerObject*> objects = CreateObjects<PlayerObject>(1);
-	mRenderer.AddStaticObject(objects[0]);
+	mRenderer.AddDynamicObject(objects[0]);
 
 	// Systems
 	InputSystem* system = RegisterSystem<InputSystem>();
@@ -41,7 +41,7 @@ void WorldScene::OnCreate()
 	RegisterSystem<TerrainSystem>();
 
 
-	mDirLight.SetDirection(0.0f, -0.1f, 1.0f);
+	mDirLight.SetDirection(0.0f, -0.5f, 1.0f);
 	mCamera.SetPosition(0.0f, 2.0f, 4.0f);
 
 	// Render passes

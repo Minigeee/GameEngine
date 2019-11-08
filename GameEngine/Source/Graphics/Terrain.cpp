@@ -359,7 +359,7 @@ void Terrain::SetColorMap(Texture* texture)
 void Terrain::AddToScene(Scene* scene)
 {
 	// Terrain shouldn't be cullable
-	scene->GetRenderer().RegisterModel(mModel, 0.0, false);
+	scene->GetRenderer().RegisterStaticModel(mModel, 0.0, false);
 	scene->GetRenderer().AddStaticObject(this);
 }
 

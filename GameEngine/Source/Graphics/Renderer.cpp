@@ -38,6 +38,7 @@ void Renderer::Init(Scene* scene)
 
 	// Containers
 	mStaticRenderData.Reserve(32);
+	mDynamicRenderData.Reserve(32);
 	mStaticQueue.Reserve(32);
 	mDynamicQueue.Reserve(32);
 	mRenderPasses.Reserve(4);
@@ -94,6 +95,15 @@ void Renderer::Init(Scene* scene)
 	mQuadVao = Resource<VertexArray>::Create();
 	mQuadVao->Bind();
 	mQuadVao->VertexAttrib(0, 2);
+
+
+	// Create dynamic instance buffer
+	mDynamicBuffer = Resource<VertexBuffer>::Create();
+	mDynamicBuffer->Bind(VertexBuffer::Array);
+	mDynamicBuffer->BufferData(NULL, DYNAMIC_INSTANCE_BUFFER_SIZE, VertexBuffer::Stream);
+	mDynBufferSize = DYNAMIC_INSTANCE_BUFFER_SIZE / sizeof(Matrix4f);
+	mDynBufferOffset = 0;
+	mNumDynInstances = 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -122,6 +132,7 @@ void Renderer::PostInit()
 void Renderer::Update()
 {
 	UpdateStatic();
+	UpdateDynamic();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -184,6 +195,61 @@ void Renderer::UpdateStatic()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+void Renderer::UpdateDynamic()
+{
+	// Map instance buffer
+	mDynamicBuffer->Bind(VertexBuffer::Array);
+	Matrix4f* buffer = 0;
+	if (mDynBufferOffset + mNumDynInstances > mDynBufferSize)
+	{
+		// Reset buffer
+		buffer = (Matrix4f*)mDynamicBuffer->MapWrite(
+			mNumDynInstances * sizeof(Matrix4f),
+			VertexBuffer::InvalidateBuffer,
+			0);
+		mDynBufferOffset = 0;
+	}
+	else
+	{
+		// Unsynchronized for speed
+		buffer = (Matrix4f*)mDynamicBuffer->MapWrite(
+			mNumDynInstances * sizeof(Matrix4f),
+			VertexBuffer::Unsynchronized,
+			mDynBufferOffset * sizeof(Matrix4f));
+	}
+
+
+	// Iterate dynamic render data
+	for (Uint32 i = 0; i < mDynamicRenderData.Size(); ++i)
+	{
+		DynamicRenderData& data = mDynamicRenderData[i];
+		Uint32 numVisible = 0;
+
+		// Set data offset
+		data.mInstanceOffset = mDynBufferOffset;
+
+		// Iterate renderables
+		for (Uint32 n = 0; n < data.mRenderables.Size(); ++n)
+		{
+			// If visible, add transform
+			if (true)
+				buffer[numVisible++] = data.mRenderables[n]->GetTransform();
+		}
+
+		// Set number of visible instances
+		data.mNumVisible = numVisible;
+
+		// Update buffer offset
+		mDynBufferOffset += numVisible;
+		buffer += numVisible;
+	}
+
+	// Unbind buffer
+	mDynamicBuffer->Unmap();
+}
+
+///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
 void CommonUniforms::ApplyToShader(Shader* shader)
@@ -234,6 +300,8 @@ void Renderer::DoRenderPass(RenderPass* pass, FrameBuffer* target)
 
 	// Render static objects
 	RenderStatic(uniforms);
+	// Render dynamic objects
+	RenderDynamic(uniforms);
 
 
 	// Combine into final image
@@ -311,6 +379,51 @@ void Renderer::RenderStatic(CommonUniforms& uniforms)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+void Renderer::RenderDynamic(CommonUniforms& uniforms)
+{
+	if (!mDynamicQueue.Size()) return;
+
+	mDynamicBuffer->Bind(VertexBuffer::Array);
+
+	// Get first shader
+	Shader* shader = mDynamicQueue.Front().mShader;
+	shader->Bind();
+	uniforms.ApplyToShader(shader);
+
+	// Iterate dynamic queue
+	for (Uint32 i = 0; i < mDynamicQueue.Size(); ++i)
+	{
+		RenderData& renderData = mDynamicQueue[i];
+
+		// Change shaders if needed
+		if (renderData.mShader != shader)
+		{
+			shader = renderData.mShader;
+			shader->Bind();
+			uniforms.ApplyToShader(shader);
+		}
+
+		// Apply material
+		renderData.mMaterial->Use();
+		shader->ApplyUniforms();
+
+		// Bind vertex array
+		DynamicRenderData& data = mDynamicRenderData[renderData.mDataIndex];
+		Uint32 offset = data.mInstanceOffset * sizeof(Matrix4f);
+
+		renderData.mVertexArray->Bind();
+		renderData.mVertexArray->VertexAttrib(4, 4, sizeof(Matrix4f), offset + 0 * sizeof(Vector4f), 1);
+		renderData.mVertexArray->VertexAttrib(5, 4, sizeof(Matrix4f), offset + 1 * sizeof(Vector4f), 1);
+		renderData.mVertexArray->VertexAttrib(6, 4, sizeof(Matrix4f), offset + 2 * sizeof(Vector4f), 1);
+		renderData.mVertexArray->VertexAttrib(7, 4, sizeof(Matrix4f), offset + 3 * sizeof(Vector4f), 1);
+
+		// Render instances
+		renderData.mVertexArray->DrawArrays(renderData.mNumVertices, data.mNumVisible);
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
 void Renderer::AddRenderData(const RenderData& data, Array<RenderData>& queue)
@@ -350,7 +463,7 @@ void Renderer::AddRenderData(const RenderData& data, Array<RenderData>& queue)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Uint32 Renderer::RegisterModel(Model* model, float chunkSize, bool cullable)
+Uint32 Renderer::RegisterStaticModel(Model* model, float chunkSize, bool cullable)
 {
 	auto it = mModelToDataIndex.find(model);
 	// If ID exists, quit
@@ -367,7 +480,7 @@ Uint32 Renderer::RegisterModel(Model* model, float chunkSize, bool cullable)
 	mModelToDataIndex[model] = id;
 
 	// Add data to list
-	mStaticRenderData.Push(data);
+	mStaticRenderData.Push(std::move(data));
 
 	// Add all meshes to queue
 	for (Uint32 i = 0; i < model->GetNumMeshes(); ++i)
@@ -403,7 +516,7 @@ void Renderer::AddStaticObject(Renderable* object)
 		auto it = mModelToDataIndex.find(object->GetModel());
 		// If model group does not exist, create it
 		if (it == mModelToDataIndex.end())
-			modelID = RegisterModel(object->GetModel(), 32.0f);
+			modelID = RegisterStaticModel(object->GetModel(), 32.0f);
 		else
 			modelID = it->second;
 	}
@@ -465,11 +578,75 @@ void Renderer::AddStaticObject(Renderable* object)
 		chunk.mBoundingBox.mMax.z = box.mMax.z;
 
 	// Set instance ID
-	Uint32 instanceID = (chunkHandle << 16) | transformHandle;
+	Uint32 instanceID = (indexHash << 16) | transformHandle;
 	object->mInstanceID = instanceID + 1;
 
 	// Mark for update
 	chunk.mUpdated = true;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+Uint32 Renderer::RegisterDynamicModel(Model* model)
+{
+	auto it = mModelToDataIndex.find(model);
+	// If ID exists, quit
+	if (it != mModelToDataIndex.end()) return it->second;
+
+	DynamicRenderData data;
+	data.mRenderables.Reserve(8);
+
+	// Map model pointer to index
+	Uint32 id = mDynamicRenderData.Size();
+	mModelToDataIndex[model] = id;
+
+	// Add data to list
+	mDynamicRenderData.Push(std::move(data));
+
+	// Add all meshes to queue
+	for (Uint32 i = 0; i < model->GetNumMeshes(); ++i)
+	{
+		Mesh& mesh = model->GetMesh(i);
+
+		// Create render data
+		RenderData renderData;
+		renderData.mDataIndex = id;
+		renderData.mNumVertices = mesh.mNumVertices;
+		renderData.mVertexArray = mesh.mVertexArray;
+		renderData.mMaterial = mesh.mMaterial;
+		renderData.mShader = mesh.mMaterial->mShader;
+
+		// Add to queue
+		AddRenderData(renderData, mDynamicQueue);
+	}
+
+	return id;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void Renderer::AddDynamicObject(Renderable* object)
+{
+	// Don't add if object is already added
+	if (object->mInstanceID) return;
+
+	int modelID = 0;
+	{
+		auto it = mModelToDataIndex.find(object->GetModel());
+		// If model group does not exist, create it
+		if (it == mModelToDataIndex.end())
+			modelID = RegisterDynamicModel(object->GetModel());
+		else
+			modelID = it->second;
+	}
+
+	// Get model group
+	DynamicRenderData& data = mDynamicRenderData[modelID];
+
+	// Add to list of renderables
+	object->mInstanceID = data.mRenderables.Add(object);
+
+	++mNumDynInstances;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
