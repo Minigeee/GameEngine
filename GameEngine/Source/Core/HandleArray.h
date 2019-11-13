@@ -67,7 +67,7 @@ public:
 		// Store current next free entry index
 		Uint32 handle = mNextFree;
 		// Update next free index
-		mNextFree = mHandleToIndex[mNextFree];
+		mNextFree = mHandleToIndex[handle];
 		// Map current free slot to added object
 		mHandleToIndex[handle] = index;
 		// Map data index to handle
@@ -79,24 +79,26 @@ public:
 	/* Remove object using handle */
 	void Remove(Uint32 handle)
 	{
-		// Get index of object to remove
-		Uint32 index = mHandleToIndex[handle];
+		// Get index of the item that is being removed
+		Uint32 targetIndex = mHandleToIndex[handle];
 
-		// Update free list
+		// Remove item using a swap pop to avoid item shifting
+		mData.SwapPop(targetIndex);
+
+		// Find the handle of the item that was moved from the end to fill the item that was just removed
+		Uint32 movedHandle = mIndexToHandle[mData.Size()];
+
+		// Map the moved item's handle to its new index position
+		mHandleToIndex[movedHandle] = targetIndex;
+
+		// Map the index position of the moved item to its handle
+		mIndexToHandle[targetIndex] = movedHandle;
+
+		// Store next free handle in the handle position of the item that was removed
 		mHandleToIndex[handle] = mNextFree;
+
+		// Mark the handle that was removed as the next free
 		mNextFree = handle;
-
-		// Pop swap to avoid moving all objects
-		mData.SwapPop(index);
-
-		// Update the mapping for object that was moved
-		// mIndexToHandle[mData.Size()] --- Gets the handle of the object that used to be at the end of data array
-		Uint16 movedHandle = mIndexToHandle[mData.Size()];
-		// mHandleToIndex[movedHandle] = index --- Updates the current index for the handle whose object was moved
-		mHandleToIndex[movedHandle] = index;
-
-		// mIndexToHandle[index] = movedHandle --- Updates the handle that is in charge of the moved object's new position
-		mIndexToHandle[index] = movedHandle;
 	}
 
 	/* Reserve space for handle array */

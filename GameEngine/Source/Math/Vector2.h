@@ -140,6 +140,22 @@ inline T Dot(const Vector2<T>& a, const Vector2<T>& b)
 
 ///////////////////////////////////////////////////////////////////////////////
 
+/* Floor */
+template <typename T>
+inline Vector2<double> Floor(const Vector2<T>& x)
+{
+	return Vector2<double>(floor(x.x), floor(x.y));
+}
+
+/* Ceil */
+template <typename T>
+inline Vector2<double> Ceil(const Vector2<T>& x)
+{
+	return Vector2<double>(ceil(x.x), ceil(x.y));
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 typedef Vector2<float>	Vector2f;
 typedef Vector2<double>	Vector2d;
 typedef Vector2<Int32>	Vector2i;

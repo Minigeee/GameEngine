@@ -155,6 +155,22 @@ inline Vector3<T> Cross(const Vector3<T>& a, const Vector3<T>& b)
 
 ///////////////////////////////////////////////////////////////////////////////
 
+/* Floor */
+template <typename T>
+inline Vector3<double> Floor(const Vector3<T>& x)
+{
+	return Vector3<double>(floor(x.x), floor(x.y), floor(x.z));
+}
+
+/* Ceil */
+template <typename T>
+inline Vector3<double> Ceil(const Vector3<T>& x)
+{
+	return Vector3<double>(ceil(x.x), ceil(x.y), ceil(x.z));
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 typedef Vector3<float>	Vector3f;
 typedef Vector3<double>	Vector3d;
 typedef Vector3<Int32>	Vector3i;

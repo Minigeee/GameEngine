@@ -154,6 +154,22 @@ inline T Dot(const Vector4<T> & a, const Vector4<T> & b)
 
 ///////////////////////////////////////////////////////////////////////////////
 
+/* Floor */
+template <typename T>
+inline Vector4<double> Floor(const Vector4<T>& x)
+{
+	return Vector4<double>(floor(x.x), floor(x.y), floor(x.z), floor(x.w));
+}
+
+/* Ceil */
+template <typename T>
+inline Vector4<double> Ceil(const Vector4<T>& x)
+{
+	return Vector4<double>(ceil(x.x), ceil(x.y), ceil(x.z), ceil(x.w));
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 typedef Vector4<float>	Vector4f;
 typedef Vector4<double>	Vector4d;
 typedef Vector4<Int32>	Vector4i;

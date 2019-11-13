@@ -18,6 +18,7 @@ class Engine;
 class EventListener;
 class GameSystem;
 class GameObject;
+class ObjectLoader;
 
 class Skybox;
 
@@ -117,6 +118,28 @@ public:
 		Resource<T>::Free(object);
 	}
 
+	/* ====================== Object Loaders ====================== */
+
+	/* Register object loader */
+	template <typename T> T* RegisterLoader()
+	{
+		T* loader = new T();
+		if (!RegisterLoader(loader, T::StaticTypeID()))
+		{
+			delete loader;
+			return 0;
+		}
+
+		return loader;
+	}
+	/* Register object loader */
+	bool RegisterLoader(ObjectLoader* loader, Uint32 type);
+
+	/* Access object loader */
+	template <typename T> T* GetLoader() const { return (T*)GetLoader(T::StaticTypeID()); }
+	/* Access object loader */
+	ObjectLoader* GetLoader(Uint32 type) const;
+
 
 protected:
 	/* Handle key events */
@@ -156,8 +179,13 @@ private:
 	std::unordered_map<Uint32, Array<EventListener*>> mListeners;
 	/* Map of game systems */
 	std::unordered_map<Uint32, GameSystem*> mSystems;
+	/* Map of object loaders */
+	std::unordered_map<Uint32, ObjectLoader*> mLoaders;
+
 	/* Update list for game systems */
-	Array<GameSystem*> mUpdateList;
+	Array<GameSystem*> mSystemUpdateList;
+	/* Update list for object loaders */
+	Array<ObjectLoader*> mLoaderUpdateList;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

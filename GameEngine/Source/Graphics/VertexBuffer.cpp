@@ -23,6 +23,8 @@ VertexBuffer::~VertexBuffer()
 		glDeleteBuffers(1, &mID);
 		mID = 0;
 	}
+	else
+		Uint32 a = 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

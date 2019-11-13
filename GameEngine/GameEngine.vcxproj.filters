@@ -239,6 +239,12 @@
     <ClCompile Include="Source\Math\BoundingSphere.cpp">
       <Filter>Source\Math</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Scene\ObjectLoader.cpp">
+      <Filter>Source\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Game\Systems\BoxLoader.cpp">
+      <Filter>Source\Game\System</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Core\DataTypes.h">
@@ -447,6 +453,12 @@
     </ClInclude>
     <ClInclude Include="Source\Math\BoundingSphere.h">
       <Filter>Include\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Scene\ObjectLoader.h">
+      <Filter>Include\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Game\Systems\BoxLoader.h">
+      <Filter>Include\Game\Systems</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

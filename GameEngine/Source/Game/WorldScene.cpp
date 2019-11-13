@@ -6,6 +6,7 @@
 
 #include <Game/Systems/InputSystem.h>
 #include <Game/Systems/TerrainSystem.h>
+#include <Game/Systems/BoxLoader.h>
 
 #include <Game/Objects/PlayerObject.h>
 
@@ -32,7 +33,9 @@ void WorldScene::OnCreate()
 	LOG << "Creating world\n";
 
 	Array<PlayerObject*> objects = CreateObjects<PlayerObject>(1);
-	mRenderer.AddDynamicObject(objects[0]);
+	// mRenderer.AddDynamicObject(objects[0]);
+	
+	RegisterLoader<BoxLoader>();
 
 	// Systems
 	InputSystem* system = RegisterSystem<InputSystem>();
@@ -42,7 +45,6 @@ void WorldScene::OnCreate()
 
 
 	mDirLight.SetDirection(0.0f, -0.5f, 1.0f);
-	mCamera.SetPosition(0.0f, 2.0f, 4.0f);
 
 	// Render passes
 	mRenderer.AddRenderPass<Atmosphere>(RenderPass::Normal);

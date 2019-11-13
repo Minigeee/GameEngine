@@ -34,6 +34,7 @@ public:
 	ObjectPool() :
 		mStart		(0),
 		mCurrent	(0),
+		mLast		(0),
 		mPageSize	(1024)
 	{
 
@@ -53,9 +54,13 @@ public:
 	{
 		mStart = other.mStart;
 		mCurrent = other.mCurrent;
+		mLast = other.mLast;
+		mPageSize = other.mPageSize;
 
 		other.mStart = 0;
 		other.mCurrent = 0;
+		other.mLast = 0;
+		other.mPageSize = 1024;
 	}
 
 	ObjectPool& operator=(ObjectPool&& other)
@@ -67,9 +72,13 @@ public:
 
 			mStart = other.mStart;
 			mCurrent = other.mCurrent;
+			mLast = other.mLast;
+			mPageSize = other.mPageSize;
 
 			other.mStart = 0;
 			other.mCurrent = 0;
+			other.mLast = 0;
+			other.mPageSize = 1024;
 		}
 
 		return *this;
@@ -109,6 +118,7 @@ public:
 
 		mStart = 0;
 		mCurrent = 0;
+		mLast = 0;
 	}
 
 	/* Create new object */
@@ -118,15 +128,49 @@ public:
 		{
 			mStart = AllocPage(mPageSize);
 			mCurrent = mStart;
+			mLast = mCurrent;
 		}
 
+		// Get header of current page
 		PageHeader* header = (PageHeader*)(mCurrent + mPageSize);
 		
+		// If this page is filled up...
 		if (!header->mNextFree)
 		{
-			// Allocate new block
-			mStart = AllocPage(mPageSize);
-			mCurrent = mStart;
+			// Find first page with free slots
+			T* page = mStart;
+			// While current page exists...
+			while (page)
+			{
+				header = (PageHeader*)(page + mPageSize);
+				// If this page has open slots, break loop
+				if (header->mNextFree) break;
+
+				// Go to next page
+				page = (T*)header->mNext;
+			}
+
+			// If a page with empty slots was found...
+			if (page)
+			{
+				// Make this page the current
+				mCurrent = page;
+			}
+
+			// Otherwise...
+			else
+			{
+				// Allocate new block
+				mCurrent = AllocPage(mPageSize);
+				// Make header of the last page point to new page
+				header = (PageHeader*)(mLast + mPageSize);
+				header->mNext = mCurrent;
+
+				// Update header
+				header = (PageHeader*)(mCurrent + mPageSize);
+				// Update last page
+				mLast = mCurrent;
+			}
 		}
 
 		// Next free stores pointer to slot location
@@ -194,6 +238,8 @@ private:
 	T* mStart;
 	/* Current page */
 	T* mCurrent;
+	/* Last page */
+	T* mLast;
 	/* Page size */
 	Uint32 mPageSize;
 };

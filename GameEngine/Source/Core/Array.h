@@ -93,6 +93,9 @@ public:
 	{
 		if (this != &other)
 		{
+			// Free previous memory
+			Free();
+
 			mStart = other.mStart;
 			mLast = other.mLast;
 			mEnd = other.mEnd;

@@ -27,6 +27,21 @@ Renderer::~Renderer()
 {
 	for (Uint32 i = 0; i < mRenderPasses.Size(); ++i)
 		delete mRenderPasses[i];
+
+	Resource<FrameBuffer>::Free(mGBuffer);
+	Resource<VertexArray>::Free(mQuadVao);
+	Resource<VertexBuffer>::Free(mQuadVbo);
+	Resource<VertexBuffer>::Free(mDynamicBuffer);
+
+	// Free chunk instance buffers
+	for (Uint32 i = 0; i < mStaticRenderData.Size(); ++i)
+	{
+		StaticRenderData& data = mStaticRenderData[i];
+		Array<RenderChunk>& chunks = data.mRenderChunks.GetData();
+
+		for (Uint32 chunk_n = 0; chunk_n < chunks.Size(); ++chunk_n)
+			Resource<VertexBuffer>::Free(chunks[chunk_n].mInstanceBuffer);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -49,7 +64,7 @@ void Renderer::Init(Scene* scene)
 	mGBuffer->Bind();
 
 	FrameBuffer::TextureOptions options;
-	const Vector3u& size = FrameBuffer::Default.GetSize();
+	const Vector3i& size = FrameBuffer::Default.GetSize();
 	mGBuffer->SetSize(size.x, size.y);
 
 	// Position
@@ -187,7 +202,7 @@ void Renderer::UpdateStatic(const Frustum& frustum)
 
 
 			// If chunk is visible, add it to the list
-			if (!data.mCullable || frustum.Contains(chunk.mBoundingBox))
+			if (true)
 				data.mVisibleChunks.Push(chunk_n);
 		}
 	}
@@ -525,7 +540,7 @@ void Renderer::AddStaticObject(Renderable* object)
 
 
 	// Get chunk handle
-	Vector3u index = object->GetPosition() / data.mChunkSize;
+	Vector3i index = Floor(object->GetPosition() / data.mChunkSize);
 	Uint32 indexHash = GetHash(&index, sizeof(index));
 	Uint32 chunkHandle = 0;
 
@@ -539,7 +554,7 @@ void Renderer::AddStaticObject(Renderable* object)
 			chunk.mInstanceBuffer = Resource<VertexBuffer>::Create();
 			chunk.mBufferSize = 0;
 			chunk.mUpdated = false;
-			chunk.mBoundingBox.mMax = (Vector3f)(index + 1u) * data.mChunkSize;
+			chunk.mBoundingBox.mMax = (Vector3f)(index + 1) * data.mChunkSize;
 			chunk.mBoundingBox.mMin = (Vector3f)(index)*data.mChunkSize;
 
 			// Add chunk to handled array
@@ -584,6 +599,62 @@ void Renderer::AddStaticObject(Renderable* object)
 	chunk.mUpdated = true;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+void Renderer::RemoveStaticObject(Renderable* object)
+{
+	if (!object->mInstanceID) return;
+
+	Uint32 instanceID = object->mInstanceID - 1;
+	Uint32 indexHash = instanceID >> 16;
+	Uint32 transformHandle = instanceID - indexHash;
+
+	// Get model group
+	int modelID = 0;
+	{
+		auto it = mModelToDataIndex.find(object->GetModel());
+		// If model group does not exist, quit
+		if (it == mModelToDataIndex.end())
+			return;
+		else
+			modelID = it->second;
+	}
+	StaticRenderData& data = mStaticRenderData[modelID];
+
+	// Get chunk
+	Uint32 chunkHandle = 0;
+	{
+		auto it = data.mIndexToHandle.find(indexHash);
+		if (it == data.mIndexToHandle.end())
+		{
+			// If chunk doesn't exist (if chunk was removed already), then reset instance ID and quit
+			object->mInstanceID = 0;
+			return;
+		}
+		else
+			chunkHandle = it->second;
+	}
+	RenderChunk& chunk = data.mRenderChunks[chunkHandle];
+
+	// Remove transform
+	chunk.mTransforms.Remove(transformHandle);
+
+	// If there are no transforms left, remove chunk
+	if (!chunk.mTransforms.Size())
+	{
+		Resource<VertexBuffer>::Free(chunk.mInstanceBuffer);
+		data.mRenderChunks.Remove(chunkHandle);
+		data.mIndexToHandle.erase(indexHash);
+	}
+	else
+		// Otherwise, mark it for update
+		chunk.mUpdated = true;
+
+	// Reset instance ID
+	object->mInstanceID = 0;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
 Uint32 Renderer::RegisterDynamicModel(Model* model)
@@ -646,6 +717,122 @@ void Renderer::AddDynamicObject(Renderable* object)
 	object->mInstanceID = data.mRenderables.Add(object);
 
 	++mNumDynInstances;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+void Renderer::AddStaticChunk(const Array<Renderable*>& renderables, const BoundingBox& box)
+{
+	// Only add chunk if there are renderables to add
+	if (!renderables.Size()) return;
+
+	int modelID = 0;
+	{
+		auto it = mModelToDataIndex.find(renderables.Front()->GetModel());
+		// If model group does not exist, create it
+		if (it == mModelToDataIndex.end())
+			modelID = RegisterStaticModel(renderables.Front()->GetModel(), 32.0f);
+		else
+			modelID = it->second;
+	}
+
+	// Get model group
+	StaticRenderData& data = mStaticRenderData[modelID];
+
+
+	// Get chunk handle using bounding box position
+	Vector3i index = Floor(box.GetPosition() / data.mChunkSize);
+	Uint32 indexHash = GetHash(&index, sizeof(index));
+	Uint32 chunkHandle = 0;
+
+	{
+		auto it = data.mIndexToHandle.find(indexHash);
+		if (it == data.mIndexToHandle.end())
+		{
+			// Create new chunk if it doesn't exist
+			RenderChunk chunk;
+			chunk.mTransforms.Reserve(4);
+			chunk.mInstanceBuffer = Resource<VertexBuffer>::Create();
+			chunk.mBufferSize = 0;
+			chunk.mUpdated = false;
+			chunk.mBoundingBox.mMax = (Vector3f)(index + 1) * data.mChunkSize;
+			chunk.mBoundingBox.mMin = (Vector3f)(index) * data.mChunkSize;
+
+			// Add chunk to handled array
+			chunkHandle = data.mRenderChunks.Add(std::move(chunk));
+			data.mIndexToHandle[indexHash] = chunkHandle;
+		}
+		else
+			chunkHandle = it->second;
+	}
+
+	// Get render chunk
+	RenderChunk& chunk = data.mRenderChunks[chunkHandle];
+
+	// Update bounding box if needed
+	if (box.mMin.x < chunk.mBoundingBox.mMin.x)
+		chunk.mBoundingBox.mMin.x = box.mMin.x;
+	if (box.mMax.x > chunk.mBoundingBox.mMax.x)
+		chunk.mBoundingBox.mMax.x = box.mMax.x;
+
+	if (box.mMin.y < chunk.mBoundingBox.mMin.y)
+		chunk.mBoundingBox.mMin.y = box.mMin.y;
+	if (box.mMax.y > chunk.mBoundingBox.mMax.y)
+		chunk.mBoundingBox.mMax.y = box.mMax.y;
+
+	if (box.mMin.z < chunk.mBoundingBox.mMin.z)
+		chunk.mBoundingBox.mMin.z = box.mMin.z;
+	if (box.mMax.z > chunk.mBoundingBox.mMax.z)
+		chunk.mBoundingBox.mMax.z = box.mMax.z;
+
+	for (Uint32 i = 0; i < renderables.Size(); ++i)
+	{
+		Uint32 transformHandle = chunk.mTransforms.Add(renderables[i]->GetTransform());
+
+		// Set instance ID
+		Uint32 instanceID = (indexHash << 16) | transformHandle;
+		renderables[i]->mInstanceID = instanceID + 1;
+	}
+
+	chunk.mUpdated = true;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void Renderer::RemoveStaticChunk(Model* model, const Vector3f& pos)
+{
+	// Get model group
+	int modelID = 0;
+	{
+		auto it = mModelToDataIndex.find(model);
+		// If model group does not exist, quit
+		if (it == mModelToDataIndex.end())
+			return;
+		else
+			modelID = it->second;
+	}
+	StaticRenderData& data = mStaticRenderData[modelID];
+
+	// Get chunk handle
+	Vector3i index = Floor(pos / data.mChunkSize);
+	Uint32 indexHash = GetHash(&index, sizeof(index));
+	Uint32 chunkHandle = 0;
+
+	{
+		auto it = data.mIndexToHandle.find(indexHash);
+		if (it == data.mIndexToHandle.end())
+			// If chunk doesn't exist, quit
+			return;
+		else
+			chunkHandle = it->second;
+	}
+	RenderChunk& chunk = data.mRenderChunks[chunkHandle];
+
+	// Remove chunk
+	Resource<VertexBuffer>::Free(chunk.mInstanceBuffer);
+	data.mRenderChunks.Remove(chunkHandle);
+	data.mIndexToHandle.erase(indexHash);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

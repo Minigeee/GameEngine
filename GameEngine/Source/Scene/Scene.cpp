@@ -4,6 +4,7 @@
 
 #include <Scene/EventListener.h>
 #include <Scene/GameSystem.h>
+#include <Scene/ObjectLoader.h>
 
 #include <Graphics/Skybox.h>
 
@@ -31,7 +32,8 @@ void Scene::Create(Engine* engine)
 
 	mRenderer.Init(this);
 
-	mUpdateList.Reserve(16);
+	mSystemUpdateList.Reserve(16);
+	mLoaderUpdateList.Reserve(16);
 
 	// Create skybox
 	mSkybox = new Skybox();
@@ -50,6 +52,9 @@ void Scene::Delete()
 	for (auto it = mSystems.begin(); it != mSystems.end(); ++it)
 		delete it->second;
 
+	for (auto it = mLoaders.begin(); it != mLoaders.end(); ++it)
+		delete it->second;
+
 	delete mSkybox;
 }
 
@@ -57,8 +62,11 @@ void Scene::Delete()
 
 void Scene::Update(float dt)
 {
-	for (Uint32 i = 0; i < mUpdateList.Size(); ++i)
-		mUpdateList[i]->Update(dt);
+	for (Uint32 i = 0; i < mLoaderUpdateList.Size(); ++i)
+		mLoaderUpdateList[i]->Update();
+
+	for (Uint32 i = 0; i < mSystemUpdateList.Size(); ++i)
+		mSystemUpdateList[i]->Update(dt);
 
 
 	mRenderer.Render(mPostProcess.GetInput());
@@ -150,7 +158,7 @@ bool Scene::RegisterSystem(GameSystem* system, Uint32 type)
 	system->RegisterDependencies();
 
 	// Add to update list
-	mUpdateList.Push(system);
+	mSystemUpdateList.Push(system);
 
 	return true;
 }
@@ -161,6 +169,31 @@ GameSystem* Scene::GetSystem(Uint32 type) const
 {
 	auto it = mSystems.find(type);
 	return it == mSystems.end() ? 0 : it->second;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+bool Scene::RegisterLoader(ObjectLoader* loader, Uint32 type)
+{
+	ObjectLoader*& ptr = mLoaders[type];
+	// Loader has already been added for this type
+	if (ptr) return false;
+
+	ptr = loader;
+	loader->Init(this);
+
+	// Add to update list
+	mLoaderUpdateList.Push(loader);
+
+	return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+ObjectLoader* Scene::GetLoader(Uint32 type) const
+{
+	auto it = mLoaders.find(type);
+	return it == mLoaders.end() ? 0 : it->second;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

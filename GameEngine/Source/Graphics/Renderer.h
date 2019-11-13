@@ -132,8 +132,15 @@ public:
 	Uint32 RegisterDynamicModel(Model* model);
 	/* Add static renderable object */
 	void AddStaticObject(Renderable* object);
+	/* Remove static renderable object */
+	void RemoveStaticObject(Renderable* object);
 	/* Add dynamic renderable object */
 	void AddDynamicObject(Renderable* object);
+
+	/* Add a chunk of static renderables */
+	void AddStaticChunk(const Array<Renderable*>& renderables, const BoundingBox& box);
+	/* Remove render chunk that contains the given point */
+	void RemoveStaticChunk(Model* model, const Vector3f& pos);
 
 	/* Add a render pass (Pass lighting pass type as template parameter) */
 	template <typename L> RenderPass* AddRenderPass(RenderPass::Type type)
