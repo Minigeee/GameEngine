@@ -67,7 +67,7 @@ Model* Renderable::GetModel() const
 	return mModel;
 }
 
-Uint32 Renderable::GetInstanceID() const
+Uint64 Renderable::GetInstanceID() const
 {
 	return mInstanceID;
 }

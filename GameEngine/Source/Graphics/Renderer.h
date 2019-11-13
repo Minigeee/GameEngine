@@ -55,7 +55,7 @@ public:
 	/* Array of chunks */
 	HandleArray<RenderChunk> mRenderChunks;
 	/* Map chunk index hash to chunk handle */
-	std::unordered_map<Uint32, Uint32> mIndexToHandle;
+	std::unordered_map<Uint32, Handle> mIndexToHandle;
 	/* List of visible chunks (reconstructed every frame) */
 	Array<Uint32> mVisibleChunks;
 

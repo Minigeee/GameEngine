@@ -542,7 +542,7 @@ void Renderer::AddStaticObject(Renderable* object)
 	// Get chunk handle
 	Vector3i index = Floor(object->GetPosition() / data.mChunkSize);
 	Uint32 indexHash = GetHash(&index, sizeof(index));
-	Uint32 chunkHandle = 0;
+	Handle chunkHandle = 0;
 
 	{
 		auto it = data.mIndexToHandle.find(indexHash);
@@ -570,7 +570,7 @@ void Renderer::AddStaticObject(Renderable* object)
 
 
 	// Add transform to list
-	Uint32 transformHandle = chunk.mTransforms.Add(object->GetTransform());
+	Handle transformHandle = chunk.mTransforms.Add(object->GetTransform());
 
 	// Update chunk bounding box
 	const BoundingSphere& sphere = object->GetBoundingSphere();
@@ -592,7 +592,7 @@ void Renderer::AddStaticObject(Renderable* object)
 		chunk.mBoundingBox.mMax.z = box.mMax.z;
 
 	// Set instance ID
-	Uint32 instanceID = (indexHash << 16) | transformHandle;
+	Uint64 instanceID = (indexHash << 16) | transformHandle;
 	object->mInstanceID = instanceID + 1;
 
 	// Mark for update
@@ -605,9 +605,9 @@ void Renderer::RemoveStaticObject(Renderable* object)
 {
 	if (!object->mInstanceID) return;
 
-	Uint32 instanceID = object->mInstanceID - 1;
-	Uint32 indexHash = instanceID >> 16;
-	Uint32 transformHandle = instanceID - indexHash;
+	Uint64 instanceID = object->mInstanceID - 1;
+	Uint32 indexHash = (Uint32)(instanceID >> 16);
+	Handle transformHandle = (Handle)(instanceID - indexHash);
 
 	// Get model group
 	int modelID = 0;
@@ -622,7 +622,7 @@ void Renderer::RemoveStaticObject(Renderable* object)
 	StaticRenderData& data = mStaticRenderData[modelID];
 
 	// Get chunk
-	Uint32 chunkHandle = 0;
+	Handle chunkHandle = 0;
 	{
 		auto it = data.mIndexToHandle.find(indexHash);
 		if (it == data.mIndexToHandle.end())
@@ -744,7 +744,7 @@ void Renderer::AddStaticChunk(const Array<Renderable*>& renderables, const Bound
 	// Get chunk handle using bounding box position
 	Vector3i index = Floor(box.GetPosition() / data.mChunkSize);
 	Uint32 indexHash = GetHash(&index, sizeof(index));
-	Uint32 chunkHandle = 0;
+	Handle chunkHandle = 0;
 
 	{
 		auto it = data.mIndexToHandle.find(indexHash);
@@ -788,10 +788,10 @@ void Renderer::AddStaticChunk(const Array<Renderable*>& renderables, const Bound
 
 	for (Uint32 i = 0; i < renderables.Size(); ++i)
 	{
-		Uint32 transformHandle = chunk.mTransforms.Add(renderables[i]->GetTransform());
+		Handle transformHandle = chunk.mTransforms.Add(renderables[i]->GetTransform());
 
 		// Set instance ID
-		Uint32 instanceID = (indexHash << 16) | transformHandle;
+		Uint64 instanceID = (indexHash << 16) | transformHandle;
 		renderables[i]->mInstanceID = instanceID + 1;
 	}
 
@@ -817,7 +817,7 @@ void Renderer::RemoveStaticChunk(Model* model, const Vector3f& pos)
 	// Get chunk handle
 	Vector3i index = Floor(pos / data.mChunkSize);
 	Uint32 indexHash = GetHash(&index, sizeof(index));
-	Uint32 chunkHandle = 0;
+	Handle chunkHandle = 0;
 
 	{
 		auto it = data.mIndexToHandle.find(indexHash);

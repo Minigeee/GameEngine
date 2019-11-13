@@ -55,7 +55,7 @@ void ObjectLoader::Init(Scene* scene)
 	{
 		for (int c = s.x; c < e.x; ++c)
 		{
-			Vector2f p(c, r);
+			Vector2f p((float)c, (float)r);
 			p = p * mChunkSize + halfChunk;
 
 			// Test if point is inside unload range
@@ -95,7 +95,7 @@ void ObjectLoader::Update()
 	{
 		for (int c = s.x; c < e.x; ++c)
 		{
-			Vector2f p(c, r);
+			Vector2f p((float)c, (float)r);
 			p = p * mChunkSize + halfChunk;
 
 			if (

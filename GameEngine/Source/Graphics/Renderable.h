@@ -30,7 +30,7 @@ public:
 	/* Get model pointer */
 	Model* GetModel() const;
 	/* Get instance ID */
-	Uint32 GetInstanceID() const;
+	Uint64 GetInstanceID() const;
 
 protected:
 	/* Transform matrix */
@@ -39,7 +39,7 @@ protected:
 	BoundingSphere mBoundingSphere;
 
 	/* ID used when updating instance data */
-	Uint32 mInstanceID;
+	Uint64 mInstanceID;
 	/* Model used to render */
 	Model* mModel;
 

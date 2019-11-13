@@ -8,6 +8,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
+typedef Uint16 Handle;
+
 template <typename T>
 class HandleArray
 {
@@ -25,13 +27,13 @@ public:
 	}
 
 	/* Get object using handle */
-	T& operator[](Uint32 handle) const
+	T& operator[](Handle handle) const
 	{
 		return mData[mHandleToIndex[handle]];
 	}
 
 	/* Add object and return handle */
-	Uint32 Add(const T& object)
+	Handle Add(const T& object)
 	{
 		// If adding element will make array go over capacity, reserve extra space
 		if (mData.Size() + 1 > mData.Capacity())
@@ -42,7 +44,7 @@ public:
 		mData.Push(object);
 
 		// Store current next free entry index
-		Uint32 handle = mNextFree;
+		Handle handle = (Handle)mNextFree;
 		// Update next free index
 		mNextFree = mHandleToIndex[mNextFree];
 		// Map current free slot to added object
@@ -54,7 +56,7 @@ public:
 	}
 
 	/* Add object and return handle */
-	Uint32 Add(T&& object)
+	Handle Add(T&& object)
 	{
 		// If adding element will make array go over capacity, reserve extra space
 		if (mData.Size() + 1 > mData.Capacity())
@@ -65,7 +67,7 @@ public:
 		mData.Push(std::move(object));
 
 		// Store current next free entry index
-		Uint32 handle = mNextFree;
+		Handle handle = (Handle)mNextFree;
 		// Update next free index
 		mNextFree = mHandleToIndex[handle];
 		// Map current free slot to added object
@@ -77,7 +79,7 @@ public:
 	}
 
 	/* Remove object using handle */
-	void Remove(Uint32 handle)
+	void Remove(Handle handle)
 	{
 		// Get index of the item that is being removed
 		Uint32 targetIndex = mHandleToIndex[handle];
@@ -86,7 +88,7 @@ public:
 		mData.SwapPop(targetIndex);
 
 		// Find the handle of the item that was moved from the end to fill the item that was just removed
-		Uint32 movedHandle = mIndexToHandle[mData.Size()];
+		Handle movedHandle = mIndexToHandle[mData.Size()];
 
 		// Map the moved item's handle to its new index position
 		mHandleToIndex[movedHandle] = targetIndex;

@@ -164,7 +164,7 @@ void Terrain::Create()
 	for (Uint32 lvl = 0; lvl < mLodLevels.Size(); ++lvl)
 	{
 		// This determines how big the transition zone is
-		int extend = pow(2, mLodLevels.Size() - lvl - 1);
+		int extend = (int)pow(2, mLodLevels.Size() - lvl - 1);
 		// If extend is 1 (Creating last lod level), then no transition zone
 		if (extend == 1) extend = 0;
 
