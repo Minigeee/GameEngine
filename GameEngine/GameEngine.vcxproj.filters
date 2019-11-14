@@ -460,5 +460,11 @@
     <ClInclude Include="Source\Game\Systems\BoxLoader.h">
       <Filter>Include\Game\Systems</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Scene\Component.h">
+      <Filter>Include\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Scene\ComponentData.h">
+      <Filter>Include\Scene</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

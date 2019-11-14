@@ -1,6 +1,8 @@
 #ifndef SCENE_H
 #define SCENE_H
 
+#include <Core/HandleArray.h>
+
 #include <Engine/Input.h>
 
 #include <Graphics/Renderer.h>
@@ -11,6 +13,7 @@
 #include <Resource/Resource.h>
 
 #include <unordered_map>
+#include <assert.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -19,8 +22,25 @@ class EventListener;
 class GameSystem;
 class GameObject;
 class ObjectLoader;
-
 class Skybox;
+
+struct GameObjectID;
+class ComponentMap;
+
+///////////////////////////////////////////////////////////////////////////////
+
+struct ObjectData
+{
+	/* Keeps track of game object handles */
+	HandleArray<bool> mObjectHandles;
+
+	/* Component group indices */
+	Array<Uint32> mComponentGroups;
+	/* Map component type to group index */
+	std::unordered_map<Uint32, Uint32> mTypeToGroup;
+};
+
+///////////////////////////////////////////////////////////////////////////////
 
 class Scene
 {
@@ -73,17 +93,7 @@ public:
 	/* ====================== Game Systems ====================== */
 
 	/* Register game system */
-	template <typename T> T* RegisterSystem()
-	{
-		T* ptr = new T();
-		if (!RegisterSystem(ptr, T::StaticTypeID()))
-		{
-			delete ptr;
-			return 0;
-		}
-
-		return ptr;
-	}
+	template <typename T> T* RegisterSystem();
 	/* Register game system */
 	bool RegisterSystem(GameSystem* system, Uint32 type);
 
@@ -95,28 +105,17 @@ public:
 
 	/* ====================== Game Objects ====================== */
 
-	/* Create game objects */
+	/* Register object type */
+	template <typename T> void RegisterObject();
+	/* Create game objects (Provide components map to edit components upon creation) */
 	template <typename T>
-	Array<T*> CreateObjects(Uint32 num)
-	{
-		Array<T*> objects(num);
-
-		for (Uint32 i = 0; i < num; ++i)
-		{
-			T* object = Resource<T>::Create();
-			object->Create();
-			objects.Push(object);
-		}
-
-		return objects;
-	}
-
-	/* Free game object */
-	template <typename T>
-	void FreeObject(T* object)
-	{
-		Resource<T>::Free(object);
-	}
+	Array<GameObjectID> CreateObjects(Uint32 num, ComponentMap* components = 0);
+	/* Get game object from ID */
+	template <typename T> T GetObject(GameObjectID id);
+	/* Access component using game object ID */
+	template <typename T> T* GetComponent(GameObjectID id);
+	/* Remove a list of game objects */
+	template <typename T> void RemoveObjects(const Array<GameObjectID>& ids);
 
 	/* ====================== Object Loaders ====================== */
 
@@ -186,7 +185,125 @@ private:
 	Array<GameSystem*> mSystemUpdateList;
 	/* Update list for object loaders */
 	Array<ObjectLoader*> mLoaderUpdateList;
+
+	/* Maps object type to data */
+	std::unordered_map<Uint32, ObjectData> mTypeToObjectData;
 };
+
+///////////////////////////////////////////////////////////////////////////////
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+#include <Scene/GameObject.h>
+#include <Scene/ComponentData.h>
+
+
+template <typename T>
+inline T* Scene::RegisterSystem()
+{
+	T* ptr = new T();
+	if (!RegisterSystem(ptr, T::StaticTypeID()))
+	{
+		delete ptr;
+		return 0;
+	}
+
+	return ptr;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+template <typename T>
+inline void Scene::RegisterObject()
+{
+	Uint32 typeID = T::StaticTypeID();
+	ObjectData& data = mTypeToObjectData[typeID];
+
+	if (!data.mObjectHandles.Capacity())
+	{
+		// Initialize data
+		data.mObjectHandles.Reserve(32);
+
+		// Create component groups
+		T::CreateComponentGroups(
+			data.mComponentGroups,
+			data.mTypeToGroup
+		);
+	}
+}
+
+
+template <typename T>
+inline Array<GameObjectID> Scene::CreateObjects(Uint32 num, ComponentMap* components)
+{
+	Uint32 typeID = T::StaticTypeID();
+	ObjectData& data = mTypeToObjectData[typeID];
+
+	if (!data.mObjectHandles.Capacity())
+	{
+		// Register game object if not registered
+		RegisterObject<T>();
+		data = mTypeToObjectData[typeID];
+	}
+
+	Array<GameObjectID> ids(num);
+	// Create game object IDs
+	for (Uint32 i = 0; i < num; ++i)
+		ids.Push(GameObjectID(data.mObjectHandles.Add(true), (Uint16)typeID));
+
+	// Create components
+	if (components)
+		*components = T::CreateComponents(data.mComponentGroups, ids);
+	else
+		T::CreateComponents(data.mComponentGroups, ids);
+
+	return ids;
+}
+
+
+template <typename T>
+T Scene::GetObject(GameObjectID id)
+{
+	assert(id.TypeID() == T::StaticTypeID());
+	T obj(this, id);
+	return obj;
+}
+
+
+template <typename T>
+T* Scene::GetComponent(GameObjectID id)
+{
+	ObjectData& data = mTypeToObjectData[id.TypeID()];
+
+	return ComponentData<T>::GetComponent(
+		data.mTypeToGroup[T::StaticTypeID()],
+		data.mObjectHandles.HandleToIndex(id.Handle())
+	);
+}
+
+
+template <typename T>
+inline void Scene::RemoveObjects(const Array<GameObjectID>& ids)
+{
+	Uint32 typeID = T::StaticTypeID();
+	ObjectData& data = mTypeToObjectData[typeID];
+
+	// Keep track of which indices were removed
+	Array<Uint32> indices(ids.Size());
+
+	for (Uint32 i = 0; i < ids.Size(); ++i)
+	{
+		Handle handle = ids[i].Handle();
+		indices.Push(data.mObjectHandles.HandleToIndex(handle));
+		data.mObjectHandles.Remove(handle);
+	}
+
+	// Remove components
+	T::RemoveComponents(data.mComponentGroups, indices);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -32,14 +32,31 @@ void WorldScene::OnCreate()
 {
 	LOG << "Creating world\n";
 
-	Array<PlayerObject*> objects = CreateObjects<PlayerObject>(1);
+	ComponentMap components;
+	Array<GameObjectID> ids = CreateObjects<PlayerObject>(100, &components);
+	A* a = components.Get<A>();
+
+	for (Uint32 i = 0; i < ids.Size(); ++i)
+	{
+		GameObjectID id = ids[i];
+		a[i].mA = i * 2;
+		Uint32 test = 0;
+	}
+
+	PlayerObject object = GetObject<PlayerObject>(ids[0]);
+	A* comp = object.GetComponent<A>();
+
+	RemoveObjects<PlayerObject>(ids);
+	Uint32 test = 0;
+
+	// Array<PlayerObject*> objects = CreateObjects<PlayerObject>(1);
 	// mRenderer.AddDynamicObject(objects[0]);
 	
-	RegisterLoader<BoxLoader>();
+	// RegisterLoader<BoxLoader>();
 
 	// Systems
-	InputSystem* system = RegisterSystem<InputSystem>();
-	system->SetMainPlayer(objects[0]);
+	// InputSystem* system = RegisterSystem<InputSystem>();
+	// system->SetMainPlayer(objects[0]);
 
 	RegisterSystem<TerrainSystem>();
 

@@ -3,9 +3,28 @@
 
 #include <Core/Array.h>
 
-#include <Scene/GameObject.h>
-
 #include <assert.h>
+
+///////////////////////////////////////////////////////////////////////////////
+
+struct GameObjectID;
+struct Component;
+
+///////////////////////////////////////////////////////////////////////////////
+
+/* Object that is returned when game objects are created.
+   They store pointers to the begginning of the create components */
+class ComponentMap
+{
+public:
+	/* Add component pointer to map */
+	void Add(Uint32 type, Component* c) { mMap[type] = c; }
+	/* Get component pointer */
+	template <typename T> T* Get() { return (T*)mMap[T::StaticTypeID()]; }
+
+private:
+	std::unordered_map<Uint32, Component*> mMap;
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -16,6 +35,9 @@ public:
 	/* Add component group and return index */
 	static Uint32 CreateGroup()
 	{
+		if (!sData.Capacity())
+			sData.Reserve(8);
+
 		sData.Push(Array<T>(16));
 		return sData.Size() - 1;
 	}
@@ -26,12 +48,11 @@ public:
 		assert(group < sData.Size());
 
 		Array<T>& data = sData[group];
-		T* start = &data.Back();
 
 		for (Uint32 i = 0; i < ids.Size(); ++i)
 			data.Push(T(ids[i]));
 
-		return start + 1;
+		return &data.Back() - ids.Size() + 1;
 	}
 
 	/* Remove components by index (Don't call manually) */
@@ -42,14 +63,17 @@ public:
 		Array<T>& data = sData[group];
 
 		for (Uint32 i = 0; i < indices.Size(); ++i)
-			data.SwapPop(indices[i]);
+		{
+			Uint32 id = indices[i];
+			data.SwapPop(id);
+		}
 	}
 
 	/* Get specific component (Don't call manually) */
 	static T* GetComponent(Uint32 group, Uint32 index)
 	{
 		assert(group < sData.Size());
-		return sData[group][index];
+		return &sData[group][index];
 	}
 
 	/* Get component data */
@@ -68,6 +92,11 @@ private:
 	/* Component data */
 	static Array<Array<T>> sData;
 };
+
+///////////////////////////////////////////////////////////////////////////////
+
+template <typename T>
+Array<Array<T>> ComponentData<T>::sData;
 
 ///////////////////////////////////////////////////////////////////////////////
 

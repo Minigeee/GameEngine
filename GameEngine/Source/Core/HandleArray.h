@@ -154,6 +154,19 @@ public:
 		return mData;
 	}
 
+
+	/* Map handle to internal index */
+	Uint32 HandleToIndex(Handle handle)
+	{
+		return mHandleToIndex[handle];
+	}
+
+	/* Map internal index to handle */
+	Handle IndexToHandle(Uint32 index)
+	{
+		return (Handle)mIndexToHandle[index];
+	}
+
 private:
 	/* Array for objects */
 	Array<T> mData;

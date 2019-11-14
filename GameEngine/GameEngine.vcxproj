@@ -276,6 +276,8 @@
     <ClInclude Include="Source\Resource\XmlAttribute.h" />
     <ClInclude Include="Source\Resource\XmlDocument.h" />
     <ClInclude Include="Source\Resource\XmlNode.h" />
+    <ClInclude Include="Source\Scene\Component.h" />
+    <ClInclude Include="Source\Scene\ComponentData.h" />
     <ClInclude Include="Source\Scene\EventListener.h" />
     <ClInclude Include="Source\Scene\GameObject.h" />
     <ClInclude Include="Source\Scene\GameSystem.h" />

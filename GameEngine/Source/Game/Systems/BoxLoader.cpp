@@ -49,6 +49,7 @@ void BoxLoader::OnInit()
 
 void BoxLoader::OnChunkEnter(ObjectChunk& chunk)
 {
+	/*
 	Array<PlayerObject*> objects = mScene->CreateObjects<PlayerObject>(4);
 	Vector3f s = chunk.GetBoundingBox().mMin;
 
@@ -57,16 +58,19 @@ void BoxLoader::OnChunkEnter(ObjectChunk& chunk)
 		objects[i]->SetPosition(s.x + 5.0f, 10.0f, s.z + (i * 1.5f) + 1.0f);
 		chunk.AddRenderable(objects[i]);
 	}
+	*/
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 void BoxLoader::OnChunkLeave(ObjectChunk& chunk)
 {
+	/*
 	const Array<Renderable*>& renderables = chunk.GetRenderables();
 
 	for (Uint32 i = 0; i < renderables.Size(); ++i)
 		mScene->FreeObject<PlayerObject>((PlayerObject*)renderables[i]);
+		*/
 }
 
 ///////////////////////////////////////////////////////////////////////////////

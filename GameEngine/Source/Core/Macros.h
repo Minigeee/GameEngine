@@ -69,7 +69,7 @@
 #define RECURSIVE_32(func, x, ...) func(x) EXPAND(RECURSIVE_31(func, __VA_ARGS__))
 
 #define LOOP(expr, ...) EXPAND(CONCAT(RECURSIVE_, NARGS(__VA_ARGS__))(expr, __VA_ARGS__))
-#define LOOP_XTIMES(N, expr, ...) EXPAND(CONCAT(RECURSIVE_, NARGS(__VA_ARGS__))(expr, __VA_ARGS__))
+#define LOOP_XTIMES(N, expr, ...) EXPAND(CONCAT(RECURSIVE_, N)(expr, __VA_ARGS__))
 
 ///////////////////////////////////////////////////////////////////////////////
 
