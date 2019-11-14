@@ -3,6 +3,7 @@
 
 #include <Core/Array.h>
 
+#include <unordered_map>
 #include <assert.h>
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -32,22 +33,18 @@ template <typename T>
 class ComponentData
 {
 public:
-	/* Add component group and return index */
-	static Uint32 CreateGroup()
+	/* Add component group for object type */
+	static void CreateGroup(Uint32 type)
 	{
-		if (!sData.Capacity())
-			sData.Reserve(8);
-
-		sData.Push(Array<T>(16));
-		return sData.Size() - 1;
+		Array<T>& data = sData[type];
+		if (!data.Capacity())
+			data.Reserve(32);
 	}
 
 	/* Create components for specific group (Don't call manually) */
-	static T* CreateComponents(Uint32 group, const Array<GameObjectID>& ids)
+	static T* CreateComponents(Uint32 type, const Array<GameObjectID>& ids)
 	{
-		assert(group < sData.Size());
-
-		Array<T>& data = sData[group];
+		Array<T>& data = sData[type];
 
 		for (Uint32 i = 0; i < ids.Size(); ++i)
 			data.Push(T(ids[i]));
@@ -56,11 +53,9 @@ public:
 	}
 
 	/* Remove components by index (Don't call manually) */
-	static void RemoveComponents(Uint32 group, const Array<Uint32>& indices)
+	static void RemoveComponents(Uint32 type, const Array<Uint32>& indices)
 	{
-		assert(group < sData.Size());
-
-		Array<T>& data = sData[group];
+		Array<T>& data = sData[type];
 
 		for (Uint32 i = 0; i < indices.Size(); ++i)
 		{
@@ -70,10 +65,9 @@ public:
 	}
 
 	/* Get specific component (Don't call manually) */
-	static T* GetComponent(Uint32 group, Uint32 index)
+	static T* GetComponent(Uint32 type, Uint32 index)
 	{
-		assert(group < sData.Size());
-		return &sData[group][index];
+		return &sData[type][index];
 	}
 
 	/* Get component data */
@@ -90,13 +84,13 @@ public:
 
 private:
 	/* Component data */
-	static Array<Array<T>> sData;
+	static std::unordered_map<Uint32, Array<T>> sData;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
 template <typename T>
-Array<Array<T>> ComponentData<T>::sData;
+std::unordered_map<Uint32, Array<T>> ComponentData<T>::sData;
 
 ///////////////////////////////////////////////////////////////////////////////
 

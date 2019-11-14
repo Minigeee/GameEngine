@@ -33,11 +33,6 @@ struct ObjectData
 {
 	/* Keeps track of game object handles */
 	HandleArray<bool> mObjectHandles;
-
-	/* Component group indices */
-	Array<Uint32> mComponentGroups;
-	/* Map component type to group index */
-	std::unordered_map<Uint32, Uint32> mTypeToGroup;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -228,10 +223,7 @@ inline void Scene::RegisterObject()
 		data.mObjectHandles.Reserve(32);
 
 		// Create component groups
-		T::CreateComponentGroups(
-			data.mComponentGroups,
-			data.mTypeToGroup
-		);
+		T::CreateComponentGroups();
 	}
 }
 
@@ -256,9 +248,9 @@ inline Array<GameObjectID> Scene::CreateObjects(Uint32 num, ComponentMap* compon
 
 	// Create components
 	if (components)
-		*components = T::CreateComponents(data.mComponentGroups, ids);
+		*components = T::CreateComponents(ids);
 	else
-		T::CreateComponents(data.mComponentGroups, ids);
+		T::CreateComponents(ids);
 
 	return ids;
 }
@@ -279,7 +271,7 @@ T* Scene::GetComponent(GameObjectID id)
 	ObjectData& data = mTypeToObjectData[id.TypeID()];
 
 	return ComponentData<T>::GetComponent(
-		data.mTypeToGroup[T::StaticTypeID()],
+		(Uint32)id.TypeID(),
 		data.mObjectHandles.HandleToIndex(id.Handle())
 	);
 }
@@ -302,7 +294,7 @@ inline void Scene::RemoveObjects(const Array<GameObjectID>& ids)
 	}
 
 	// Remove components
-	T::RemoveComponents(data.mComponentGroups, indices);
+	T::RemoveComponents(indices);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

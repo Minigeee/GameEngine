@@ -74,26 +74,23 @@ struct Component;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define _CREATE_COMPONENT_GROUPS_FUNC(x) \
-	groups.Push(ComponentData<x>::CreateGroup()); \
-	typeToGroup[x::StaticTypeID()] = groups.Back();
-#define _CREATE_COMPONENTS_FUNC(x) map.Add(x::StaticTypeID(), (Component*)ComponentData<x>::CreateComponents(*++group, ids));
-#define _REMOVE_COMPONENTS_FUNC(x) ComponentData<x>::RemoveComponents(*++group, indices);
+#define _CREATE_COMPONENT_GROUPS_FUNC(x) ComponentData<x>::CreateGroup(typeID);
+#define _CREATE_COMPONENTS_FUNC(x) map.Add(x::StaticTypeID(), (Component*)ComponentData<x>::CreateComponents(typeID, ids));
+#define _REMOVE_COMPONENTS_FUNC(x) ComponentData<x>::RemoveComponents(typeID, indices);
 
 
 #define _REGISTER_COMPONENTS_IMPL(...) \
 public: \
-	static void CreateComponentGroups(Array<Uint32>& groups, std::unordered_map<Uint32, Uint32>& typeToGroup) \
-	{ groups.Reserve(NARGS(__VA_ARGS__)); LOOP(_CREATE_COMPONENT_GROUPS_FUNC, __VA_ARGS__) } \
-	static ComponentMap CreateComponents(const Array<Uint32>& groups, const Array<GameObjectID>& ids) \
+	static void CreateComponentGroups() \
+	{ Uint32 typeID = StaticTypeID(); LOOP(_CREATE_COMPONENT_GROUPS_FUNC, __VA_ARGS__) } \
+	static ComponentMap CreateComponents(const Array<GameObjectID>& ids) \
 	{ \
-		ComponentMap map; \
-		Uint32* group = &groups.Front() - 1; \
+		ComponentMap map; Uint32 typeID = StaticTypeID(); \
 		LOOP(_CREATE_COMPONENTS_FUNC, __VA_ARGS__) \
 		return map; \
 	} \
-	static void RemoveComponents(const Array<Uint32>& groups, const Array<Uint32>& indices) \
-	{ Uint32* group = &groups.Front() - 1; LOOP(_REMOVE_COMPONENTS_FUNC, __VA_ARGS__) } \
+	static void RemoveComponents(const Array<Uint32>& indices) \
+	{ Uint32 typeID = StaticTypeID(); LOOP(_REMOVE_COMPONENTS_FUNC, __VA_ARGS__) } \
 
 #define REGISTER_COMPONENTS(...) _REGISTER_COMPONENTS_IMPL(__VA_ARGS__)
 
