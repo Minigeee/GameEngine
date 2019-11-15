@@ -10,7 +10,7 @@
 
 struct RenderComponent : public Component
 {
-	TYPE_INFO(RenderComponent);
+	COMPONENT_TYPE(RenderComponent);
 
 	/* Renderable instance ID */
 	Uint64 mInstanceID;

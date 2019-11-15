@@ -79,9 +79,6 @@ void InputSystem::Update(float dt)
 	// Vector3f pos =
 		// mPlayerObject->GetPosition() - mCameraDist * mCamera->GetDirection() + mCameraOffset;
 	// mCamera->SetPosition(pos);
-
-	ComponentList<A> as = GetComponentLists<A>()[0];
-	Uint32 test = 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

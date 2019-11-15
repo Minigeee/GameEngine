@@ -9,7 +9,14 @@
 
 struct TransformComponent : public Component
 {
-	TYPE_INFO(TransformComponent);
+	COMPONENT_TYPE(TransformComponent);
+
+	TransformComponent(GameObjectID id) :
+		Component		(id),
+		mPosition		(0.0f),
+		mRotation		(0.0f),
+		mScale			(1.0f)
+	{ }
 
 	/* Position */
 	Vector3f mPosition;

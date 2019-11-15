@@ -21,7 +21,7 @@ public:
 	TransformMatrixSystem();
 	~TransformMatrixSystem();
 
-	void Update(float dt) override;
+	void Execute(const TransformComponent& t, RenderComponent& r);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

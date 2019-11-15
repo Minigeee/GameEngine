@@ -25,9 +25,7 @@ class InputSystem :
 		E_MouseButton
 	);
 
-	REQUIRES_COMPONENTS(
-		A, B, C
-	);
+	REQUIRES_NO_COMPONENTS;
 
 public:
 	InputSystem();

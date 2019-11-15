@@ -4,6 +4,8 @@
 
 #include <Graphics/Atmosphere.h>
 
+#include <Graphics/Systems.h>
+
 #include <Game/Systems/InputSystem.h>
 #include <Game/Systems/TerrainSystem.h>
 #include <Game/Systems/BoxLoader.h>
@@ -33,31 +35,14 @@ void WorldScene::OnCreate()
 	LOG << "Creating world\n";
 
 	RegisterSystem<InputSystem>();
+	RegisterSystem<TransformMatrixSystem>();
 
 	ComponentMap components;
-	Array<GameObjectID> ids = CreateObjects<PlayerObject>(100, &components);
-	A* a = components.Get<A>();
-
-	for (Uint32 i = 0; i < ids.Size(); ++i)
-	{
-		GameObjectID id = ids[i];
-		a[i].mA = i * 2;
-		Uint32 test = 0;
-	}
-
-	PlayerObject object = GetObject<PlayerObject>(ids[0]);
-	A* comp = object.GetComponent<A>();
-
-	// Array<PlayerObject*> objects = CreateObjects<PlayerObject>(1);
-	// mRenderer.AddDynamicObject(objects[0]);
+	CreateObjects<PlayerObject>(100, &components);
 	
-	// RegisterLoader<BoxLoader>();
-
-	// Systems
-	// InputSystem* system = RegisterSystem<InputSystem>();
-	// system->SetMainPlayer(objects[0]);
-
-	// RegisterSystem<TerrainSystem>();
+	TransformComponent* transforms = components.Get<TransformComponent>();
+	for (Uint32 i = 0; i < 100; ++i)
+		transforms[i].mPosition = Vector3f(2.0f * i, 10.0f, 0.0f);
 
 
 	mDirLight.SetDirection(0.0f, -0.5f, 1.0f);

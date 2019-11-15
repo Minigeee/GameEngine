@@ -187,6 +187,7 @@
     <ClCompile Include="Source\Graphics\RenderPass.cpp" />
     <ClCompile Include="Source\Graphics\Shader.cpp" />
     <ClCompile Include="Source\Graphics\Skybox.cpp" />
+    <ClCompile Include="Source\Graphics\Systems.cpp" />
     <ClCompile Include="Source\Graphics\Terrain.cpp" />
     <ClCompile Include="Source\Graphics\Texture.cpp" />
     <ClCompile Include="Source\Graphics\VertexArray.cpp" />
@@ -237,6 +238,7 @@
     <ClInclude Include="Source\Game\WorldScene.h" />
     <ClInclude Include="Source\Graphics\Atmosphere.h" />
     <ClInclude Include="Source\Graphics\Camera.h" />
+    <ClInclude Include="Source\Graphics\Components.h" />
     <ClInclude Include="Source\Graphics\FrameBuffer.h" />
     <ClInclude Include="Source\Graphics\GLObject.h" />
     <ClInclude Include="Source\Graphics\Graphics.h" />
@@ -252,6 +254,7 @@
     <ClInclude Include="Source\Graphics\RenderPass.h" />
     <ClInclude Include="Source\Graphics\Shader.h" />
     <ClInclude Include="Source\Graphics\Skybox.h" />
+    <ClInclude Include="Source\Graphics\Systems.h" />
     <ClInclude Include="Source\Graphics\Terrain.h" />
     <ClInclude Include="Source\Graphics\Texture.h" />
     <ClInclude Include="Source\Graphics\VertexArray.h" />
@@ -278,6 +281,7 @@
     <ClInclude Include="Source\Resource\XmlNode.h" />
     <ClInclude Include="Source\Scene\Component.h" />
     <ClInclude Include="Source\Scene\ComponentData.h" />
+    <ClInclude Include="Source\Scene\Components.h" />
     <ClInclude Include="Source\Scene\EventListener.h" />
     <ClInclude Include="Source\Scene\GameObject.h" />
     <ClInclude Include="Source\Scene\GameSystem.h" />

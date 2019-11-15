@@ -245,6 +245,9 @@
     <ClCompile Include="Source\Game\Systems\BoxLoader.cpp">
       <Filter>Source\Game\System</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Graphics\Systems.cpp">
+      <Filter>Source\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Core\DataTypes.h">
@@ -465,6 +468,15 @@
     </ClInclude>
     <ClInclude Include="Source\Scene\ComponentData.h">
       <Filter>Include\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Scene\Components.h">
+      <Filter>Include\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Graphics\Components.h">
+      <Filter>Include\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Graphics\Systems.h">
+      <Filter>Include\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

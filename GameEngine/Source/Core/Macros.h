@@ -29,6 +29,8 @@
 	9, 8, 7, 6, 5, 4, 3, 2, 1, 0))
 
 #define NARGS(...) NARGS_EXPAND_ARGS(AUG(__VA_ARGS__))
+#define FIRST_ARG(x, ...) x
+#define NFIRST_ARGS(x, ...) EXPAND(__VA_ARGS__)
 
 #endif
 
@@ -70,6 +72,10 @@
 
 #define LOOP(expr, ...) EXPAND(CONCAT(RECURSIVE_, NARGS(__VA_ARGS__))(expr, __VA_ARGS__))
 #define LOOP_XTIMES(N, expr, ...) EXPAND(CONCAT(RECURSIVE_, N)(expr, __VA_ARGS__))
+
+///////////////////////////////////////////////////////////////////////////////
+
+#define COMMA_LIST(func, comma_func, ...) func(FIRST_ARG(__VA_ARGS__))LOOP(comma_func, NFIRST_ARGS(__VA_ARGS__))
 
 ///////////////////////////////////////////////////////////////////////////////
 

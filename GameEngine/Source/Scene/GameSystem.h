@@ -43,7 +43,7 @@ public:
 	void CleanUp();
 
 	/* Recieve updates every frame */
-	virtual void Update(float dt);
+	virtual void Update(float dt) = 0;
 
 	/* Override to add system dependencies */
 	virtual void RegisterDependencies();
@@ -108,9 +108,25 @@ inline Array<ComponentList<T>> GameSystem::GetComponentLists()
 
 #define _MATCHES_REQUIREMENTS_FUNC(x) valid &= set.find(x::StaticTypeID()) != set.end();
 #define _REQUIRES_COMPONENT_FUNC(x) template <> bool RequiresComponent<x>() const { return true; }
+#define _DEFINE_COMPONENT_LISTS_FUNC(x) Array<ComponentList<x>> CONCAT(_, x) = GetComponentLists<x>();
+#define _GET_COMPONENT_LIST_REF_FUNC(x) ComponentList<x>& CONCAT(ref_, x) = CONCAT(_, x)[i];
+#define _EXECUTE_SYSTEM_FUNC(x) CONCAT(ref_, x)[n]
+#define _EXECUTE_SYSTEM_COMMA_FUNC(x) , CONCAT(ref_, x)[n]
 
 
-#define _REQUIRES_COMPONENTS_IMPL(...) \
+#define _SYSTEM_UPDATE_IMPL(...) \
+	void Update(float dt) override \
+	{ \
+		LOOP(_DEFINE_COMPONENT_LISTS_FUNC, __VA_ARGS__) \
+		for (Uint32 i = 0; i < CONCAT(_, FIRST_ARG(__VA_ARGS__)).Size(); ++i) \
+		{ \
+			LOOP(_GET_COMPONENT_LIST_REF_FUNC, __VA_ARGS__) \
+			for (Uint32 n = 0; n < CONCAT(ref_, FIRST_ARG(__VA_ARGS__)).mSize; ++n) \
+			{ Execute(COMMA_LIST(_EXECUTE_SYSTEM_FUNC, _EXECUTE_SYSTEM_COMMA_FUNC, __VA_ARGS__)); } \
+		} \
+	} \
+
+#define _REQUIRES_COMPONENTS_NO_UPDATE_IMPL(...) \
 public: \
 	bool MatchesRequirements(const std::unordered_set<Uint32>& set) override \
 	{ \
@@ -121,8 +137,16 @@ public: \
 	template <typename T> bool RequiresComponent() const { return false; } \
 	LOOP(_REQUIRES_COMPONENT_FUNC, __VA_ARGS__)
 
+#define _REQUIRES_COMPONENTS_IMPL(...) \
+	_REQUIRES_COMPONENTS_NO_UPDATE_IMPL(__VA_ARGS__) \
+	_SYSTEM_UPDATE_IMPL(__VA_ARGS__)
+
 
 #define REQUIRES_COMPONENTS(...) _REQUIRES_COMPONENTS_IMPL(__VA_ARGS__)
+#define REQUIRES_COMPONENTS_CUSTOM_UPDATE(...) _REQUIRES_COMPONENTS_NO_UPDATE_IMPL(__VA_ARGS__)
+#define REQUIRES_NO_COMPONENTS \
+	bool MatchesRequirements(const std::unordered_set<Uint32>& set) override { return false; } \
+	template <typename T> bool RequiresComponent() const { return false; } \
 
 ///////////////////////////////////////////////////////////////////////////////
 
