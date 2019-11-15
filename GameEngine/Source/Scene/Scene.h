@@ -233,7 +233,10 @@ inline void Scene::RegisterObject()
 
 		// Add this object type to any systems that will use it
 		for (auto it = mSystems.begin(); it != mSystems.end(); ++it)
-			it->second->RegisterObjectType(T::StaticTypeID(), data.mComponentTypes);
+			it->second->RegisterObjectType(
+				T::StaticTypeID(),
+				data.mComponentTypes,
+				T::GetTags());
 	}
 }
 

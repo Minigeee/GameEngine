@@ -3,6 +3,7 @@
 
 #include <Core/TypeInfo.h>
 #include <Core/LogFile.h>
+#include <Core/StringHash.h>
 
 #include <Scene/ComponentData.h>
 
@@ -49,7 +50,9 @@ public:
 	virtual void RegisterDependencies();
 
 	/* Add an object type */
-	void RegisterObjectType(Uint32 typeID, const std::unordered_set<Uint32>& set);
+	void RegisterObjectType(Uint32 typeID,
+		const std::unordered_set<Uint32>& set,
+		const std::unordered_set<Uint32>& tags);
 
 protected:
 	/* Custom initialization */
@@ -65,9 +68,14 @@ protected:
 	/* Scene access */
 	Scene* mScene;
 
+	/* List of tags */
+	Array<StringHash> mTags;
+
 private:
 	/* Checks if the set of components matches system requirements */
 	virtual bool MatchesRequirements(const std::unordered_set<Uint32>& set) = 0;
+	/* Checks if the set of tags matches system requirements */
+	virtual bool MatchesTags(const std::unordered_set<Uint32>& set) = 0;
 
 private:
 	/* List of object types that meet system requirements */
@@ -80,10 +88,7 @@ template <typename T>
 inline Array<ComponentList<T>> GameSystem::GetComponentLists()
 {
 	if (!mObjectTypes.Size())
-	{
-		LOG_ERROR << GetTypeName() << " failed to get component lists for type: " << T::StaticTypeName();
 		return Array<ComponentList<T>>();
-	}
 
 	Array<ComponentList<T>> components(mObjectTypes.Size());
 
@@ -112,6 +117,7 @@ inline Array<ComponentList<T>> GameSystem::GetComponentLists()
 #define _GET_COMPONENT_LIST_REF_FUNC(x) ComponentList<x>& CONCAT(ref_, x) = CONCAT(_, x)[i];
 #define _EXECUTE_SYSTEM_FUNC(x) CONCAT(ref_, x)[n]
 #define _EXECUTE_SYSTEM_COMMA_FUNC(x) , CONCAT(ref_, x)[n]
+#define _REGISTER_TAGS_FUNC(x) mTags.Push(x);
 
 
 #define _SYSTEM_UPDATE_IMPL(...) \
@@ -147,6 +153,18 @@ public: \
 #define REQUIRES_NO_COMPONENTS \
 	bool MatchesRequirements(const std::unordered_set<Uint32>& set) override { return false; } \
 	template <typename T> bool RequiresComponent() const { return false; } \
+
+
+#define _REQUIRES_TAGS_IMPL(...) \
+	bool MatchesTags(const std::unordered_set<Uint32>& set) \
+	{ \
+		if (!mTags.Capacity()) { mTags.Reserve(NARGS(__VA_ARGS__)); LOOP(_REGISTER_TAGS_FUNC, __VA_ARGS__) } \
+		bool valid = true; \
+		for (Uint32 i = 0; i < NARGS(__VA_ARGS__); ++i) valid &= set.find(mTags[i]) != set.end(); \
+		return valid; \
+	}
+
+#define REQUIRES_TAGS(...) _REQUIRES_TAGS_IMPL(__VA_ARGS__)
 
 ///////////////////////////////////////////////////////////////////////////////
 

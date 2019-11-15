@@ -17,6 +17,10 @@ class TransformMatrixSystem : public GameSystem
 		RenderComponent
 	);
 
+	REQUIRES_TAGS(
+		"Dynamic"
+	);
+
 public:
 	TransformMatrixSystem();
 	~TransformMatrixSystem();

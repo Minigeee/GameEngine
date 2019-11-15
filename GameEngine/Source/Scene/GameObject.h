@@ -79,6 +79,7 @@ struct Component;
 #define _REMOVE_COMPONENTS_FUNC(x) ComponentData<x>::RemoveComponents(typeID, indices);
 #define _GET_COMPONENT_TYPES_FUNC(x) set.insert(x::StaticTypeID());
 #define _HAS_COMPONENT_FUNC(x) template <> static bool HasComponent<x>() { return true; }
+#define _ADD_OBJECT_TAGS(x) sTags.insert((Uint32)StringHash(x));
 
 
 #define _REGISTER_COMPONENTS_IMPL(...) \
@@ -99,6 +100,21 @@ public: \
 	LOOP(_HAS_COMPONENT_FUNC, __VA_ARGS__)
 
 #define REGISTER_COMPONENTS(...) _REGISTER_COMPONENTS_IMPL(__VA_ARGS__)
+
+
+#define _REGISTER_TAGS_IMPL(...) \
+public: \
+	static std::unordered_set<Uint32>& GetTags() \
+	{ if (sTags.empty()) { LOOP(_ADD_OBJECT_TAGS, __VA_ARGS__) } return sTags; } \
+	static bool HasTag(StringHash tag) { return sTags.find((Uint32)tag) != sTags.end(); } \
+private: \
+	static std::unordered_set<Uint32> sTags;
+
+#define REGISTER_TAGS(...) _REGISTER_TAGS_IMPL(__VA_ARGS__)
+
+
+#define INIT_GAME_OBJECT(x) \
+std::unordered_set<Uint32> x::sTags;
 
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -20,6 +20,11 @@ class PlayerObject :
 		TransformComponent,
 		RenderComponent
 	);
+
+	REGISTER_TAGS(
+		"Player",
+		"Dynamic"
+	);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

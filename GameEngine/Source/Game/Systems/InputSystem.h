@@ -27,6 +27,11 @@ class InputSystem :
 
 	REQUIRES_NO_COMPONENTS;
 
+	REQUIRES_TAGS(
+		"Player",
+		"Dynamic"
+	);
+
 public:
 	InputSystem();
 	~InputSystem();

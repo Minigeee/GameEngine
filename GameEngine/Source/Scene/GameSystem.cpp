@@ -56,10 +56,13 @@ void GameSystem::OnCleanUp()
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-void GameSystem::RegisterObjectType(Uint32 typeID, const std::unordered_set<Uint32>& set)
+void GameSystem::RegisterObjectType(
+	Uint32 typeID,
+	const std::unordered_set<Uint32>& set,
+	const std::unordered_set<Uint32>& tags)
 {
 	// Add object type if it matches requirements
-	if (MatchesRequirements(set))
+	if (MatchesRequirements(set) && MatchesTags(tags))
 		mObjectTypes.Push(typeID);
 }
 
