@@ -21,6 +21,8 @@ void GameSystem::Init(Scene* scene)
 {
 	mScene = scene;
 
+	mObjectTypes.Reserve(4);
+
 	OnInit();
 }
 
@@ -49,6 +51,16 @@ void GameSystem::OnInit()
 void GameSystem::OnCleanUp()
 {
 
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+void GameSystem::RegisterObjectType(Uint32 typeID, const std::unordered_set<Uint32>& set)
+{
+	// Add object type if it matches requirements
+	if (MatchesRequirements(set))
+		mObjectTypes.Push(typeID);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

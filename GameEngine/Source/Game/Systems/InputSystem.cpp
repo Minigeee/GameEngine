@@ -73,12 +73,15 @@ void InputSystem::Update(float dt)
 		offset += move.x * mCamera->GetRight();
 		offset.y += move.y;
 
-		mPlayerObject->Move(offset);
+		// mPlayerObject->Move(offset);
 	}
 
-	Vector3f pos =
-		mPlayerObject->GetPosition() - mCameraDist * mCamera->GetDirection() + mCameraOffset;
-	mCamera->SetPosition(pos);
+	// Vector3f pos =
+		// mPlayerObject->GetPosition() - mCameraDist * mCamera->GetDirection() + mCameraOffset;
+	// mCamera->SetPosition(pos);
+
+	ComponentList<A> as = GetComponentLists<A>()[0];
+	Uint32 test = 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -99,7 +102,7 @@ void InputSystem::HandleEvent(const E_MouseMove& event)
 	mMousePos = pos;
 
 	// Rotate player
-	mPlayerObject->Rotate(0.0f, -delta.x, 0.0f);
+	// mPlayerObject->Rotate(0.0f, -delta.x, 0.0f);
 
 	// Update camera
 	mCameraRot.x = fmod(mCameraRot.x - delta.y, 360.0f);
@@ -117,14 +120,6 @@ void InputSystem::HandleEvent(const E_MouseMove& event)
 void InputSystem::HandleEvent(const E_MouseButton& event)
 {
 
-}
-
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
-void InputSystem::SetMainPlayer(PlayerObject* object)
-{
-	mPlayerObject = object;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

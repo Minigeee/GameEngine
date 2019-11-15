@@ -77,6 +77,8 @@ struct Component;
 #define _CREATE_COMPONENT_GROUPS_FUNC(x) ComponentData<x>::CreateGroup(typeID);
 #define _CREATE_COMPONENTS_FUNC(x) map.Add(x::StaticTypeID(), (Component*)ComponentData<x>::CreateComponents(typeID, ids));
 #define _REMOVE_COMPONENTS_FUNC(x) ComponentData<x>::RemoveComponents(typeID, indices);
+#define _GET_COMPONENT_TYPES_FUNC(x) set.insert(x::StaticTypeID());
+#define _HAS_COMPONENT_FUNC(x) template <> static bool HasComponent<x>() { return true; }
 
 
 #define _REGISTER_COMPONENTS_IMPL(...) \
@@ -91,6 +93,10 @@ public: \
 	} \
 	static void RemoveComponents(const Array<Uint32>& indices) \
 	{ Uint32 typeID = StaticTypeID(); LOOP(_REMOVE_COMPONENTS_FUNC, __VA_ARGS__) } \
+	static void GetComponentTypes(std::unordered_set<Uint32>& set) \
+	{ LOOP(_GET_COMPONENT_TYPES_FUNC, __VA_ARGS__) } \
+	template <typename T> static bool HasComponent() { return false; } \
+	LOOP(_HAS_COMPONENT_FUNC, __VA_ARGS__)
 
 #define REGISTER_COMPONENTS(...) _REGISTER_COMPONENTS_IMPL(__VA_ARGS__)
 

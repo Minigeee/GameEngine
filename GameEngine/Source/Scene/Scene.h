@@ -13,6 +13,7 @@
 #include <Resource/Resource.h>
 
 #include <unordered_map>
+#include <unordered_set>
 #include <assert.h>
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -33,6 +34,8 @@ struct ObjectData
 {
 	/* Keeps track of game object handles */
 	HandleArray<bool> mObjectHandles;
+	/* The set of component types the game object contains */
+	std::unordered_set<Uint32> mComponentTypes;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -195,6 +198,7 @@ private:
 #include <Scene/GameObject.h>
 #include <Scene/ComponentData.h>
 
+///////////////////////////////////////////////////////////////////////////////
 
 template <typename T>
 inline T* Scene::RegisterSystem()
@@ -224,6 +228,12 @@ inline void Scene::RegisterObject()
 
 		// Create component groups
 		T::CreateComponentGroups();
+		// Get component type IDs
+		T::GetComponentTypes(data.mComponentTypes);
+
+		// Add this object type to any systems that will use it
+		for (auto it = mSystems.begin(); it != mSystems.end(); ++it)
+			it->second->RegisterObjectType(T::StaticTypeID(), data.mComponentTypes);
 	}
 }
 

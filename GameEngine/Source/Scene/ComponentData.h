@@ -71,9 +71,9 @@ public:
 	}
 
 	/* Get component data */
-	static const Array<Array<T>>& GetData()
+	static Array<T>& GetData(Uint32 type)
 	{
-		return sData;
+		return sData[type];
 	}
 
 	/* Reset data */

@@ -32,6 +32,8 @@ void WorldScene::OnCreate()
 {
 	LOG << "Creating world\n";
 
+	RegisterSystem<InputSystem>();
+
 	ComponentMap components;
 	Array<GameObjectID> ids = CreateObjects<PlayerObject>(100, &components);
 	A* a = components.Get<A>();
@@ -46,9 +48,6 @@ void WorldScene::OnCreate()
 	PlayerObject object = GetObject<PlayerObject>(ids[0]);
 	A* comp = object.GetComponent<A>();
 
-	RemoveObjects<PlayerObject>(ids);
-	Uint32 test = 0;
-
 	// Array<PlayerObject*> objects = CreateObjects<PlayerObject>(1);
 	// mRenderer.AddDynamicObject(objects[0]);
 	
@@ -58,7 +57,7 @@ void WorldScene::OnCreate()
 	// InputSystem* system = RegisterSystem<InputSystem>();
 	// system->SetMainPlayer(objects[0]);
 
-	RegisterSystem<TerrainSystem>();
+	// RegisterSystem<TerrainSystem>();
 
 
 	mDirLight.SetDirection(0.0f, -0.5f, 1.0f);

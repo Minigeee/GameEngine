@@ -8,10 +8,11 @@
 #include <Scene/GameSystem.h>
 #include <Scene/EventListener.h>
 
+#include <Game/Objects/PlayerObject.h>
+
 ///////////////////////////////////////////////////////////////////////////////
 
 class Camera;
-class PlayerObject;
 
 class InputSystem :
 	public GameSystem,
@@ -22,6 +23,10 @@ class InputSystem :
 	HANDLE_EVENTS(
 		E_MouseMove,
 		E_MouseButton
+	);
+
+	REQUIRES_COMPONENTS(
+		A, B, C
 	);
 
 public:
@@ -35,9 +40,6 @@ public:
 	/* Handle mouse button events */
 	void HandleEvent(const E_MouseButton& event);
 
-	/* Set main player */
-	void SetMainPlayer(PlayerObject* object);
-
 private:
 	void OnInit() override;
 
@@ -50,8 +52,6 @@ private:
 	/* Keep track of mouse position */
 	Vector2f mMousePos;
 
-	/* Player game object */
-	PlayerObject* mPlayerObject;
 	/* Camera distance from player */
 	float mCameraDist;
 	/* Camera offset from player */
