@@ -127,7 +127,11 @@ public:
 
 		// Create free list
 		for (Uint32 i = prevCap; i < mHandleToIndex.Capacity(); ++i)
+		{
 			mHandleToIndex.Push(i + 1);
+			// Fill rest of index -> handle with 0s
+			mIndexToHandle.Push(0);
+		}
 	}
 
 	/* Number of elements in array */

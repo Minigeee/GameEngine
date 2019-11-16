@@ -34,6 +34,7 @@ void Scene::Create(Engine* engine)
 
 	mSystemUpdateList.Reserve(16);
 	mLoaderUpdateList.Reserve(16);
+	mRemovalQueue.Reserve(128);
 
 	// Create skybox
 	mSkybox = new Skybox();
@@ -72,6 +73,9 @@ void Scene::Update(float dt)
 	mRenderer.Render(mPostProcess.GetInput());
 	// Render post process effects
 	mPostProcess.Render();
+
+	// Remove objects in the removal queue
+	RemoveQueuedObjects();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -143,6 +147,46 @@ void Scene::SendEvent(const void* event, Uint32 type)
 
 	for (Uint32 i = 0; i < list.Size(); ++i)
 		list[i]->HandleEvent(event, type);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+void Scene::QueueRemoveObject(GameObjectID id)
+{
+	mRemovalQueue.Push(id);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void Scene::RemoveQueuedObjects()
+{
+	if (!mRemovalQueue.Size()) return;
+
+	std::unordered_map<Uint32, Array<Uint32>> indicesMap;
+
+	for (Uint32 i = 0; i < mRemovalQueue.Size(); ++i)
+	{
+		GameObjectID id = mRemovalQueue[i];
+		Uint32 typeID = id.TypeID();
+		Handle handle = id.Handle();
+
+		ObjectData& data = mTypeToObjectData[typeID];
+		Array<Uint32>& indices = indicesMap[typeID];
+
+		if (!indices.Capacity())
+			indices.Reserve(32);
+
+		indices.Push(data.mObjectHandles.HandleToIndex(handle));
+		data.mObjectHandles.Remove(handle);
+	}
+
+	// Remove components
+	for (auto it = indicesMap.begin(); it != indicesMap.end(); ++it)
+		(*mTypeToObjectData[it->first].mRemoveFunc)(it->second);
+
+	// Reset queue
+	mRemovalQueue.Clear();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

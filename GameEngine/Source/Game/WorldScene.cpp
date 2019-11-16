@@ -35,14 +35,17 @@ void WorldScene::OnCreate()
 	LOG << "Creating world\n";
 
 	RegisterSystem<InputSystem>();
-	RegisterSystem<TransformMatrixSystem>();
+	// RegisterSystem<TransformMatrixSystem>();
 
 	ComponentMap components;
-	CreateObjects<PlayerObject>(100, &components);
+	Array<GameObjectID> ids = CreateObjects<PlayerObject>(100, &components);
 	
 	TransformComponent* transforms = components.Get<TransformComponent>();
 	for (Uint32 i = 0; i < 100; ++i)
 		transforms[i].mPosition = Vector3f(2.0f * i, 10.0f, 0.0f);
+
+	for (Uint32 i = 0; i < 100; ++i)
+		QueueRemoveObject(ids[i]);
 
 
 	mDirLight.SetDirection(0.0f, -0.5f, 1.0f);

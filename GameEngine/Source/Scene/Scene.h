@@ -36,6 +36,8 @@ struct ObjectData
 	HandleArray<bool> mObjectHandles;
 	/* The set of component types the game object contains */
 	std::unordered_set<Uint32> mComponentTypes;
+	/* Remove function */
+	void (*mRemoveFunc)(const Array<Uint32>&);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -114,6 +116,8 @@ public:
 	template <typename T> T* GetComponent(GameObjectID id);
 	/* Remove a list of game objects */
 	template <typename T> void RemoveObjects(const Array<GameObjectID>& ids);
+	/* Queue removal of an object */
+	void QueueRemoveObject(GameObjectID id);
 
 	/* ====================== Object Loaders ====================== */
 
@@ -171,6 +175,9 @@ private:
 	/* Called when scene is deleted */
 	virtual void OnDelete();
 
+	/* Remove objects from removal queue */
+	void RemoveQueuedObjects();
+
 private:
 	/* Map of event listeners */
 	std::unordered_map<Uint32, Array<EventListener*>> mListeners;
@@ -186,6 +193,8 @@ private:
 
 	/* Maps object type to data */
 	std::unordered_map<Uint32, ObjectData> mTypeToObjectData;
+	/* List of game objects to remove */
+	Array<GameObjectID> mRemovalQueue;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -225,6 +234,7 @@ inline void Scene::RegisterObject()
 	{
 		// Initialize data
 		data.mObjectHandles.Reserve(32);
+		data.mRemoveFunc = T::RemoveComponents;
 
 		// Create component groups
 		T::CreateComponentGroups();
