@@ -152,9 +152,6 @@
     <ClCompile Include="Source\Graphics\Mesh.cpp">
       <Filter>Source\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Graphics\Renderable.cpp">
-      <Filter>Source\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Graphics\Material.cpp">
       <Filter>Source\Graphics</Filter>
     </ClCompile>
@@ -177,9 +174,6 @@
       <Filter>Source\Game\System</Filter>
     </ClCompile>
     <ClCompile Include="Source\Scene\GameObject.cpp">
-      <Filter>Source\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Scene\Transformable.cpp">
       <Filter>Source\Scene</Filter>
     </ClCompile>
     <ClCompile Include="Source\Game\Objects\PlayerObject.cpp">
@@ -211,9 +205,6 @@
     </ClCompile>
     <ClCompile Include="Source\Game\Terrain\NoiseMap.cpp">
       <Filter>Source\Game\Terrain</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Game\Systems\TerrainSystem.cpp">
-      <Filter>Source\Game\System</Filter>
     </ClCompile>
     <ClCompile Include="Source\Game\Terrain\BiomeMap.cpp">
       <Filter>Source\Game\Terrain</Filter>
@@ -361,9 +352,6 @@
     <ClInclude Include="Source\Graphics\Mesh.h">
       <Filter>Include\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Graphics\Renderable.h">
-      <Filter>Include\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Graphics\Material.h">
       <Filter>Include\Graphics</Filter>
     </ClInclude>
@@ -389,9 +377,6 @@
       <Filter>Include\Game\Systems</Filter>
     </ClInclude>
     <ClInclude Include="Source\Scene\GameObject.h">
-      <Filter>Include\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Scene\Transformable.h">
       <Filter>Include\Scene</Filter>
     </ClInclude>
     <ClInclude Include="Source\Game\Objects\PlayerObject.h">
@@ -426,9 +411,6 @@
     </ClInclude>
     <ClInclude Include="Source\Game\Terrain\NoiseMap.h">
       <Filter>Include\Game\Terrain</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\Systems\TerrainSystem.h">
-      <Filter>Include\Game\Systems</Filter>
     </ClInclude>
     <ClInclude Include="Source\Game\Terrain\BiomeMap.h">
       <Filter>Include\Game\Terrain</Filter>

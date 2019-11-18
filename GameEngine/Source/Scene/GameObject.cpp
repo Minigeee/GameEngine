@@ -20,6 +20,12 @@ GameObjectID GameObject::GetID() const
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
+GameObjectID::GameObjectID() :
+	mTypeID			(0)
+{
+
+}
+
 GameObjectID::GameObjectID(::Handle handle, Uint16 typeID) :
 	mHandle		(handle),
 	mTypeID		(typeID)
@@ -42,6 +48,11 @@ Handle GameObjectID::Handle() const
 Uint16 GameObjectID::TypeID() const
 {
 	return mTypeID;
+}
+
+bool GameObjectID::Exists() const
+{
+	return (bool)mTypeID;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

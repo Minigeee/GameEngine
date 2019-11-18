@@ -167,7 +167,6 @@
     <ClCompile Include="Source\Game\Objects\PlayerObject.cpp" />
     <ClCompile Include="Source\Game\Systems\BoxLoader.cpp" />
     <ClCompile Include="Source\Game\Systems\InputSystem.cpp" />
-    <ClCompile Include="Source\Game\Systems\TerrainSystem.cpp" />
     <ClCompile Include="Source\Game\Terrain\BiomeMap.cpp" />
     <ClCompile Include="Source\Game\Terrain\NoiseMap.cpp" />
     <ClCompile Include="Source\Game\WorldScene.cpp" />
@@ -182,7 +181,6 @@
     <ClCompile Include="Source\Graphics\Mesh.cpp" />
     <ClCompile Include="Source\Graphics\Model.cpp" />
     <ClCompile Include="Source\Graphics\PostProcess.cpp" />
-    <ClCompile Include="Source\Graphics\Renderable.cpp" />
     <ClCompile Include="Source\Graphics\Renderer.cpp" />
     <ClCompile Include="Source\Graphics\RenderPass.cpp" />
     <ClCompile Include="Source\Graphics\Shader.cpp" />
@@ -209,7 +207,6 @@
     <ClCompile Include="Source\Scene\GameSystem.cpp" />
     <ClCompile Include="Source\Scene\ObjectLoader.cpp" />
     <ClCompile Include="Source\Scene\Scene.cpp" />
-    <ClCompile Include="Source\Scene\Transformable.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\extlibs\include\SimplexNoise.h" />
@@ -232,7 +229,6 @@
     <ClInclude Include="Source\Game\Objects\PlayerObject.h" />
     <ClInclude Include="Source\Game\Systems\BoxLoader.h" />
     <ClInclude Include="Source\Game\Systems\InputSystem.h" />
-    <ClInclude Include="Source\Game\Systems\TerrainSystem.h" />
     <ClInclude Include="Source\Game\Terrain\BiomeMap.h" />
     <ClInclude Include="Source\Game\Terrain\NoiseMap.h" />
     <ClInclude Include="Source\Game\WorldScene.h" />
@@ -249,7 +245,6 @@
     <ClInclude Include="Source\Graphics\Model.h" />
     <ClInclude Include="Source\Graphics\OpenGL.h" />
     <ClInclude Include="Source\Graphics\PostProcess.h" />
-    <ClInclude Include="Source\Graphics\Renderable.h" />
     <ClInclude Include="Source\Graphics\Renderer.h" />
     <ClInclude Include="Source\Graphics\RenderPass.h" />
     <ClInclude Include="Source\Graphics\Shader.h" />
@@ -287,7 +282,6 @@
     <ClInclude Include="Source\Scene\GameSystem.h" />
     <ClInclude Include="Source\Scene\ObjectLoader.h" />
     <ClInclude Include="Source\Scene\Scene.h" />
-    <ClInclude Include="Source\Scene\Transformable.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

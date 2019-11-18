@@ -7,11 +7,14 @@
 #include <Math/Vector2.h>
 #include <Math/BoundingBox.h>
 
+#include <Scene/ComponentData.h>
+#include <Scene/Components.h>
+#include <Graphics/Components.h>
+
 ///////////////////////////////////////////////////////////////////////////////
 
 class Scene;
 class Renderer;
-class Renderable;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -21,13 +24,13 @@ public:
 	ObjectChunk() = default;
 	ObjectChunk(const Vector2f& s, const Vector2f& e);
 
-	/* Add renderable to chunk */
-	void AddRenderable(Renderable* object);
+	/* Add renderables to chunk */
+	void AddRenderables(Renderer* renderer, const Array<GameObjectID>& ids, ComponentMap& components);
 	/* Marks chunk as loaded */
 	void MarkLoaded();
 
 	/* Get list of renderables */
-	const Array<Renderable*>& GetRenderables() const;
+	const Array<GameObjectID>& GetRenderables() const;
 	/* Get bounding box */
 	const BoundingBox& GetBoundingBox() const;
 	/* Returns true if chunk has been loaded */
@@ -35,7 +38,7 @@ public:
 
 private:
 	/* List of renderables */
-	Array<Renderable*> mRenderables;
+	Array<GameObjectID> mRenderables;
 	/* The chunk bounding box */
 	BoundingBox mBoundingBox;
 	/* True if chunk has been loaded */

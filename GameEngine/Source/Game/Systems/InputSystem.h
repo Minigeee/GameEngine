@@ -25,7 +25,9 @@ class InputSystem :
 		E_MouseButton
 	);
 
-	REQUIRES_NO_COMPONENTS;
+	REQUIRES_COMPONENTS(
+		TransformComponent
+	);
 
 	REQUIRES_TAGS(
 		"Player",
@@ -36,7 +38,7 @@ public:
 	InputSystem();
 	~InputSystem();
 
-	void Update(float dt) override;
+	void Execute(TransformComponent& t, float dt);
 
 	/* Handle mouse movements */
 	void HandleEvent(const E_MouseMove& event);
@@ -61,6 +63,9 @@ private:
 	Vector3f mCameraOffset;
 	/* Keep track of camera rotation */
 	Vector2f mCameraRot;
+
+	/* Object rotation */
+	float mRotation;
 
 	/* Used so that first camera rotation isn't too big */
 	bool mFirstRun;

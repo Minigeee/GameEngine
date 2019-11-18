@@ -29,6 +29,21 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+/* Not really a list, just represents pointer to component data */
+template <typename T>
+struct ComponentList
+{
+	/* Convenience accessor operator */
+	T& operator[](Uint32 i) { return mData[i]; }
+
+	/* Pointer to data */
+	T* mData;
+	/* How many components there are */
+	Uint32 mSize;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 template <typename T>
 class ComponentData
 {

@@ -4,8 +4,10 @@
 #include <Core/DataTypes.h>
 #include <Core/TypeInfo.h>
 #include <Core/HandleArray.h>
+#include <Core/StringHash.h>
 
 #include <unordered_map>
+#include <unordered_set>
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -16,7 +18,7 @@ class Scene;
 struct GameObjectID
 {
 public:
-	GameObjectID() = default;
+	GameObjectID();
 	GameObjectID(Handle handle, Uint16 typeID);
 
 	operator Uint32() const;
@@ -25,6 +27,8 @@ public:
 	Handle Handle() const;
 	/* Get object type ID */
 	Uint16 TypeID() const;
+	/* Returns if object has been created */
+	bool Exists() const;
 
 private:
 	/* Object handle */
@@ -44,9 +48,6 @@ public:
 	GameObject() = default;
 	GameObject(Scene* scene, GameObjectID id);
 
-	/* Get a component */
-	template <typename T> T* GetComponent() const;
-
 	/* Get object ID */
 	GameObjectID GetID() const;
 
@@ -56,13 +57,6 @@ private:
 	/* Object ID */
 	GameObjectID mID;
 };
-
-///////////////////////////////////////////////////////////////////////////////
-
-#include <Scene/Scene.h>
-
-template <typename T>
-inline T* GameObject::GetComponent() const { return mScene->GetComponent<T>(mID); }
 
 ///////////////////////////////////////////////////////////////////////////////
 

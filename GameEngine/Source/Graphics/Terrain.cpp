@@ -18,6 +18,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
+INIT_GAME_OBJECT(TerrainObject);
+
+///////////////////////////////////////////////////////////////////////////////
+
 Terrain::Terrain() :
 	mSquareSize		(0.0f),
 	mHeightMap		(0),
@@ -148,10 +152,19 @@ void CreateTransition(Array<TerrainVert>& vertices, float squareSize, float x, f
 	vertices.Push(mr);
 }
 
-void Terrain::Create()
+void Terrain::Create(Scene* scene)
 {
-	if (!mModel)
-		mModel = Resource<Model>::Create();
+	mScene = scene;
+
+	ComponentMap components;
+	if (!mObjectID.Exists())
+		mObjectID = mScene->CreateObjects<TerrainObject>(1, &components)[0];
+
+	TransformComponent& t = *components.Get<TransformComponent>();
+	RenderComponent& r = *components.Get<RenderComponent>();
+
+	if (!r.mModel)
+		r.mModel = Resource<Model>::Create();
 
 	// Area of square beneath current lod level
 	Recti sublevel(0, 0, 0, 0);
@@ -310,7 +323,12 @@ void Terrain::Create()
 	mesh.mVertexArray = vao;
 	mesh.mNumVertices = vertices.Size();
 	mesh.mMaterial = material;
-	mModel->AddMesh(mesh);
+	r.mModel->AddMesh(mesh);
+
+	// Add to scene
+	Renderer& renderer = mScene->GetRenderer();
+	renderer.RegisterStaticModel(r.mModel, 0.0f, false);
+	renderer.AddStaticObject(t, r);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -320,22 +338,31 @@ void Terrain::SetSize(float size)
 {
 	mSize = size;
 
-	if (mModel)
-		mModel->GetMesh(0).mMaterial->mShader->SetUniform("terrainSize", mSize * 0.5f);
+	if (mScene)
+	{
+		RenderComponent& r = *mScene->GetComponent<RenderComponent>(mObjectID);
+
+		if (r.mModel)
+			r.mModel->GetMesh(0).mMaterial->mShader->SetUniform("terrainSize", mSize * 0.5f);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 void Terrain::SetHeightMap(Texture* texture)
 {
+	if (!mScene) return;
+
 	// Create height map
 	if (!mHeightMap || mHeightMap != texture)
 	{
+		RenderComponent& r = *mScene->GetComponent<RenderComponent>(mObjectID);
+
 		mHeightMap = texture;
 		mHeightMap->Bind();
 		mHeightMap->SetWrap(Texture::ClampToEdge);
 		mHeightMap->SetFilter(Texture::Linear);
-		mModel->GetMesh(0).mMaterial->AddTexture(mHeightMap, "heightMap");
+		r.mModel->GetMesh(0).mMaterial->AddTexture(mHeightMap, "heightMap");
 	}
 }
 
@@ -343,24 +370,19 @@ void Terrain::SetHeightMap(Texture* texture)
 
 void Terrain::SetColorMap(Texture* texture)
 {
+	if (!mScene) return;
+
 	// Create color map
 	if (!mColorMap || mColorMap != texture)
 	{
+		RenderComponent& r = *mScene->GetComponent<RenderComponent>(mObjectID);
+
 		mColorMap = texture;
 		mColorMap->Bind();
 		mColorMap->SetWrap(Texture::ClampToEdge);
 		mColorMap->SetFilter(Texture::Linear);
-		mModel->GetMesh(0).mMaterial->AddTexture(mColorMap, "colorMap");
+		r.mModel->GetMesh(0).mMaterial->AddTexture(mColorMap, "colorMap");
 	}
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-void Terrain::AddToScene(Scene* scene)
-{
-	// Terrain shouldn't be cullable
-	scene->GetRenderer().RegisterStaticModel(mModel, 0.0, false);
-	scene->GetRenderer().AddStaticObject(this);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

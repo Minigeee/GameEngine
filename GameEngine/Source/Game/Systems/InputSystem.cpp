@@ -16,6 +16,7 @@ InputSystem::InputSystem() :
 	mCameraDist		(3.0f),
 	mCameraOffset	(0.0f, 1.0f, 0.0f),
 	mCameraRot		(0.0f),
+	mRotation		(0.0f),
 	mFirstRun		(true)
 {
 
@@ -43,7 +44,7 @@ void InputSystem::OnInit()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void InputSystem::Update(float dt)
+void InputSystem::Execute(TransformComponent& t, float dt)
 {
 	float speed = 4.0f;
 
@@ -73,12 +74,15 @@ void InputSystem::Update(float dt)
 		offset += move.x * mCamera->GetRight();
 		offset.y += move.y;
 
-		// mPlayerObject->Move(offset);
+		t.mPosition += offset;
 	}
 
-	// Vector3f pos =
-		// mPlayerObject->GetPosition() - mCameraDist * mCamera->GetDirection() + mCameraOffset;
-	// mCamera->SetPosition(pos);
+	Vector3f pos =
+		t.mPosition - mCameraDist * mCamera->GetDirection() + mCameraOffset;
+	mCamera->SetPosition(pos);
+
+	// Apply rotation
+	t.mRotation.y = mRotation;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -99,7 +103,7 @@ void InputSystem::HandleEvent(const E_MouseMove& event)
 	mMousePos = pos;
 
 	// Rotate player
-	// mPlayerObject->Rotate(0.0f, -delta.x, 0.0f);
+	mRotation -= delta.x;
 
 	// Update camera
 	mCameraRot.x = fmod(mCameraRot.x - delta.y, 360.0f);

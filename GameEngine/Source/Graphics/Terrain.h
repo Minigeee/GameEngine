@@ -3,7 +3,10 @@
 
 #include <Core/Array.h>
 
-#include <Graphics/Renderable.h>
+#include <Scene/GameObject.h>
+
+#include <Scene/Components.h>
+#include <Graphics/Components.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -11,7 +14,24 @@ class Texture;
 class Image;
 class Scene;
 
-class Terrain : public Renderable
+///////////////////////////////////////////////////////////////////////////////
+
+/* Game object used to render terrain */
+class TerrainObject : public GameObject
+{
+	GAME_OBJECT(TerrainObject);
+
+	REGISTER_COMPONENTS(
+		TransformComponent,
+		RenderComponent
+	);
+
+	REGISTER_TAGS();
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+class Terrain
 {
 public:
 	Terrain();
@@ -22,7 +42,7 @@ public:
 	/* Set square size at LOD-0 */
 	void SetSquareSize(float size);
 	/* Create terrain based on set options */
-	void Create();
+	void Create(Scene* scene);
 
 	/* Set size of terrain */
 	void SetSize(float size);
@@ -35,10 +55,14 @@ public:
 	void AddToScene(Scene* scene);
 
 private:
+	/* ID of terrain object */
+	GameObjectID mObjectID;
 	/* Lod distances */
 	Array<float> mLodLevels;
 	/* Square size at LOD-0 */
 	float mSquareSize;
+	/* Scene access */
+	Scene* mScene;
 
 	/* Height map */
 	Texture* mHeightMap;

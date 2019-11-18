@@ -24,6 +24,9 @@ private:
 	/* Called when chunk leaves range */
 	void OnChunkLeave(ObjectChunk& chunk) override;
 
+private:
+	Model* mModel;
+
 };
 
 ///////////////////////////////////////////////////////////////////////////////

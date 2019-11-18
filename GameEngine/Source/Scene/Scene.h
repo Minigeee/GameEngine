@@ -73,9 +73,6 @@ public:
 	/* Get skybox */
 	Skybox* GetSkybox() const;
 
-	/* Add renderable object */
-	void AddRenderable(Renderable* object, bool isStatic);
-
 
 	/* ====================== Event System ====================== */
 
@@ -205,6 +202,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <Scene/GameObject.h>
+#include <Scene/GameSystem.h>
 #include <Scene/ComponentData.h>
 
 ///////////////////////////////////////////////////////////////////////////////

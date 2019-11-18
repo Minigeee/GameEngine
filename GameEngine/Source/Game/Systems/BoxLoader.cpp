@@ -5,7 +5,6 @@
 #include <Scene/Scene.h>
 
 #include <Graphics/Renderer.h>
-#include <Graphics/Renderable.h>
 #include <Graphics/Model.h>
 #include <Graphics/Material.h>
 #include <Graphics/Shader.h>
@@ -43,34 +42,37 @@ void BoxLoader::OnInit()
 	model->GetMesh(0).mMaterial = material;
 
 	mRenderer->RegisterStaticModel(model, mChunkSize);
+
+	mModel = model;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 void BoxLoader::OnChunkEnter(ObjectChunk& chunk)
 {
-	/*
-	Array<PlayerObject*> objects = mScene->CreateObjects<PlayerObject>(4);
+	ComponentMap components;
+	Array<GameObjectID> objects = mScene->CreateObjects<PlayerObject>(4, &components);
 	Vector3f s = chunk.GetBoundingBox().mMin;
+
+	TransformComponent* t = components.Get<TransformComponent>();
+	RenderComponent* r = components.Get<RenderComponent>();
 
 	for (Uint32 i = 0; i < objects.Size(); ++i)
 	{
-		objects[i]->SetPosition(s.x + 5.0f, 10.0f, s.z + (i * 1.5f) + 1.0f);
-		chunk.AddRenderable(objects[i]);
+		t[i].mPosition = Vector3f(s.x + 5.0f, 10.0f, s.z + (i * 1.5f) + 1.0f);
+		t[i].mScale = 0.5f;
+		r[i].mModel = mModel;
 	}
-	*/
+
+	// Add to chunk
+	chunk.AddRenderables(mRenderer, objects, components);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 void BoxLoader::OnChunkLeave(ObjectChunk& chunk)
 {
-	/*
-	const Array<Renderable*>& renderables = chunk.GetRenderables();
-
-	for (Uint32 i = 0; i < renderables.Size(); ++i)
-		mScene->FreeObject<PlayerObject>((PlayerObject*)renderables[i]);
-		*/
+	mScene->RemoveObjects<PlayerObject>(chunk.GetRenderables());
 }
 
 ///////////////////////////////////////////////////////////////////////////////

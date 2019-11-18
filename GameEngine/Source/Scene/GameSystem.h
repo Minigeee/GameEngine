@@ -15,21 +15,6 @@ class Scene;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-/* Not really a list, just represents pointer to component data */
-template <typename T>
-struct ComponentList
-{
-	/* Convenience accessor operator */
-	T& operator[](Uint32 i) { return mData[i]; }
-
-	/* Pointer to data */
-	T* mData;
-	/* How many components there are */
-	Uint32 mSize;
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
 class GameSystem
 {
 	REQUIRES_TYPE_INFO;
@@ -128,7 +113,7 @@ inline Array<ComponentList<T>> GameSystem::GetComponentLists()
 		{ \
 			LOOP(_GET_COMPONENT_LIST_REF_FUNC, __VA_ARGS__) \
 			for (Uint32 n = 0; n < CONCAT(ref_, FIRST_ARG(__VA_ARGS__)).mSize; ++n) \
-			{ Execute(COMMA_LIST(_EXECUTE_SYSTEM_FUNC, _EXECUTE_SYSTEM_COMMA_FUNC, __VA_ARGS__)); } \
+			{ Execute(COMMA_LIST(_EXECUTE_SYSTEM_FUNC, _EXECUTE_SYSTEM_COMMA_FUNC, __VA_ARGS__), dt); } \
 		} \
 	} \
 

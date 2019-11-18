@@ -3,16 +3,13 @@
 
 #include <Scene/GameObject.h>
 
-#include <Graphics/Renderable.h>
-
 #include <Scene/Components.h>
 #include <Graphics/Components.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 
 class PlayerObject :
-	public GameObject,
-	public Renderable
+	public GameObject
 {
 	GAME_OBJECT(PlayerObject);
 

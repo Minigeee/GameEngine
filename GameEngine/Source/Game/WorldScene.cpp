@@ -3,11 +3,13 @@
 #include <Core/LogFile.h>
 
 #include <Graphics/Atmosphere.h>
+#include <Graphics/Model.h>
+#include <Graphics/Material.h>
+#include <Graphics/Shader.h>
 
 #include <Graphics/Systems.h>
 
 #include <Game/Systems/InputSystem.h>
-#include <Game/Systems/TerrainSystem.h>
 #include <Game/Systems/BoxLoader.h>
 
 #include <Game/Objects/PlayerObject.h>
@@ -15,7 +17,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-WorldScene::WorldScene()
+WorldScene::WorldScene() :
+	mHeightMap		(0.01f)
 {
 
 }
@@ -35,17 +38,15 @@ void WorldScene::OnCreate()
 	LOG << "Creating world\n";
 
 	RegisterSystem<InputSystem>();
-	// RegisterSystem<TransformMatrixSystem>();
+	RegisterSystem<TransformMatrixSystem>();
 
-	ComponentMap components;
-	Array<GameObjectID> ids = CreateObjects<PlayerObject>(100, &components);
-	
-	TransformComponent* transforms = components.Get<TransformComponent>();
-	for (Uint32 i = 0; i < 100; ++i)
-		transforms[i].mPosition = Vector3f(2.0f * i, 10.0f, 0.0f);
+	// RegisterLoader<BoxLoader>();
 
-	for (Uint32 i = 0; i < 100; ++i)
-		QueueRemoveObject(ids[i]);
+
+	// Create main player
+	CreateMainPlayer();
+	// Create terrain
+	CreateTerrain();
 
 
 	mDirLight.SetDirection(0.0f, -0.5f, 1.0f);
@@ -59,6 +60,63 @@ void WorldScene::OnCreate()
 void WorldScene::OnDelete()
 {
 	LOG << "Deleting world\n";
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+void WorldScene::CreateMainPlayer()
+{
+	ComponentMap components;
+	CreateObjects<PlayerObject>(1, &components);
+
+	TransformComponent& t = *components.Get<TransformComponent>();
+	RenderComponent& r = *components.Get<RenderComponent>();
+
+	// Set up render component
+	r.mModel = Resource<Model>::Load("Models/Box/Box.dae");
+
+	Shader* shader = Resource<Shader>::Load("Shaders/Default.xml");
+
+	Material* material = Resource<Material>::Create();
+	material->mShader = shader;
+	material->mDiffuse = Vector3f(0.8f, 0.2f, 0.2f);
+
+	r.mModel->GetMesh(0).mMaterial = material;
+
+	// Setup transform component
+	t.mScale = 0.5f;
+
+	mRenderer.RegisterDynamicType<PlayerObject>(r.mModel);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void WorldScene::CreateTerrain()
+{
+	// Create height map
+	mHeightMap.Generate(5, 513, 513);
+
+	// Create biome map
+	mBiomeMap.SetHeightMap(&mHeightMap);
+	mBiomeMap.AddColor(Vector3f(0.651f, 0.616f, 0.325f), 0.2f);
+	mBiomeMap.AddColor(Vector3f(0.247f, 0.401f, 0.179f), 1.0f);
+	mBiomeMap.AddColorFilter(Vector3f(1.0f, 0.0f, 0.0f), 1, 0.05f, 0.015f);
+	mBiomeMap.AddColorFilter(Vector3f(0.0f, 0.0f, 1.0f), 1, 0.05f, 0.015f);
+	mBiomeMap.Generate();
+
+	Array<float> lod(4);
+	lod.Push(30.0f);
+	lod.Push(100.0f);
+	lod.Push(400.0f);
+
+	mTerrain.SetSize(1000.0f);
+	mTerrain.SetLodLevels(lod);
+	mTerrain.SetSquareSize(3.0f);
+	mTerrain.Create(this);
+
+	mTerrain.SetHeightMap(&mHeightMap);
+	mTerrain.SetColorMap(&mBiomeMap);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -25,7 +25,7 @@ public:
 	TransformMatrixSystem();
 	~TransformMatrixSystem();
 
-	void Execute(const TransformComponent& t, RenderComponent& r);
+	void Execute(const TransformComponent& t, RenderComponent& r, float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -8,9 +8,17 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
+class Model;
+
 struct RenderComponent : public Component
 {
 	COMPONENT_TYPE(RenderComponent);
+
+	RenderComponent(GameObjectID id) :
+		mInstanceID		(0),
+		mModel			(0),
+		mTransform		(1.0f)
+	{ }
 
 	/* Renderable instance ID */
 	Uint64 mInstanceID;

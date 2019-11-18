@@ -2,8 +2,9 @@
 
 #include <Core/Hash.h>
 
+#include <Math/Transform.h>
+
 #include <Graphics/Graphics.h>
-#include <Graphics/Renderable.h>
 #include <Graphics/VertexArray.h>
 #include <Graphics/VertexBuffer.h>
 #include <Graphics/FrameBuffer.h>
@@ -118,7 +119,6 @@ void Renderer::Init(Scene* scene)
 	mDynamicBuffer->BufferData(NULL, DYNAMIC_INSTANCE_BUFFER_SIZE, VertexBuffer::Stream);
 	mDynBufferSize = DYNAMIC_INSTANCE_BUFFER_SIZE / sizeof(Matrix4f);
 	mDynBufferOffset = 0;
-	mNumDynInstances = 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -212,14 +212,33 @@ void Renderer::UpdateStatic(const Frustum& frustum)
 
 void Renderer::UpdateDynamic(const Frustum& frustum)
 {
+	// Count number of dynamic instances
+	Array<ComponentList<RenderComponent>> rs(mDynamicRenderData.Size());
+	Uint32 numInstances = 0;
+
+	for (Uint32 i = 0; i < mDynamicRenderData.Size(); ++i)
+	{
+		DynamicRenderData& data = mDynamicRenderData[i];
+
+		// Create component list
+		const Array<RenderComponent>& list = ComponentData<RenderComponent>::GetData(data.mTypeID);
+		ComponentList<RenderComponent> components;
+		components.mData = &list.Front();
+		components.mSize = list.Size();
+		rs.Push(components);
+
+		// Add number of instances;
+		numInstances += components.mSize;
+	}
+
 	// Map instance buffer
 	mDynamicBuffer->Bind(VertexBuffer::Array);
 	Matrix4f* buffer = 0;
-	if (mDynBufferOffset + mNumDynInstances > mDynBufferSize)
+	if (mDynBufferOffset + numInstances > mDynBufferSize)
 	{
 		// Reset buffer
 		buffer = (Matrix4f*)mDynamicBuffer->MapWrite(
-			mNumDynInstances * sizeof(Matrix4f),
+			numInstances * sizeof(Matrix4f),
 			VertexBuffer::InvalidateBuffer,
 			0);
 		mDynBufferOffset = 0;
@@ -228,7 +247,7 @@ void Renderer::UpdateDynamic(const Frustum& frustum)
 	{
 		// Unsynchronized for speed
 		buffer = (Matrix4f*)mDynamicBuffer->MapWrite(
-			mNumDynInstances * sizeof(Matrix4f),
+			numInstances * sizeof(Matrix4f),
 			VertexBuffer::Unsynchronized,
 			mDynBufferOffset * sizeof(Matrix4f));
 	}
@@ -238,17 +257,18 @@ void Renderer::UpdateDynamic(const Frustum& frustum)
 	for (Uint32 i = 0; i < mDynamicRenderData.Size(); ++i)
 	{
 		DynamicRenderData& data = mDynamicRenderData[i];
+		ComponentList<RenderComponent>& r = rs[i];
 		Uint32 numVisible = 0;
 
 		// Set data offset
 		data.mInstanceOffset = mDynBufferOffset;
 
 		// Iterate renderables
-		for (Uint32 n = 0; n < data.mRenderables.Size(); ++n)
+		for (Uint32 n = 0; n < r.mSize; ++n)
 		{
 			// If visible, add transform
-			if (frustum.Contains(data.mRenderables[n]->GetBoundingSphere()))
-				buffer[numVisible++] = data.mRenderables[n]->GetTransform();
+			if (frustum.Contains(r[n].mBoundingSphere))
+				buffer[numVisible++] = r[n].mTransform;
 		}
 
 		// Set number of visible instances
@@ -518,19 +538,19 @@ Uint32 Renderer::RegisterStaticModel(Model* model, float chunkSize, bool cullabl
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Renderer::AddStaticObject(Renderable* object)
+Uint64 Renderer::AddStaticObject(const TransformComponent& t, RenderComponent& r)
 {
 	// Don't add if object is already added
-	if (object->mInstanceID) return;
+	if (r.mInstanceID) return 0;
 
 	/* TODO : Handle LOD models */
 
 	int modelID = 0;
 	{
-		auto it = mModelToDataIndex.find(object->GetModel());
+		auto it = mModelToDataIndex.find(r.mModel);
 		// If model group does not exist, create it
 		if (it == mModelToDataIndex.end())
-			modelID = RegisterStaticModel(object->GetModel(), 32.0f);
+			modelID = RegisterStaticModel(r.mModel, 32.0f);
 		else
 			modelID = it->second;
 	}
@@ -540,7 +560,7 @@ void Renderer::AddStaticObject(Renderable* object)
 
 
 	// Get chunk handle
-	Vector3i index = Floor(object->GetPosition() / data.mChunkSize);
+	Vector3i index = Floor(t.mPosition / data.mChunkSize);
 	Uint32 indexHash = GetHash(&index, sizeof(index));
 	Handle chunkHandle = 0;
 
@@ -570,10 +590,17 @@ void Renderer::AddStaticObject(Renderable* object)
 
 
 	// Add transform to list
-	Handle transformHandle = chunk.mTransforms.Add(object->GetTransform());
+	Handle transformHandle = chunk.mTransforms.Add(
+		ToTransform(t.mPosition, t.mRotation, t.mScale)
+	);
 
 	// Update chunk bounding box
-	const BoundingSphere& sphere = object->GetBoundingSphere();
+	const BoundingBox& modelBox = r.mModel->GetBoundingBox();
+	Vector3f boxPos = modelBox.GetPosition();
+	r.mBoundingSphere.p = boxPos + t.mPosition;
+	r.mBoundingSphere.r = Distance(boxPos, modelBox.mMin) * t.mScale;
+
+	const BoundingSphere& sphere = r.mBoundingSphere;
 	BoundingBox box(sphere.p - sphere.r, sphere.p + sphere.r);
 
 	if (box.mMin.x < chunk.mBoundingBox.mMin.x)
@@ -593,26 +620,28 @@ void Renderer::AddStaticObject(Renderable* object)
 
 	// Set instance ID
 	Uint64 instanceID = (indexHash << 16) | transformHandle;
-	object->mInstanceID = instanceID + 1;
+	r.mInstanceID = instanceID + 1;
 
 	// Mark for update
 	chunk.mUpdated = true;
+
+	return instanceID;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Renderer::RemoveStaticObject(Renderable* object)
+void Renderer::RemoveStaticObject(RenderComponent& r)
 {
-	if (!object->mInstanceID) return;
+	if (!r.mInstanceID) return;
 
-	Uint64 instanceID = object->mInstanceID - 1;
+	Uint64 instanceID = r.mInstanceID - 1;
 	Uint32 indexHash = (Uint32)(instanceID >> 16);
 	Handle transformHandle = (Handle)(instanceID - indexHash);
 
 	// Get model group
 	int modelID = 0;
 	{
-		auto it = mModelToDataIndex.find(object->GetModel());
+		auto it = mModelToDataIndex.find(r.mModel);
 		// If model group does not exist, quit
 		if (it == mModelToDataIndex.end())
 			return;
@@ -628,7 +657,7 @@ void Renderer::RemoveStaticObject(Renderable* object)
 		if (it == data.mIndexToHandle.end())
 		{
 			// If chunk doesn't exist (if chunk was removed already), then reset instance ID and quit
-			object->mInstanceID = 0;
+			r.mInstanceID = 0;
 			return;
 		}
 		else
@@ -651,7 +680,7 @@ void Renderer::RemoveStaticObject(Renderable* object)
 		chunk.mUpdated = true;
 
 	// Reset instance ID
-	object->mInstanceID = 0;
+	r.mInstanceID = 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -664,7 +693,8 @@ Uint32 Renderer::RegisterDynamicModel(Model* model)
 	if (it != mModelToDataIndex.end()) return it->second;
 
 	DynamicRenderData data;
-	data.mRenderables.Reserve(8);
+	data.mInstanceOffset = 0;
+	data.mNumVisible = 0;
 
 	// Map model pointer to index
 	Uint32 id = mDynamicRenderData.Size();
@@ -695,44 +725,37 @@ Uint32 Renderer::RegisterDynamicModel(Model* model)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Renderer::AddDynamicObject(Renderable* object)
+void Renderer::RegisterDynamicType(Uint32 typeID, Model* model)
 {
-	// Don't add if object is already added
-	if (object->mInstanceID) return;
-
 	int modelID = 0;
 	{
-		auto it = mModelToDataIndex.find(object->GetModel());
+		auto it = mModelToDataIndex.find(model);
 		// If model group does not exist, create it
 		if (it == mModelToDataIndex.end())
-			modelID = RegisterDynamicModel(object->GetModel());
+			modelID = RegisterDynamicModel(model);
 		else
 			modelID = it->second;
 	}
 
 	// Get model group
 	DynamicRenderData& data = mDynamicRenderData[modelID];
-
-	// Add to list of renderables
-	object->mInstanceID = data.mRenderables.Add(object);
-
-	++mNumDynInstances;
+	data.mTypeID = typeID;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-void Renderer::AddStaticChunk(const Array<Renderable*>& renderables, const BoundingBox& box)
+void Renderer::AddStaticChunk(const TransformComponent* t, RenderComponent* r, Uint32 n, const BoundingBox& box)
 {
 	// Only add chunk if there are renderables to add
-	if (!renderables.Size()) return;
+	if (!t || !r || !n) return;
 
 	int modelID = 0;
 	{
-		auto it = mModelToDataIndex.find(renderables.Front()->GetModel());
+		auto it = mModelToDataIndex.find(r->mModel);
 		// If model group does not exist, create it
 		if (it == mModelToDataIndex.end())
-			modelID = RegisterStaticModel(renderables.Front()->GetModel(), 32.0f);
+			modelID = RegisterStaticModel(r->mModel, 32.0f);
 		else
 			modelID = it->second;
 	}
@@ -786,13 +809,15 @@ void Renderer::AddStaticChunk(const Array<Renderable*>& renderables, const Bound
 	if (box.mMax.z > chunk.mBoundingBox.mMax.z)
 		chunk.mBoundingBox.mMax.z = box.mMax.z;
 
-	for (Uint32 i = 0; i < renderables.Size(); ++i)
+	for (Uint32 i = 0; i < n; ++i)
 	{
-		Handle transformHandle = chunk.mTransforms.Add(renderables[i]->GetTransform());
+		Handle transformHandle = chunk.mTransforms.Add(
+			ToTransform(t[i].mPosition, t[i].mRotation, t[i].mScale)
+		);
 
 		// Set instance ID
 		Uint64 instanceID = (indexHash << 16) | transformHandle;
-		renderables[i]->mInstanceID = instanceID + 1;
+		r[i].mInstanceID = instanceID + 1;
 	}
 
 	chunk.mUpdated = true;

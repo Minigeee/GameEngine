@@ -8,7 +8,10 @@
 #include <Math/BoundingBox.h>
 #include <Math/Frustum.h>
 
+#include <Graphics/Components.h>
 #include <Graphics/RenderPass.h>
+
+#include <Scene/Components.h>
 
 #include <unordered_map>
 
@@ -27,7 +30,6 @@ class Mesh;
 class Model;
 class FrameBuffer;
 
-class Renderable;
 class Camera;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -70,8 +72,8 @@ public:
 struct DynamicRenderData
 {
 public:
-	/* List of dynamic renderables */
-	HandleArray<Renderable*> mRenderables;
+	/* Type ID of renderables */
+	Uint32 mTypeID;
 	/* Matrix offset in instance buffer */
 	Uint32 mInstanceOffset;
 	/* Number of visible instances */
@@ -131,14 +133,16 @@ public:
 	/* Register model for dynamic renderables */
 	Uint32 RegisterDynamicModel(Model* model);
 	/* Add static renderable object */
-	void AddStaticObject(Renderable* object);
+	Uint64 AddStaticObject(const TransformComponent& t, RenderComponent& r);
 	/* Remove static renderable object */
-	void RemoveStaticObject(Renderable* object);
-	/* Add dynamic renderable object */
-	void AddDynamicObject(Renderable* object);
+	void RemoveStaticObject(RenderComponent& r);
+	/* Register dynamic object type */
+	void RegisterDynamicType(Uint32 typeID, Model* model);
+	/* Register dynamic object type */
+	template <typename T> void RegisterDynamicType(Model* model) { RegisterDynamicType(T::StaticTypeID(), model); }
 
 	/* Add a chunk of static renderables */
-	void AddStaticChunk(const Array<Renderable*>& renderables, const BoundingBox& box);
+	void AddStaticChunk(const TransformComponent* t, RenderComponent* r, Uint32 n, const BoundingBox& box);
 	/* Remove render chunk that contains the given point */
 	void RemoveStaticChunk(Model* model, const Vector3f& pos);
 
@@ -201,8 +205,6 @@ private:
 	Uint32 mDynBufferSize;
 	/* Dynamic buffer offset */
 	Uint32 mDynBufferOffset;
-	/* Number of dynamic instances */
-	Uint32 mNumDynInstances;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

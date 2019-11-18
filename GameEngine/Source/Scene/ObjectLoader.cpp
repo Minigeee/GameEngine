@@ -2,7 +2,7 @@
 
 #include <Scene/Scene.h>
 
-#include <Graphics/Renderable.h>
+#include <Graphics/Model.h>
 
 #include <assert.h>
 
@@ -138,7 +138,7 @@ void ObjectLoader::UpdateChunks()
 			// Remove chunk from renderer first
 			if (chunk.GetRenderables().Size())
 			{
-				Model* model = chunk.GetRenderables().Front()->GetModel();
+				Model* model = mScene->GetComponent<RenderComponent>(chunk.GetRenderables()[0])->mModel;
 				mRenderer->RemoveStaticChunk(model, p3);
 			}
 
@@ -155,10 +155,6 @@ void ObjectLoader::UpdateChunks()
 
 			// Load chunk
 			OnChunkEnter(chunk);
-
-			// Add to renderer
-			if (chunk.GetRenderables().Size())
-				mRenderer->AddStaticChunk(chunk.GetRenderables(), chunk.GetBoundingBox());
 		}
 	}
 }
@@ -184,29 +180,44 @@ ObjectChunk::ObjectChunk(const Vector2f& s, const Vector2f& e) :
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void ObjectChunk::AddRenderable(Renderable* object)
+void ObjectChunk::AddRenderables(
+	Renderer* renderer, const Array<GameObjectID>& ids, ComponentMap& components)
 {
-	// Add to renderables list
-	mRenderables.Push(object);
+	mRenderables = ids;
 
-	// Update bounding box
-	const BoundingSphere& sphere = object->GetBoundingSphere();
-	BoundingBox box(sphere.p - sphere.r, sphere.p + sphere.r);
+	TransformComponent* t = components.Get<TransformComponent>();
+	RenderComponent* r = components.Get<RenderComponent>();
 
-	if (box.mMin.x < mBoundingBox.mMin.x)
-		mBoundingBox.mMin.x = box.mMin.x;
-	if (box.mMax.x > mBoundingBox.mMax.x)
-		mBoundingBox.mMax.x = box.mMax.x;
+	for (Uint32 i = 0; i < mRenderables.Size(); ++i)
+	{
+		// Update bounding box
+		const BoundingBox& modelBox = r[i].mModel->GetBoundingBox();
+		Vector3f boxPos = modelBox.GetPosition();
 
-	if (box.mMin.y < mBoundingBox.mMin.y)
-		mBoundingBox.mMin.y = box.mMin.y;
-	if (box.mMax.y > mBoundingBox.mMax.y)
-		mBoundingBox.mMax.y = box.mMax.y;
+		BoundingSphere& sphere = r[i].mBoundingSphere;
+		sphere.p = boxPos + t[i].mPosition;
+		sphere.r = Distance(boxPos, modelBox.mMin) * t[i].mScale;
 
-	if (box.mMin.z < mBoundingBox.mMin.z)
-		mBoundingBox.mMin.z = box.mMin.z;
-	if (box.mMax.z > mBoundingBox.mMax.z)
-		mBoundingBox.mMax.z = box.mMax.z;
+		BoundingBox box(sphere.p - sphere.r, sphere.p + sphere.r);
+
+		if (box.mMin.x < mBoundingBox.mMin.x)
+			mBoundingBox.mMin.x = box.mMin.x;
+		if (box.mMax.x > mBoundingBox.mMax.x)
+			mBoundingBox.mMax.x = box.mMax.x;
+
+		if (box.mMin.y < mBoundingBox.mMin.y)
+			mBoundingBox.mMin.y = box.mMin.y;
+		if (box.mMax.y > mBoundingBox.mMax.y)
+			mBoundingBox.mMax.y = box.mMax.y;
+
+		if (box.mMin.z < mBoundingBox.mMin.z)
+			mBoundingBox.mMin.z = box.mMin.z;
+		if (box.mMax.z > mBoundingBox.mMax.z)
+			mBoundingBox.mMax.z = box.mMax.z;
+	}
+
+	// Add to renderer
+	renderer->AddStaticChunk(t, r, mRenderables.Size(), mBoundingBox);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -218,7 +229,7 @@ void ObjectChunk::MarkLoaded()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-const Array<Renderable*>& ObjectChunk::GetRenderables() const
+const Array<GameObjectID>& ObjectChunk::GetRenderables() const
 {
 	return mRenderables;
 }

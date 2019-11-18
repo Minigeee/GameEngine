@@ -3,6 +3,10 @@
 
 #include <Scene/Scene.h>
 
+#include <Graphics/Terrain.h>
+#include <Game/Terrain/NoiseMap.h>
+#include <Game/Terrain/BiomeMap.h>
+
 ///////////////////////////////////////////////////////////////////////////////
 
 class WorldScene : public Scene
@@ -16,6 +20,16 @@ private:
 	void OnCreate() override;
 	/* Clean up resources */
 	void OnDelete() override;
+
+	/* Create main player */
+	void CreateMainPlayer();
+	/* Create terrain */
+	void CreateTerrain();
+
+private:
+	Terrain mTerrain;
+	NoiseMap mHeightMap;
+	BiomeMap mBiomeMap;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

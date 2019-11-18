@@ -19,7 +19,7 @@ TransformMatrixSystem::~TransformMatrixSystem()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void TransformMatrixSystem::Execute(const TransformComponent& t, RenderComponent& r)
+void TransformMatrixSystem::Execute(const TransformComponent& t, RenderComponent& r, float dt)
 {
 	// Update transform matrix
 	r.mTransform = ToTransform(
