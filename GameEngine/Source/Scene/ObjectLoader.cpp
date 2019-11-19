@@ -155,6 +155,10 @@ void ObjectLoader::UpdateChunks()
 
 			// Load chunk
 			OnChunkEnter(chunk);
+
+			// Remove chunk if nothing was added to it
+			if (!chunk.GetRenderables().Size())
+				mChunks.SwapPop(i--);
 		}
 	}
 }
