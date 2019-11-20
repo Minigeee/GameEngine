@@ -40,8 +40,6 @@ void WorldScene::OnCreate()
 	RegisterSystem<InputSystem>();
 	RegisterSystem<TransformMatrixSystem>();
 
-	// RegisterLoader<BoxLoader>();
-
 
 	// Create main player
 	CreateMainPlayer();
@@ -52,7 +50,7 @@ void WorldScene::OnCreate()
 	mDirLight.SetDirection(0.0f, -0.5f, 1.0f);
 
 	// Render passes
-	mRenderer.AddRenderPass<Atmosphere>(RenderPass::Normal);
+	mRenderer.SetLightingMethod<Atmosphere>();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

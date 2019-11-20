@@ -32,9 +32,6 @@ RenderPass::~RenderPass()
 	if (mTarget)
 		Resource<FrameBuffer>::Free(mTarget);
 	mTarget = 0;
-
-	// Delete lighting pass
-	delete mLightingPass;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -146,15 +146,21 @@ public:
 	/* Remove render chunk that contains the given point */
 	void RemoveStaticChunk(Model* model, const Vector3f& pos);
 
-	/* Add a render pass (Pass lighting pass type as template parameter) */
-	template <typename L> RenderPass* AddRenderPass(RenderPass::Type type)
+	/* Set default lighting method */
+	template <typename T> T* SetLightingMethod()
 	{
-		RenderPass* pass = new RenderPass(type);
-		pass->SetLightingPass(new L(mScene));
-		mRenderPasses.Push(pass);
+		if (mLightingMethod)
+			delete mLightingMethod;
+		mLightingMethod = new T(mScene);
 
-		return pass;
+		// Apply to any existing render passes
+		for (Uint32 i = 0; i < mRenderPasses.Size(); ++i)
+			mRenderPasses[i]->SetLightingPass(mLightingMethod);
+
+		return (T*)mLightingMethod;
 	}
+	/* Add a render pass */
+	RenderPass* AddRenderPass(RenderPass::Type type);
 
 private:
 	/* Add render data to a queue */
@@ -185,6 +191,8 @@ private:
 	/* Map model pointer to render data index */
 	std::unordered_map<Model*, Uint32> mModelToDataIndex;
 
+	/* Default lighting method */
+	LightingPass* mLightingMethod;
 	/* List of render passes */
 	Array<RenderPass*> mRenderPasses;
 	/* Static render queue */
@@ -205,6 +213,9 @@ private:
 	Uint32 mDynBufferSize;
 	/* Dynamic buffer offset */
 	Uint32 mDynBufferOffset;
+
+	/* True if a normal pass has been added and is at end */
+	bool mValidRenderSeq;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

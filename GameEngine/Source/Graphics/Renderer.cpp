@@ -19,13 +19,18 @@
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-Renderer::Renderer()
+Renderer::Renderer() :
+	mLightingMethod		(0),
+	mValidRenderSeq		(false)
 {
 
 }
 
 Renderer::~Renderer()
 {
+	if (mLightingMethod)
+		delete mLightingMethod;
+
 	for (Uint32 i = 0; i < mRenderPasses.Size(); ++i)
 		delete mRenderPasses[i];
 
@@ -125,11 +130,13 @@ void Renderer::Init(Scene* scene)
 
 void Renderer::PostInit()
 {
-	// Create default rendering order, if no custom rendering order
-	if (!mRenderPasses.Size())
-	{
-		AddRenderPass<DefaultLighting>(RenderPass::Normal);
-	}
+	// Set default lighting pass if none exists
+	if (!mLightingMethod)
+		SetLightingMethod<DefaultLighting>();
+
+	// Add normal pass to end
+	if (!mValidRenderSeq)
+		AddRenderPass(RenderPass::Normal);
 
 	// Create target framebuffers if necessary (Except for the last one)
 	for (Uint32 i = 0; i < mRenderPasses.Size() - 1; ++i)
@@ -139,6 +146,20 @@ void Renderer::PostInit()
 		if (!pass->GetTarget())
 			pass->CreateTarget();
 	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+RenderPass* Renderer::AddRenderPass(RenderPass::Type type)
+{
+	RenderPass* pass = new RenderPass(type);
+	pass->SetLightingPass(mLightingMethod);
+	mRenderPasses.Push(pass);
+
+	// Set valid if pass type is normal type
+	mValidRenderSeq = type == RenderPass::Normal;
+
+	return pass;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
