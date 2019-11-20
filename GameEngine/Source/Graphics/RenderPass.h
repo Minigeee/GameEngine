@@ -2,6 +2,7 @@
 #define RENDER_PASS_H
 
 #include <Math/Vector4.h>
+#include <Math/Plane.h>
 
 #include <Graphics/FrameBuffer.h>
 
@@ -61,12 +62,17 @@ public:
 	RenderPass(Type type);
 	~RenderPass();
 
-	/* Set lighting pass object */
-	void SetLightingPass(LightingPass* pass);
 	/* Create framebuffer as render pass target */
 	void CreateTarget(
 		Texture::Format fmt = Texture::Rgb,
 		Image::DataType dtype = Image::Ushort);
+
+	/* Set lighting pass object */
+	void SetLightingPass(LightingPass* pass);
+	/* Set render pass plane */
+	void SetPlane(const Plane& plane);
+	/* Set clipping enabled */
+	void SetClippingEnabled(bool enabled);
 
 	/* Get render pass type */
 	Type GetType() const;
@@ -74,6 +80,10 @@ public:
 	FrameBuffer* GetTarget() const;
 	/* Get lighting pass object */
 	LightingPass* GetLightingPass() const;
+	/* Get plane */
+	const Plane& GetPlane() const;
+	/* Returns true if clipping is enabled */
+	bool IsClippingEnabled() const;
 
 private:
 	/* Render pass type */
@@ -83,8 +93,11 @@ private:
 	/* Lighting pass */
 	LightingPass* mLightingPass;
 
-	/* Reflection plane */
-	Vector4f mReflectionPlane;
+	/* Plane used for various purposes */
+	Plane mPlane;
+
+	/* True if clipping is enabled */
+	bool mIsClippingEnabled;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

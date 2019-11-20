@@ -311,6 +311,7 @@ void CommonUniforms::ApplyToShader(Shader* shader)
 {
 	shader->SetUniform("mProjView", mProjView);
 	shader->SetUniform("mCamPos", mCamera->GetPosition());
+	shader->SetUniform("mClipPlane", mClipPlane);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -348,10 +349,32 @@ void Renderer::DoRenderPass(RenderPass* pass, FrameBuffer* target)
 	Graphics::EnableCull(Graphics::Back);
 	Graphics::Clear();
 
+	if (pass->IsClippingEnabled())
+		Graphics::Enable(Graphics::ClipPlane);
+	else
+		Graphics::Disable(Graphics::ClipPlane);
+
+
+	Camera* camera = &mScene->GetCamera();
+	const Plane& plane = pass->GetPlane();
+
+	// Store original orientation
+	Vector3f origPos = camera->GetPosition();
+	Vector3f origDir = camera->GetDirection();
+
+	// Reflect camera if using reflection pass
+	if (pass->GetType() == RenderPass::Reflect)
+	{
+		camera->SetPosition(plane.ReflectPoint(origPos));
+		camera->SetDirection(plane.ReflectVector(origDir));
+	}
+
 	// Get all common uniforms
 	CommonUniforms uniforms;
-	uniforms.mCamera = &mScene->GetCamera();
-	uniforms.mProjView = uniforms.mCamera->GetProjection() * uniforms.mCamera->GetView();
+	uniforms.mCamera = camera;
+	uniforms.mProjView = camera->GetProjection() * camera->GetView();
+	uniforms.mClipPlane = Vector4f(plane.n, plane.d);
+
 
 	// Render static objects
 	RenderStatic(pass, uniforms);
@@ -379,6 +402,14 @@ void Renderer::DoRenderPass(RenderPass* pass, FrameBuffer* target)
 	// Draw quad
 	mQuadVao->Bind();
 	mQuadVao->DrawArrays(6);
+
+
+	// Reset camera after everything is rendered
+	if (pass->GetType() == RenderPass::Reflect)
+	{
+		camera->SetPosition(origPos);
+		camera->SetDirection(origDir);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -106,6 +106,8 @@ public:
 	Matrix4f mProjView;
 	/* Camera object */
 	Camera* mCamera;
+	/* Clip plane */
+	Vector4f mClipPlane;
 
 	/* Bind all common uniforms */
 	void ApplyToShader(Shader* shader);

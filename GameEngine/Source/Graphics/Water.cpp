@@ -87,8 +87,9 @@ void Water::Create(Scene* scene, float viewDist, float chunkSize)
 
 	// Create reflection render pass
 	RenderPass* reflectPass = scene->GetRenderer().AddRenderPass(RenderPass::Reflect);
-	// Create framebuffer
 	reflectPass->CreateTarget();
+	reflectPass->SetPlane(Plane(0.0f, 1.0f, 0.0f, -mAltitude));
+	reflectPass->SetClippingEnabled(true);
 
 
 	// Create model

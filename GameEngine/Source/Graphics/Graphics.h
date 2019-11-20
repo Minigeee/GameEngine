@@ -24,7 +24,7 @@ public:
 	{
 		DepthTest		= 0x0B71,
 		CullFace		= 0x0B44,
-		ClipPlane,
+		ClipPlane		= 0x3000,
 		Front			= 0x0404,
 		Back			= 0x0405
 	};

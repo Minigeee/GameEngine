@@ -12,8 +12,7 @@
 RenderPass::RenderPass() :
 	mType				(None),
 	mTarget				(0),
-	mLightingPass		(0),
-	mReflectionPlane	(0.0f)
+	mLightingPass		(0)
 {
 	
 }
@@ -21,8 +20,7 @@ RenderPass::RenderPass() :
 RenderPass::RenderPass(Type type) :
 	mType				(type),
 	mTarget				(0),
-	mLightingPass		(0),
-	mReflectionPlane	(0.0f)
+	mLightingPass		(0)
 {
 	
 }
@@ -40,6 +38,18 @@ void RenderPass::SetLightingPass(LightingPass* pass)
 {
 	mLightingPass = pass;
 }
+
+void RenderPass::SetPlane(const Plane& plane)
+{
+	mPlane = plane;
+}
+
+void RenderPass::SetClippingEnabled(bool enabled)
+{
+	mIsClippingEnabled = enabled;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 void RenderPass::CreateTarget(Texture::Format fmt, Image::DataType dtype)
 {
@@ -72,6 +82,16 @@ FrameBuffer* RenderPass::GetTarget() const
 LightingPass* RenderPass::GetLightingPass() const
 {
 	return mLightingPass;
+}
+
+const Plane& RenderPass::GetPlane() const
+{
+	return mPlane;
+}
+
+bool RenderPass::IsClippingEnabled() const
+{
+	return mIsClippingEnabled;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

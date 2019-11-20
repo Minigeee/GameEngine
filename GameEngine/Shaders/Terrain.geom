@@ -8,6 +8,7 @@ in vec2 Ind[];
 in float Lod[];
 
 uniform mat4 mProjView;
+uniform vec4 mClipPlane;
 uniform vec3 mCamPos;
 uniform float res;
 
@@ -71,15 +72,21 @@ void main()
     Color = texture(colorMap, texCoord).rgb;
 
     // Create triangle
-    gl_Position = mProjView * vec4(v1, 1.0f);
+    vec4 worldTransform = vec4(v1, 1.0f);
+    gl_Position = mProjView * worldTransform;
+    gl_ClipDistance[0] = dot(worldTransform, mClipPlane);
     FragPos = v1;
     EmitVertex();
     
-    gl_Position = mProjView * vec4(v2, 1.0f);
+    worldTransform = vec4(v2, 1.0f);
+    gl_Position = mProjView * worldTransform;
+    gl_ClipDistance[0] = dot(worldTransform, mClipPlane);
     FragPos = v2;
     EmitVertex();
     
-    gl_Position = mProjView * vec4(v3, 1.0f);
+    worldTransform = vec4(v3, 1.0f);
+    gl_Position = mProjView * worldTransform;
+    gl_ClipDistance[0] = dot(worldTransform, mClipPlane);
     FragPos = v3;
     EmitVertex();
 
