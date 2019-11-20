@@ -96,6 +96,13 @@ inline T Length(const Vector3<T>& x)
 	return (T)sqrt(x.x * x.x + x.y * x.y + x.z * x.z);
 }
 
+/* Get length squared of vector from origin */
+template <typename T>
+inline T LengthSquared(const Vector3<T>& x)
+{
+	return x.x * x.x + x.y * x.y + x.z * x.z;
+}
+
 /* Get distance between 2 vectors */
 template <typename T>
 inline T Distance(const Vector3<T> & a, const Vector3<T> & b)

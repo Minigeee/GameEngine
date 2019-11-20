@@ -14,6 +14,10 @@ public:
 
 	/* Get signed distance to point */
 	float Dist(const Vector3f& p) const;
+	/* Get reflected point */
+	Vector3f ReflectPoint(const Vector3f& p) const;
+	/* Get reflected vector */
+	Vector3f ReflectVector(const Vector3f& v) const;
 
 	Vector3f n;
 	float d;

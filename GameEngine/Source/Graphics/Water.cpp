@@ -85,6 +85,11 @@ void Water::Create(Scene* scene, float viewDist, float chunkSize)
 	mLoader->SetLoadDist(viewDist);
 	mLoader->SetUnloadDist(viewDist + chunkSize);
 
+	// Create reflection render pass
+	RenderPass* reflectPass = scene->GetRenderer().AddRenderPass(RenderPass::Reflect);
+	// Create framebuffer
+	reflectPass->CreateTarget();
+
 
 	// Create model
 	Model* model = Resource<Model>::Create();
@@ -121,6 +126,8 @@ void Water::Create(Scene* scene, float viewDist, float chunkSize)
 	material->mDiffuse = Vector3f(0.0f, 0.0f, 1.0f);
 	// Don't render water on reflect, refract, or shadow passes
 	material->mViewMask = RenderPass::Normal;
+	// Add textures
+	material->AddTexture(reflectPass->GetTarget()->GetColorTexture(), "mReflectTex");
 
 	// Mesh
 	Mesh mesh;
