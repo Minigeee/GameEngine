@@ -1,0 +1,4 @@
+<program>
+    <shader type = "Vertex">Shaders/Water.vert</shader>
+    <shader type = "Fragment">Shaders/Water.frag</shader>
+</program>

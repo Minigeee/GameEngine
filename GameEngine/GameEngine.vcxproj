@@ -190,6 +190,7 @@
     <ClCompile Include="Source\Graphics\Texture.cpp" />
     <ClCompile Include="Source\Graphics\VertexArray.cpp" />
     <ClCompile Include="Source\Graphics\VertexBuffer.cpp" />
+    <ClCompile Include="Source\Graphics\Water.cpp" />
     <ClCompile Include="Source\Main.cpp" />
     <ClCompile Include="Source\Math\BoundingBox.cpp" />
     <ClCompile Include="Source\Math\BoundingSphere.cpp" />
@@ -254,6 +255,7 @@
     <ClInclude Include="Source\Graphics\Texture.h" />
     <ClInclude Include="Source\Graphics\VertexArray.h" />
     <ClInclude Include="Source\Graphics\VertexBuffer.h" />
+    <ClInclude Include="Source\Graphics\Water.h" />
     <ClInclude Include="Source\Math\BoundingBox.h" />
     <ClInclude Include="Source\Math\BoundingSphere.h" />
     <ClInclude Include="Source\Math\Frustum.h" />

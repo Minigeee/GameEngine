@@ -46,13 +46,23 @@ public:
 
 	/* Set size of terrain */
 	void SetSize(float size);
+	/* Set max height */
+	void SetMaxHeight(float h);
 	/* Set height map */
 	void SetHeightMap(Texture* map);
 	/* Set color map */
 	void SetColorMap(Texture* map);
 
-	/* Add terrain to scene */
-	void AddToScene(Scene* scene);
+	/* Get terrain size */
+	float GetSize() const;
+	/* Get square size */
+	float GetSquareSize() const;
+	/* Get max height */
+	float GetMaxHeight() const;
+	/* Get terrain height map */
+	Texture* GetHeightMap() const;
+	/* Get terrain color map */
+	Texture* GetColorMap() const;
 
 private:
 	/* ID of terrain object */
@@ -70,6 +80,8 @@ private:
 	Texture* mColorMap;
 	/* Size of terrain (square) */
 	float mSize;
+	/* Maximum height of terrain */
+	float mMaxHeight;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

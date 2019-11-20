@@ -25,7 +25,8 @@ INIT_GAME_OBJECT(TerrainObject);
 Terrain::Terrain() :
 	mSquareSize		(0.0f),
 	mHeightMap		(0),
-	mSize			(0.0f)
+	mSize			(0.0f),
+	mMaxHeight		(10.0f)
 {
 
 }
@@ -310,6 +311,7 @@ void Terrain::Create(Scene* scene)
 	// Material
 	Shader* shader = Resource<Shader>::Load("Shaders/Terrain.xml");
 	shader->SetUniform("terrainSize", mSize * 0.5f);
+	shader->SetUniform("mMaxHeight", mMaxHeight);
 
 	float res = (1 << (mLodLevels.Size() - 1)) * mSquareSize;
 	shader->SetUniform("res", res);
@@ -349,6 +351,21 @@ void Terrain::SetSize(float size)
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void Terrain::SetMaxHeight(float h)
+{
+	mMaxHeight = h;
+
+	if (mScene)
+	{
+		RenderComponent& r = *mScene->GetComponent<RenderComponent>(mObjectID);
+
+		if (r.mModel)
+			r.mModel->GetMesh(0).mMaterial->mShader->SetUniform("mMaxHeight", mMaxHeight);
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 void Terrain::SetHeightMap(Texture* texture)
 {
 	if (!mScene) return;
@@ -383,6 +400,34 @@ void Terrain::SetColorMap(Texture* texture)
 		mColorMap->SetFilter(Texture::Linear);
 		r.mModel->GetMesh(0).mMaterial->AddTexture(mColorMap, "colorMap");
 	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+float Terrain::GetSize() const
+{
+	return mSize;
+}
+
+float Terrain::GetSquareSize() const
+{
+	return mSquareSize;
+}
+
+float Terrain::GetMaxHeight() const
+{
+	return mMaxHeight;
+}
+
+Texture* Terrain::GetHeightMap() const
+{
+	return mHeightMap;
+}
+
+Texture* Terrain::GetColorMap() const
+{
+	return mColorMap;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

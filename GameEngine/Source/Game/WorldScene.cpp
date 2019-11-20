@@ -111,12 +111,19 @@ void WorldScene::CreateTerrain()
 	lod.Push(400.0f);
 
 	mTerrain.SetSize(1000.0f);
+	mTerrain.SetMaxHeight(10.0f);
 	mTerrain.SetLodLevels(lod);
 	mTerrain.SetSquareSize(3.0f);
 	mTerrain.Create(this);
 
 	mTerrain.SetHeightMap(&mHeightMap);
 	mTerrain.SetColorMap(&mBiomeMap);
+
+
+	mWater.SetAltitude(4.0f);
+	mWater.SetMinDepth(1.0f);
+	mWater.SetTerrain(&mTerrain);
+	mWater.Create(this);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

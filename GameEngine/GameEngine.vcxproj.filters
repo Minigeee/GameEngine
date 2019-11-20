@@ -239,6 +239,9 @@
     <ClCompile Include="Source\Graphics\Systems.cpp">
       <Filter>Source\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Graphics\Water.cpp">
+      <Filter>Source\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Core\DataTypes.h">
@@ -458,6 +461,9 @@
       <Filter>Include\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Source\Graphics\Systems.h">
+      <Filter>Include\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Graphics\Water.h">
       <Filter>Include\Graphics</Filter>
     </ClInclude>
   </ItemGroup>

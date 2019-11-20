@@ -35,41 +35,11 @@ void ObjectLoader::Init(Scene* scene)
 
 	OnInit();
 
-	assert(mUnloadRange > mLoadRange);
-	assert(mChunkSize > 0.0f);
-
 	// Initialize
 	mChunks.Reserve(64);
 
-	// Add initial points
-	Camera& cam = mScene->GetCamera();
-	mPrevPos = Vector2f(cam.GetPosition().x, cam.GetPosition().z);
-
-	Vector2i s = Floor((mPrevPos - mUnloadRange) / mChunkSize);
-	Vector2i e = Floor((mPrevPos + mUnloadRange + mChunkSize) / mChunkSize);
-	float unloadSquared = mUnloadRange * mUnloadRange;
-	float halfChunk = mChunkSize * 0.5f;
-
-	// Loop box
-	for (int r = s.y; r < e.y; ++r)
-	{
-		for (int c = s.x; c < e.x; ++c)
-		{
-			Vector2f p((float)c, (float)r);
-			p = p * mChunkSize + halfChunk;
-
-			// Test if point is inside unload range
-			if (DistanceSquared(p, mPrevPos) < unloadSquared)
-			{
-				ObjectChunk chunk(p - halfChunk, p + halfChunk);
-				// Add to list
-				mChunks.Push(std::move(chunk));
-			}
-		}
-	}
-
-	// Update chunks
-	UpdateChunks();
+	// Setup initial chunks
+	ReloadChunks();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -122,6 +92,8 @@ void ObjectLoader::Update()
 
 void ObjectLoader::UpdateChunks()
 {
+	if (mUnloadRange < mLoadRange) return;
+
 	float loadSquared = mLoadRange * mLoadRange;
 	float unloadSquared = mUnloadRange * mUnloadRange;
 
@@ -161,6 +133,80 @@ void ObjectLoader::UpdateChunks()
 				mChunks.SwapPop(i--);
 		}
 	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void ObjectLoader::ReloadChunks()
+{
+	// Unload any chunks
+	for (Uint32 i = 0; i < mChunks.Size(); ++i)
+	{
+		ObjectChunk& chunk = mChunks[i];
+
+		// Unload chunk if needed
+		if (chunk.IsLoaded())
+		{
+			// Remove chunk from renderer first
+			if (chunk.GetRenderables().Size())
+			{
+				Model* model = mScene->GetComponent<RenderComponent>(chunk.GetRenderables()[0])->mModel;
+				mRenderer->RemoveStaticChunk(model, chunk.GetBoundingBox().GetPosition());
+			}
+
+			// Unload chunk
+			OnChunkLeave(chunk);
+		}
+	}
+
+
+	// Add initial points
+	Camera& cam = mScene->GetCamera();
+	mPrevPos = Vector2f(cam.GetPosition().x, cam.GetPosition().z);
+
+	Vector2i s = Floor((mPrevPos - mUnloadRange) / mChunkSize);
+	Vector2i e = Floor((mPrevPos + mUnloadRange + mChunkSize) / mChunkSize);
+	float unloadSquared = mUnloadRange * mUnloadRange;
+	float halfChunk = mChunkSize * 0.5f;
+
+	// Loop box
+	for (int r = s.y; r < e.y; ++r)
+	{
+		for (int c = s.x; c < e.x; ++c)
+		{
+			Vector2f p((float)c, (float)r);
+			p = p * mChunkSize + halfChunk;
+
+			// Test if point is inside unload range
+			if (DistanceSquared(p, mPrevPos) < unloadSquared)
+			{
+				ObjectChunk chunk(p - halfChunk, p + halfChunk);
+				// Add to list
+				mChunks.Push(std::move(chunk));
+			}
+		}
+	}
+
+	// Update chunks
+	UpdateChunks();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+void ObjectLoader::SetChunkSize(float size)
+{
+	mChunkSize = size;
+}
+
+void ObjectLoader::SetLoadDist(float dist)
+{
+	mLoadRange = dist;
+}
+
+void ObjectLoader::SetUnloadDist(float dist)
+{
+	mUnloadRange = dist;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

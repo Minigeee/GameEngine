@@ -4,6 +4,7 @@
 #include <Scene/Scene.h>
 
 #include <Graphics/Terrain.h>
+#include <Graphics/Water.h>
 #include <Game/Terrain/NoiseMap.h>
 #include <Game/Terrain/BiomeMap.h>
 
@@ -30,6 +31,7 @@ private:
 	Terrain mTerrain;
 	NoiseMap mHeightMap;
 	BiomeMap mBiomeMap;
+	Water mWater;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

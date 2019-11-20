@@ -12,6 +12,7 @@ uniform vec3 mCamPos;
 uniform float res;
 
 uniform float terrainSize;
+uniform float mMaxHeight;
 uniform sampler2D heightMap;
 uniform sampler2D colorMap;
 
@@ -24,17 +25,17 @@ out vec3 Normal;
 float calcHeight(vec2 p, vec2 ind, float lod)
 {
     vec2 texCoord = p / terrainSize * 0.5f + 0.5f;
-    float h = texture(heightMap, texCoord).r * 10.0f;
+    float h = texture(heightMap, texCoord).r * mMaxHeight;
 
     if (lod < 0.0f)
         return h;
     else
     {
         texCoord = (p + ind) / terrainSize * 0.5f + 0.5f;
-        float h1 = texture(heightMap, texCoord).r * 10.0f;
+        float h1 = texture(heightMap, texCoord).r * mMaxHeight;
         
         texCoord = (p - ind) / terrainSize * 0.5f + 0.5f;
-        float h2 = texture(heightMap, texCoord).r * 10.0f;
+        float h2 = texture(heightMap, texCoord).r * mMaxHeight;
 
         vec2 dist = vec2(lod) - abs(p - mCamPos.xz);
         float factor = clamp(min(dist.x, dist.y) / (0.5f * res), 0.0f, 1.0f);

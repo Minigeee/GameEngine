@@ -63,6 +63,16 @@ public:
 	/* Update loader */
 	void Update();
 
+	/* Set chunk size */
+	void SetChunkSize(float size);
+	/* Set loading range */
+	void SetLoadDist(float dist);
+	/* Set unloading range */
+	void SetUnloadDist(float dist);
+
+	/* Reload chunks */
+	void ReloadChunks();
+
 protected:
 	/* Access to scene */
 	Scene* mScene;
