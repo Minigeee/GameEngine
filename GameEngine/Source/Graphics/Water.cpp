@@ -119,6 +119,8 @@ void Water::Create(Scene* scene, float viewDist, float chunkSize)
 	Material* material = Resource<Material>::Create();
 	material->mShader = shader;
 	material->mDiffuse = Vector3f(0.0f, 0.0f, 1.0f);
+	// Don't render water on reflect, refract, or shadow passes
+	material->mViewMask = RenderPass::Normal;
 
 	// Mesh
 	Mesh mesh;

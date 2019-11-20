@@ -5,6 +5,8 @@
 
 #include <Math/Vector3.h>
 
+#include <Graphics/RenderPass.h>
+
 ///////////////////////////////////////////////////////////////////////////////
 
 class Shader;
@@ -27,6 +29,8 @@ public:
 
 	/* Shader to render with */
 	Shader* mShader;
+	/* View mask */
+	RenderPass::Type mViewMask;
 
 	/* Add texture */
 	void AddTexture(Texture* texture, const char* uniform);

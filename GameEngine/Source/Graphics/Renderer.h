@@ -170,9 +170,9 @@ private:
 	/* Do a render pass */
 	void DoRenderPass(RenderPass* pass, FrameBuffer* target);
 	/* Render static objects */
-	void RenderStatic(CommonUniforms& uniforms);
+	void RenderStatic(RenderPass* pass, CommonUniforms& uniforms);
 	/* Render dynamic objects */
-	void RenderDynamic(CommonUniforms& uniforms);
+	void RenderDynamic(RenderPass* pass, CommonUniforms& uniforms);
 
 private:
 	/* Scene to render */

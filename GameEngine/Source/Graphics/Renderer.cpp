@@ -333,9 +333,9 @@ void Renderer::DoRenderPass(RenderPass* pass, FrameBuffer* target)
 	uniforms.mProjView = uniforms.mCamera->GetProjection() * uniforms.mCamera->GetView();
 
 	// Render static objects
-	RenderStatic(uniforms);
+	RenderStatic(pass, uniforms);
 	// Render dynamic objects
-	RenderDynamic(uniforms);
+	RenderDynamic(pass, uniforms);
 
 
 	// Combine into final image
@@ -362,7 +362,7 @@ void Renderer::DoRenderPass(RenderPass* pass, FrameBuffer* target)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Renderer::RenderStatic(CommonUniforms& uniforms)
+void Renderer::RenderStatic(RenderPass* pass, CommonUniforms& uniforms)
 {
 	if (!mStaticQueue.Size()) return;
 
@@ -384,37 +384,41 @@ void Renderer::RenderStatic(CommonUniforms& uniforms)
 			uniforms.ApplyToShader(shader);
 		}
 
-		// Apply material
-		renderData.mMaterial->Use();
-		shader->ApplyUniforms();
-
-		// Bind vertex array
-		renderData.mVertexArray->Bind();
-
-		// Render all visible chunks
-		StaticRenderData& data = mStaticRenderData[renderData.mDataIndex];
-		Array<RenderChunk>& chunks = data.mRenderChunks.GetData();
-
-		for (Uint32 chunk_n = 0; chunk_n < data.mVisibleChunks.Size(); ++chunk_n)
+		// Test view mask and skip render if necessary
+		if (pass->GetType() & renderData.mMaterial->mViewMask)
 		{
-			RenderChunk& chunk = chunks[data.mVisibleChunks[chunk_n]];
+			// Apply material
+			renderData.mMaterial->Use();
+			shader->ApplyUniforms();
 
-			// Bind instance buffer
-			chunk.mInstanceBuffer->Bind(VertexBuffer::Array);
-			renderData.mVertexArray->VertexAttrib(4, 4, sizeof(Matrix4f), 0 * sizeof(Vector4f), 1);
-			renderData.mVertexArray->VertexAttrib(5, 4, sizeof(Matrix4f), 1 * sizeof(Vector4f), 1);
-			renderData.mVertexArray->VertexAttrib(6, 4, sizeof(Matrix4f), 2 * sizeof(Vector4f), 1);
-			renderData.mVertexArray->VertexAttrib(7, 4, sizeof(Matrix4f), 3 * sizeof(Vector4f), 1);
+			// Bind vertex array
+			renderData.mVertexArray->Bind();
 
-			// Draw objects
-			renderData.mVertexArray->DrawArrays(renderData.mNumVertices, chunk.mBufferSize);
+			// Render all visible chunks
+			StaticRenderData& data = mStaticRenderData[renderData.mDataIndex];
+			Array<RenderChunk>& chunks = data.mRenderChunks.GetData();
+
+			for (Uint32 chunk_n = 0; chunk_n < data.mVisibleChunks.Size(); ++chunk_n)
+			{
+				RenderChunk& chunk = chunks[data.mVisibleChunks[chunk_n]];
+
+				// Bind instance buffer
+				chunk.mInstanceBuffer->Bind(VertexBuffer::Array);
+				renderData.mVertexArray->VertexAttrib(4, 4, sizeof(Matrix4f), 0 * sizeof(Vector4f), 1);
+				renderData.mVertexArray->VertexAttrib(5, 4, sizeof(Matrix4f), 1 * sizeof(Vector4f), 1);
+				renderData.mVertexArray->VertexAttrib(6, 4, sizeof(Matrix4f), 2 * sizeof(Vector4f), 1);
+				renderData.mVertexArray->VertexAttrib(7, 4, sizeof(Matrix4f), 3 * sizeof(Vector4f), 1);
+
+				// Draw objects
+				renderData.mVertexArray->DrawArrays(renderData.mNumVertices, chunk.mBufferSize);
+			}
 		}
 	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Renderer::RenderDynamic(CommonUniforms& uniforms)
+void Renderer::RenderDynamic(RenderPass* pass, CommonUniforms& uniforms)
 {
 	if (!mDynamicQueue.Size()) return;
 
@@ -438,22 +442,26 @@ void Renderer::RenderDynamic(CommonUniforms& uniforms)
 			uniforms.ApplyToShader(shader);
 		}
 
-		// Apply material
-		renderData.mMaterial->Use();
-		shader->ApplyUniforms();
+		// Test view mask and skip render if necessary
+		if (pass->GetType() & renderData.mMaterial->mViewMask)
+		{
+			// Apply material
+			renderData.mMaterial->Use();
+			shader->ApplyUniforms();
 
-		// Bind vertex array
-		DynamicRenderData& data = mDynamicRenderData[renderData.mDataIndex];
-		Uint32 offset = data.mInstanceOffset * sizeof(Matrix4f);
+			// Bind vertex array
+			DynamicRenderData& data = mDynamicRenderData[renderData.mDataIndex];
+			Uint32 offset = data.mInstanceOffset * sizeof(Matrix4f);
 
-		renderData.mVertexArray->Bind();
-		renderData.mVertexArray->VertexAttrib(4, 4, sizeof(Matrix4f), offset + 0 * sizeof(Vector4f), 1);
-		renderData.mVertexArray->VertexAttrib(5, 4, sizeof(Matrix4f), offset + 1 * sizeof(Vector4f), 1);
-		renderData.mVertexArray->VertexAttrib(6, 4, sizeof(Matrix4f), offset + 2 * sizeof(Vector4f), 1);
-		renderData.mVertexArray->VertexAttrib(7, 4, sizeof(Matrix4f), offset + 3 * sizeof(Vector4f), 1);
+			renderData.mVertexArray->Bind();
+			renderData.mVertexArray->VertexAttrib(4, 4, sizeof(Matrix4f), offset + 0 * sizeof(Vector4f), 1);
+			renderData.mVertexArray->VertexAttrib(5, 4, sizeof(Matrix4f), offset + 1 * sizeof(Vector4f), 1);
+			renderData.mVertexArray->VertexAttrib(6, 4, sizeof(Matrix4f), offset + 2 * sizeof(Vector4f), 1);
+			renderData.mVertexArray->VertexAttrib(7, 4, sizeof(Matrix4f), offset + 3 * sizeof(Vector4f), 1);
 
-		// Render instances
-		renderData.mVertexArray->DrawArrays(renderData.mNumVertices, data.mNumVisible);
+			// Render instances
+			renderData.mVertexArray->DrawArrays(renderData.mNumVertices, data.mNumVisible);
+		}
 	}
 }
 

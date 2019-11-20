@@ -51,7 +51,9 @@ public:
 		Normal = 1 << 0,
 		Reflect = 1 << 1,
 		Refract = 1 << 2,
-		Shadow = 1 << 3
+		Shadow = 1 << 3,
+
+		All = Normal | Reflect | Refract | Shadow
 	};
 
 public:

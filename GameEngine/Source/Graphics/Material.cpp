@@ -9,8 +9,8 @@ Material::Material() :
 	mDiffuse		(1.0f),
 	mSpecular		(0.5f),
 	mSpecFactor		(16.0f),
-
-	mShader			(0)
+	mShader			(0),
+	mViewMask		(RenderPass::All)
 {
 
 }
