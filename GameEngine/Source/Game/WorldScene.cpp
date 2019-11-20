@@ -51,6 +51,10 @@ void WorldScene::OnCreate()
 
 	// Render passes
 	mRenderer.SetLightingMethod<Atmosphere>();
+
+	// Post processing
+	mPostProcess.Enable();
+	mPostProcess.AddEffect<ColorAdjustment>();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

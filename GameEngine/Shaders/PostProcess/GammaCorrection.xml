@@ -1,4 +1,0 @@
-<program>
-    <shader type = "Vertex">Shaders/Quad.vert</shader>
-    <shader type = "Fragment">Shaders/PostProcess/GammaCorrection.frag</shader>
-</program>

@@ -14,6 +14,7 @@ void main()
 {
     vec3 result = texture(mColor, TexCoord).rgb;
 
-    FragColor = vec4(result, 1.0f);
-    FragColor.rgb = pow(FragColor.rgb, vec3(1.0f / mGamma));
+    // HDR and gamma correction
+    FragColor.rgb = pow(vec3(1.0f) - exp(-result), vec3(1.0f / mGamma));
+    FragColor.a = 1.0f;
 }

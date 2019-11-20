@@ -14,6 +14,8 @@
 PostProcess::PostProcess() :
 	mVertexArray		(0),
 	mVertexBuffer		(0),
+	mTextureFmt			(Texture::Rgb),
+	mTextureDtype		(Image::Ushort),
 	mIsEnabled			(false)
 {
 
@@ -119,6 +121,18 @@ void PostProcess::RenderEffect(Effect* effect, FrameBuffer* output)
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void PostProcess::SetTextureFormat(Texture::Format fmt)
+{
+	mTextureFmt = fmt;
+}
+
+void PostProcess::SetTextureDataType(Image::DataType dtype)
+{
+	mTextureDtype = dtype;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 FrameBuffer* PostProcess::GetInput() const
 {
 	if (!mRenderQueue.Size())
@@ -130,7 +144,7 @@ FrameBuffer* PostProcess::GetInput() const
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-PostProcess::Effect::Effect() :
+PostProcess::Effect::Effect(Texture::Format fmt, Image::DataType dtype) :
 	mInput		(0),
 	mShader		(0)
 {
@@ -138,10 +152,15 @@ PostProcess::Effect::Effect() :
 
 	// Uses default framebuffer size
 	const Vector3u& size = FrameBuffer::Default.GetSize();
+	FrameBuffer::TextureOptions options;
 
 	mInput->Bind();
 	mInput->SetSize(size.x, size.y);
-	mInput->AttachColor(true);
+
+	// Create color attachment
+	options.mFormat = fmt;
+	options.mDataType = dtype;
+	mInput->AttachColor(true, options);
 }
 
 PostProcess::Effect::~Effect()
@@ -165,20 +184,21 @@ FrameBuffer* PostProcess::Effect::GetInput() const
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-GammaCorrection::GammaCorrection() :
-	mGamma		(2.2f)
+ColorAdjustment::ColorAdjustment(Texture::Format fmt, Image::DataType dtype) :
+	PostProcess::Effect		(fmt, dtype),
+	mGamma					(2.2f)
 {
-	mShader = Resource<Shader>::Load("Shaders/PostProcess/GammaCorrection.xml");
+	mShader = Resource<Shader>::Load("Shaders/PostProcess/ColorAdjustment.xml");
 }
 
-GammaCorrection::~GammaCorrection()
+ColorAdjustment::~ColorAdjustment()
 {
 	if (mShader)
 		Resource<Shader>::Free(mShader);
 	mShader = 0;
 }
 
-void GammaCorrection::Render(VertexArray* vao)
+void ColorAdjustment::Render(VertexArray* vao)
 {
 	mShader->Bind();
 	mShader->SetUniform("mColor", 0);

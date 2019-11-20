@@ -20,7 +20,7 @@ public:
 	class Effect
 	{
 	public:
-		Effect();
+		Effect(Texture::Format fmt, Image::DataType dtype);
 		virtual ~Effect();
 
 		/* Render post processing effect to currently bound framebuffer */
@@ -50,7 +50,7 @@ public:
 	{
 		assert(mIsEnabled);
 
-		T* effect = new T();
+		T* effect = new T(mTextureFmt, mTextureDtype);
 
 		// Add depth texture buffer to first effect
 		if (!mRenderQueue.Size())
@@ -65,6 +65,11 @@ public:
 	/* Render effect to an output */
 	void RenderEffect(Effect* effect, FrameBuffer* output);
 
+	/* Set default framebuffer format */
+	void SetTextureFormat(Texture::Format fmt);
+	/* Set default framebuffer datatype */
+	void SetTextureDataType(Image::DataType dtype);
+
 	/* Get first input buffer */
 	FrameBuffer* GetInput() const;
 
@@ -76,6 +81,10 @@ private:
 	VertexArray* mVertexArray;
 	/* Vertex buffer to store data */
 	VertexBuffer* mVertexBuffer;
+	/* Default framebuffer format */
+	Texture::Format mTextureFmt;
+	/* Default framebuffer data type */
+	Image::DataType mTextureDtype;
 
 	/* Returns true if Enable() has been called */
 	bool mIsEnabled;
@@ -88,11 +97,11 @@ private:
 // Standard Effects
 ///////////////////////////////////////////////////////////////////////////////
 
-class GammaCorrection : public PostProcess::Effect
+class ColorAdjustment : public PostProcess::Effect
 {
 public:
-	GammaCorrection();
-	~GammaCorrection();
+	ColorAdjustment(Texture::Format fmt, Image::DataType dtype);
+	~ColorAdjustment();
 
 	/* Render effect */
 	void Render(VertexArray* vao) override;

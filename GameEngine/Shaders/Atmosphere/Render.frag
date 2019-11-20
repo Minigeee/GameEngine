@@ -83,6 +83,7 @@ void main()
         radiance = radiance * transmittance + in_scatter;
     }
 
-    FragColor.rgb = pow(vec3(1.0f) - exp(-radiance), vec3(1.0f / 2.2f));
+    // FragColor.rgb = pow(vec3(1.0f) - exp(-radiance), vec3(1.0f / 2.2f));
+    FragColor.rgb = radiance;
     FragColor.a = 1.0f;
 }
