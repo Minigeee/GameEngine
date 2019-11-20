@@ -91,6 +91,12 @@ void Water::Create(Scene* scene, float viewDist, float chunkSize)
 	reflectPass->SetPlane(Plane(0.0f, 1.0f, 0.0f, -mAltitude));
 	reflectPass->SetClippingEnabled(true);
 
+	// Create refraction render pass
+	RenderPass* refractPass = scene->GetRenderer().AddRenderPass(RenderPass::Refract);
+	refractPass->CreateTarget();
+	refractPass->SetPlane(Plane(0.0f, -1.0f, 0.0f, mAltitude));
+	refractPass->SetClippingEnabled(true);
+
 
 	// Create model
 	Model* model = Resource<Model>::Create();
@@ -129,6 +135,7 @@ void Water::Create(Scene* scene, float viewDist, float chunkSize)
 	material->mViewMask = RenderPass::Normal;
 	// Add textures
 	material->AddTexture(reflectPass->GetTarget()->GetColorTexture(), "mReflectTex");
+	material->AddTexture(refractPass->GetTarget()->GetColorTexture(), "mRefractTex");
 
 	// Mesh
 	Mesh mesh;

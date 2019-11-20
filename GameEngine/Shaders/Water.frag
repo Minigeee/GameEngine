@@ -13,6 +13,7 @@ struct Material
 
 uniform Material mMaterial;
 uniform sampler2D mReflectTex;
+uniform sampler2D mRefractTex;
 
 in vec3 FragPos;
 in vec3 Normal;
@@ -33,15 +34,25 @@ vec3 ReflectColor(vec2 uv)
 
 ///////////////////////////////////////////////////////////////////////////////
 
+vec3 RefractColor(vec2 uv)
+{
+    vec3 color = texture(mRefractTex, uv).rgb;
+    return color;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 void main()
 {
     vec2 ndc = ClipSpace.xy / ClipSpace.w;
     vec2 uv = ndc * 0.5f + 0.5f;
 
     vec3 reflectColor = ReflectColor(uv);
+    vec3 refractColor = RefractColor(uv);
+    vec3 color = mix(reflectColor, refractColor, 0.5f);
 
     gPosition = FragPos;
     gNormalSpec = vec4(Normal, mMaterial.mSpecFactor);
-    gAlbedo = reflectColor;
+    gAlbedo = color;
     gSpecular = mMaterial.mSpecular;
 }

@@ -51,6 +51,9 @@ void Engine::Start()
 		return;
 	}
 
+	int frameNum = 0;
+	float frameTime = 0.0f;
+
 	while (mWindow.IsOpen())
 	{
 		float elapsed = clock.Restart();
@@ -59,6 +62,16 @@ void Engine::Start()
 		mWindow.PollEvents();
 		mScene->Update(elapsed);
 		mWindow.Display();
+
+		frameTime += elapsed;
+		++frameNum;
+
+		if (frameTime > 1.0f)
+		{
+			LOG << frameNum << "\n";
+			frameTime = 0.0f;
+			frameNum = 0;
+		}
 
 		// Get work time
 		float workTime = clock.GetElapsedTime();
