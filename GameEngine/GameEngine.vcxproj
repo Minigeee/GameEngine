@@ -160,6 +160,7 @@
     <ClCompile Include="Source\Core\Profiler.cpp" />
     <ClCompile Include="Source\Core\Sleep.cpp" />
     <ClCompile Include="Source\Core\StringHash.cpp" />
+    <ClCompile Include="Source\Core\Thread.cpp" />
     <ClCompile Include="Source\Core\TypeInfo.cpp" />
     <ClCompile Include="Source\Engine\Application.cpp" />
     <ClCompile Include="Source\Engine\Engine.cpp" />
@@ -224,6 +225,7 @@
     <ClInclude Include="Source\Core\Profiler.h" />
     <ClInclude Include="Source\Core\Sleep.h" />
     <ClInclude Include="Source\Core\StringHash.h" />
+    <ClInclude Include="Source\Core\Thread.h" />
     <ClInclude Include="Source\Core\TypeInfo.h" />
     <ClInclude Include="Source\Engine\Application.h" />
     <ClInclude Include="Source\Engine\Engine.h" />

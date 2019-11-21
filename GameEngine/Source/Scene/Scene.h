@@ -56,6 +56,8 @@ public:
 	void Delete();
 	/* Update scene and do game logic */
 	void Update(float dt);
+	/* Render scene */
+	void Render();
 
 	/* Get engine pointer */
 	Engine* GetEngine() const;

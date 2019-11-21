@@ -245,6 +245,9 @@
     <ClCompile Include="Source\Core\Profiler.cpp">
       <Filter>Source\Core</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Core\Thread.cpp">
+      <Filter>Source\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Core\DataTypes.h">
@@ -470,6 +473,9 @@
       <Filter>Include\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Source\Core\Profiler.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Thread.h">
       <Filter>Include\Core</Filter>
     </ClInclude>
   </ItemGroup>

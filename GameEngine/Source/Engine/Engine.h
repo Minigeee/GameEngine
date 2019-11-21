@@ -2,6 +2,7 @@
 #define ENGINE_H
 
 #include <Core/DataTypes.h>
+#include <Core/Thread.h>
 
 #include <Engine/Window.h>
 #include <Engine/Input.h>
@@ -54,6 +55,10 @@ public:
 	void SetScene(Scene* scene);
 
 private:
+	/* Update loop */
+	void UpdateLoop();
+
+private:
 	/* Game window */
 	Window mWindow;
 	/* Input system */
@@ -66,6 +71,9 @@ private:
 
 	/* Current scene */
 	Scene* mScene;
+
+	/* Update thread */
+	Thread mUpdateThread;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

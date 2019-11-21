@@ -59,6 +59,11 @@ void Engine::Start()
 		// Game logic
 		mWindow.PollEvents();
 		mScene->Update(elapsed);
+		mScene->Render();
+
+		START_PROFILER(SwapBuffers);
+		mWindow.Display();
+		STOP_PROFILER(SwapBuffers);
 
 		STOP_PROFILER(GameLoop);
 
@@ -69,8 +74,6 @@ void Engine::Start()
 		// Sleep for rest of frame
 		if (sleepTime > 0.0f)
 			Sleep(sleepTime);
-
-		mWindow.Display();
 	}
 }
 

@@ -73,13 +73,18 @@ void Scene::Update(float dt)
 		mSystemUpdateList[i]->Update(dt);
 	STOP_PROFILER(SystemUpdate);
 
+	// Remove objects in the removal queue
+	RemoveQueuedObjects();
+}
 
+///////////////////////////////////////////////////////////////////////////////
+
+void Scene::Render()
+{
+	// Render scene
 	mRenderer.Render(mPostProcess.GetInput());
 	// Render post process effects
 	mPostProcess.Render();
-
-	// Remove objects in the removal queue
-	RemoveQueuedObjects();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
