@@ -1,5 +1,7 @@
 #include <Graphics/PostProcess.h>
 
+#include <Core/Profiler.h>
+
 #include <Resource/Resource.h>
 
 #include <Graphics/Graphics.h>
@@ -78,6 +80,8 @@ bool PostProcess::IsEnabled() const
 void PostProcess::Render(FrameBuffer* output)
 {
 	if (!mIsEnabled || !mRenderQueue.Size()) return;
+
+	START_PROFILER(PostProcessRender);
 
 	// Bind VAO
 	mVertexArray->Bind();

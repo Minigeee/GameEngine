@@ -1,5 +1,6 @@
 #include <Graphics/Renderer.h>
 
+#include <Core/Profiler.h>
 #include <Core/Hash.h>
 
 #include <Math/Transform.h>
@@ -318,11 +319,15 @@ void CommonUniforms::ApplyToShader(Shader* shader)
 
 void Renderer::Render(FrameBuffer* target)
 {
+	START_PROFILER(RenderScene);
+
 	// Update stuff
 	Update();
 
 	for (Uint32 i = 0; i < mRenderPasses.Size(); ++i)
 	{
+		START_PROFILER(RenderPass, i);
+
 		RenderPass* pass = mRenderPasses[i];
 		FrameBuffer* fbuffer = pass->GetTarget();
 		if (i == mRenderPasses.Size() - 1)

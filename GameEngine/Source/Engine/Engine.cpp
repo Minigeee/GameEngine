@@ -3,6 +3,7 @@
 #include <Core/Clock.h>
 #include <Core/Sleep.h>
 #include <Core/LogFile.h>
+#include <Core/Profiler.h>
 
 #include <Scene/Scene.h>
 
@@ -39,8 +40,6 @@ bool Engine::Init(const Engine::Params& params)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <iostream>
-
 void Engine::Start()
 {
 	Clock clock;
@@ -51,27 +50,17 @@ void Engine::Start()
 		return;
 	}
 
-	int frameNum = 0;
-	float frameTime = 0.0f;
-
 	while (mWindow.IsOpen())
 	{
+		START_PROFILER(GameLoop);
+
 		float elapsed = clock.Restart();
 
 		// Game logic
 		mWindow.PollEvents();
 		mScene->Update(elapsed);
-		mWindow.Display();
 
-		frameTime += elapsed;
-		++frameNum;
-
-		if (frameTime > 1.0f)
-		{
-			LOG << frameNum << "\n";
-			frameTime = 0.0f;
-			frameNum = 0;
-		}
+		STOP_PROFILER(GameLoop);
 
 		// Get work time
 		float workTime = clock.GetElapsedTime();
@@ -80,6 +69,8 @@ void Engine::Start()
 		// Sleep for rest of frame
 		if (sleepTime > 0.0f)
 			Sleep(sleepTime);
+
+		mWindow.Display();
 	}
 }
 
@@ -94,6 +85,9 @@ void Engine::Stop()
 	}
 
 	mWindow.CleanUp();
+
+	// Print profiler log
+	Profiler::Log("profiler.log");
 }
 
 ///////////////////////////////////////////////////////////////////////////////

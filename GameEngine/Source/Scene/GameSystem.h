@@ -4,6 +4,7 @@
 #include <Core/TypeInfo.h>
 #include <Core/LogFile.h>
 #include <Core/StringHash.h>
+#include <Core/Profiler.h>
 
 #include <Scene/ComponentData.h>
 
@@ -108,6 +109,7 @@ inline Array<ComponentList<T>> GameSystem::GetComponentLists()
 #define _SYSTEM_UPDATE_IMPL(...) \
 	void Update(float dt) override \
 	{ \
+		ProfilerMarker marker(GetTypeName(), FILE_NAME, __LINE__, 0); \
 		LOOP(_DEFINE_COMPONENT_LISTS_FUNC, __VA_ARGS__) \
 		for (Uint32 i = 0; i < CONCAT(_, FIRST_ARG(__VA_ARGS__)).Size(); ++i) \
 		{ \

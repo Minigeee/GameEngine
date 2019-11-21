@@ -42,6 +42,8 @@ bool Window::Create(Uint32 w, Uint32 h, const char* title, bool fullscreen)
 		return false;
 	}
 
+	glfwSwapInterval(0);
+
 
 	mWindow = window;
 	mResolution = Vector2u(w, h);

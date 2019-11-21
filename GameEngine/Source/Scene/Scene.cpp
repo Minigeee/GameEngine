@@ -63,11 +63,15 @@ void Scene::Delete()
 
 void Scene::Update(float dt)
 {
+	START_PROFILER(LoaderUpdate);
 	for (Uint32 i = 0; i < mLoaderUpdateList.Size(); ++i)
 		mLoaderUpdateList[i]->Update();
+	STOP_PROFILER(LoaderUpdate);
 
+	START_PROFILER(SystemUpdate);
 	for (Uint32 i = 0; i < mSystemUpdateList.Size(); ++i)
 		mSystemUpdateList[i]->Update(dt);
+	STOP_PROFILER(SystemUpdate);
 
 
 	mRenderer.Render(mPostProcess.GetInput());

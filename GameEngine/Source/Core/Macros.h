@@ -1,6 +1,8 @@
 #ifndef MACROS_H
 #define MACROS_H
 
+#include <string>
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #define __CONCAT(a, b) a##b
@@ -9,6 +11,13 @@
 #define EXPAND(x) x
 #define CONCAT(a, b) __CONCAT(a, b)
 #define STR(x) #x
+
+#ifdef WIN32
+#define FILE_SEPERATOR '\\'
+#else
+#define FILE_SEPERATOR '/'
+#endif
+#define FILE_NAME (strrchr(__FILE__, FILE_SEPERATOR) ? strrchr(__FILE__, FILE_SEPERATOR) + 1 : __FILE__)
 
 ///////////////////////////////////////////////////////////////////////////////
 
