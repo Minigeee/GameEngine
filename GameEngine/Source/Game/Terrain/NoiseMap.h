@@ -2,6 +2,7 @@
 #define NOISE_MAP_H
 
 #include <Math/Vector2.h>
+#include <Math/Vector3.h>
 
 #include <Graphics/Texture.h>
 
@@ -27,11 +28,31 @@ public:
 private:
 	/* Noise generator */
 	SimplexNoise mGenerator;
-	/* Source image */
-	Image* mImage;
 
 	/* Float seed */
 	Vector2f mSeed;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+class NormalMap : public Texture
+{
+public:
+	NormalMap();
+	~NormalMap();
+
+	void Generate(const NoiseMap& img, float amp);
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+class DuDvMap : public Texture
+{
+public:
+	DuDvMap();
+	~DuDvMap();
+
+	void Generate(const NormalMap& img, float scale);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

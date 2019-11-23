@@ -11,6 +11,7 @@
 #include <Graphics/Mesh.h>
 #include <Graphics/Material.h>
 #include <Graphics/Terrain.h>
+#include <Graphics/Texture.h>
 
 #include <queue>
 
@@ -77,7 +78,7 @@ float FindMin(Image* hmap, const Vector2i& s, const Vector2i& e)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Water::Create(Scene* scene, float viewDist, float chunkSize)
+void Water::Create(Scene* scene, float viewDist, Uint32 numSquares, float chunkSize)
 {
 	// Create loader
 	mLoader = scene->RegisterLoader<WaterLoader>();
@@ -88,36 +89,51 @@ void Water::Create(Scene* scene, float viewDist, float chunkSize)
 	// Create reflection render pass
 	RenderPass* reflectPass = scene->GetRenderer().AddRenderPass(RenderPass::Reflect);
 	reflectPass->CreateTarget();
-	reflectPass->SetPlane(Plane(0.0f, 1.0f, 0.0f, -mAltitude));
+	reflectPass->SetPlane(Plane(0.0f, 1.0f, 0.0f, -mAltitude - 0.1f));
 	reflectPass->SetClippingEnabled(true);
 
 	// Create refraction render pass
 	RenderPass* refractPass = scene->GetRenderer().AddRenderPass(RenderPass::Refract);
 	refractPass->CreateTarget();
-	refractPass->SetPlane(Plane(0.0f, -1.0f, 0.0f, mAltitude));
+	refractPass->SetPlane(Plane(0.0f, -1.0f, 0.0f, mAltitude + 0.1f));
 	refractPass->SetClippingEnabled(true);
 
 
 	// Create model
 	Model* model = Resource<Model>::Create();
 
-	// Create quad
+	// Calc vertices
+	Array<Vector2f> vertices(numSquares * numSquares * 6);
 	float halfChunk = chunkSize * 0.5f;
-	float verts[] =
-	{
-		-halfChunk, -halfChunk,
-		-halfChunk,  halfChunk,
-		 halfChunk, -halfChunk,
+	float squareSize = chunkSize / numSquares;
 
-		-halfChunk,  halfChunk,
-		 halfChunk,  halfChunk,
-		 halfChunk, -halfChunk
-	};
+	for (Uint32 r = 0; r < numSquares; ++r)
+	{
+		Vector2f p1(-halfChunk, r * squareSize - halfChunk);
+		Vector2f p2(-halfChunk, (r + 1) * squareSize - halfChunk);
+
+		for (Uint32 c = 1; c <= numSquares; ++c)
+		{
+			Vector2f p3(c * squareSize - halfChunk, r * squareSize - halfChunk);
+			Vector2f p4(c * squareSize - halfChunk, (r + 1) * squareSize - halfChunk);
+
+			vertices.Push(p1);
+			vertices.Push(p2);
+			vertices.Push(p3);
+
+			vertices.Push(p2);
+			vertices.Push(p4);
+			vertices.Push(p3);
+
+			p1 = p3;
+			p2 = p4;
+		}
+	}
 
 	// Create vertex buffer
 	VertexBuffer* vbo = Resource<VertexBuffer>::Create();
 	vbo->Bind(VertexBuffer::Array);
-	vbo->BufferData(verts, sizeof(verts), VertexBuffer::Static);
+	vbo->BufferData(&vertices[0], vertices.Size() * sizeof(Vector2f), VertexBuffer::Static);
 
 	// Create vertex array
 	VertexArray* vao = Resource<VertexArray>::Create();
@@ -127,10 +143,15 @@ void Water::Create(Scene* scene, float viewDist, float chunkSize)
 	// Material
 	Shader* shader = Resource<Shader>::Load("Shaders/Water.xml");
 	shader->SetUniform("mAltitude", mAltitude);
+	shader->SetUniform("mAmplitude", 0.2f);
+	shader->SetUniform("mFrequency", 16.0f);
+	shader->SetUniform("mWaveSpeed", 0.5f);
 
 	Material* material = Resource<Material>::Create();
 	material->mShader = shader;
 	material->mDiffuse = Vector3f(0.0f, 0.0f, 1.0f);
+	material->mSpecular = Vector3f(0.0f);
+	material->mSpecFactor = 128.0f;
 	// Don't render water on reflect, refract, or shadow passes
 	material->mViewMask = RenderPass::Normal;
 	// Add textures
@@ -140,7 +161,7 @@ void Water::Create(Scene* scene, float viewDist, float chunkSize)
 	// Mesh
 	Mesh mesh;
 	mesh.mVertexArray = vao;
-	mesh.mNumVertices = 6;
+	mesh.mNumVertices = vertices.Size();
 	mesh.mBoundingBox.mMin = Vector3f(-halfChunk, 0.0f, -halfChunk);
 	mesh.mBoundingBox.mMax = Vector3f(halfChunk, 0.0f, halfChunk);
 	mesh.mMaterial = material;
@@ -247,6 +268,9 @@ void Water::Create(Scene* scene, float viewDist, float chunkSize)
 	// Add to loader
 	mLoader->SetWaterMap(hasWater, (Uint32)sizeInChunks);
 	mLoader->ReloadChunks();
+
+	// Set model
+	mModel = model;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

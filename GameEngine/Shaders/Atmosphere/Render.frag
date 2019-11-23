@@ -48,6 +48,7 @@ void main()
     vec3 albedo = texture(mAlbedo, TexCoord).rgb;
     vec3 specular = texture(mSpecular, TexCoord).rgb;
     vec3 normal = normal_spec.rgb;
+    float spec_factor = normal_spec.a;
 
     // Calc frag position
     float depth;
@@ -77,6 +78,11 @@ void main()
             GetSunAndSkyIrradiance(r, mSunDir, normal, sky_irradiance);
 
         radiance = albedo * (1.0f / PI) * (sun_irradiance + sky_irradiance);
+
+        vec3 reflectDir = reflect(mSunDir, normal);
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0f), spec_factor);
+        vec3 spec_color = spec * sun_irradiance * specular;
+        radiance += spec_color;
 
         vec3 in_scatter =
             GetSkyRadianceToPoint(r, viewDir, d, mSunDir, transmittance);

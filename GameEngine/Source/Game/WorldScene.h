@@ -31,7 +31,10 @@ private:
 	Terrain mTerrain;
 	NoiseMap mHeightMap;
 	BiomeMap mBiomeMap;
+
 	Water mWater;
+	NormalMap mWaterNormals;
+	DuDvMap mWaterDuDv;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

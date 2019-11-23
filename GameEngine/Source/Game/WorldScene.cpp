@@ -122,6 +122,7 @@ void WorldScene::CreateTerrain()
 	mTerrain.SetColorMap(&mBiomeMap);
 
 
+	// Water
 	mWater.SetAltitude(10.0f);
 	mWater.SetMinDepth(1.0f);
 	mWater.SetTerrain(&mTerrain);

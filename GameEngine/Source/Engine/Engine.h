@@ -55,10 +55,6 @@ public:
 	void SetScene(Scene* scene);
 
 private:
-	/* Update loop */
-	void UpdateLoop();
-
-private:
 	/* Game window */
 	Window mWindow;
 	/* Input system */
@@ -71,9 +67,6 @@ private:
 
 	/* Current scene */
 	Scene* mScene;
-
-	/* Update thread */
-	Thread mUpdateThread;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

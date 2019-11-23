@@ -313,6 +313,7 @@ void CommonUniforms::ApplyToShader(Shader* shader)
 	shader->SetUniform("mProjView", mProjView);
 	shader->SetUniform("mCamPos", mCamera->GetPosition());
 	shader->SetUniform("mClipPlane", mClipPlane);
+	shader->SetUniform("mTime", mTime);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -379,6 +380,7 @@ void Renderer::DoRenderPass(RenderPass* pass, FrameBuffer* target)
 	uniforms.mCamera = camera;
 	uniforms.mProjView = camera->GetProjection() * camera->GetView();
 	uniforms.mClipPlane = Vector4f(plane.n, plane.d);
+	uniforms.mTime = mClock.GetElapsedTime();
 
 
 	// Render static objects

@@ -1,6 +1,7 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
+#include <Core/Clock.h>
 #include <Core/HandleArray.h>
 
 #include <Math/Vector3.h>
@@ -108,6 +109,8 @@ public:
 	Camera* mCamera;
 	/* Clip plane */
 	Vector4f mClipPlane;
+	/* Time in seconds */
+	float mTime;
 
 	/* Bind all common uniforms */
 	void ApplyToShader(Shader* shader);
@@ -185,6 +188,8 @@ private:
 private:
 	/* Scene to render */
 	Scene* mScene;
+	/* Keep internal clock for shader animations */
+	Clock mClock;
 
 	/* List of static render data */
 	Array<StaticRenderData> mStaticRenderData;

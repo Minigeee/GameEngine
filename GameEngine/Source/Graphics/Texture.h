@@ -65,7 +65,7 @@ public:
 	/* Get source image */
 	Image* GetImage() const;
 
-private:
+protected:
 	/*  Keep pointer to image */
 	Image* mImage;
 	/* Number of dimensions */

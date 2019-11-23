@@ -10,6 +10,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 class Terrain;
+class Texture;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -70,7 +71,7 @@ public:
 	/* Set altitude level of water */
 	void SetAltitude(float h);
 	/* Create water */
-	void Create(Scene* scene, float viewDist = 150.0f, float chunkSize = 16.0f);
+	void Create(Scene* scene, float viewDist = 150.0f, Uint32 numSquares = 8, float chunkSize = 16.0f);
 
 private:
 	/* Terrain to place water */
@@ -82,6 +83,9 @@ private:
 	float mMinDepth;
 	/* Altitude of water */
 	float mAltitude;
+
+	/* Keep pointer to model */
+	Model* mModel;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

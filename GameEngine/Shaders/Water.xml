@@ -1,4 +1,5 @@
 <program>
     <shader type = "Vertex">Shaders/Water.vert</shader>
+    <shader type = "Geometry">Shaders/Water.geom</shader>
     <shader type = "Fragment">Shaders/Water.frag</shader>
 </program>

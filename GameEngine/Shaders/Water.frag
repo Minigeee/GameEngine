@@ -11,6 +11,7 @@ struct Material
 
 ///////////////////////////////////////////////////////////////////////////////
 
+uniform float mTime;
 uniform Material mMaterial;
 uniform sampler2D mReflectTex;
 uniform sampler2D mRefractTex;
@@ -46,6 +47,7 @@ void main()
 {
     vec2 ndc = ClipSpace.xy / ClipSpace.w;
     vec2 uv = ndc * 0.5f + 0.5f;
+    uv = clamp(uv, 0.0f, 1.0f);
 
     vec3 reflectColor = ReflectColor(uv);
     vec3 refractColor = RefractColor(uv);
