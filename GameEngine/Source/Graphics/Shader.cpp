@@ -175,49 +175,81 @@ Uniform& Shader::FindUniform(const char* name)
 	}
 
 	// Add new uniform
-	mUniforms.Push(Uniform());
+	mUniforms.Push(Uniform(name));
 
 	return mUniforms.Back();
 }
 
 void Shader::SetUniform(const char* name, int val)
 {
-	FindUniform(name) = Uniform(name, val);
+	Uniform& uniform = FindUniform(name);
+	uniform.mType = Uniform::Int;
+	uniform.mHasChanged = true;
+
+	*reinterpret_cast<int*>(uniform.mVariable) = val;
 }
 
 void Shader::SetUniform(const char* name, float val)
 {
-	FindUniform(name) = Uniform(name, val);
+	Uniform& uniform = FindUniform(name);
+	uniform.mType = Uniform::Float;
+	uniform.mHasChanged = true;
+
+	*reinterpret_cast<float*>(uniform.mVariable) = val;
 }
 
 void Shader::SetUniform(const char* name, const Vector2f& val)
 {
-	FindUniform(name) = Uniform(name, val);
+	Uniform& uniform = FindUniform(name);
+	uniform.mType = Uniform::Vec2;
+	uniform.mHasChanged = true;
+
+	*reinterpret_cast<Vector2f*>(uniform.mVariable) = val;
 }
 
 void Shader::SetUniform(const char* name, const Vector3f& val)
 {
-	FindUniform(name) = Uniform(name, val);
+	Uniform& uniform = FindUniform(name);
+	uniform.mType = Uniform::Vec3;
+	uniform.mHasChanged = true;
+
+	*reinterpret_cast<Vector3f*>(uniform.mVariable) = val;
 }
 
 void Shader::SetUniform(const char* name, const Vector4f& val)
 {
-	FindUniform(name) = Uniform(name, val);
+	Uniform& uniform = FindUniform(name);
+	uniform.mType = Uniform::Vec4;
+	uniform.mHasChanged = true;
+
+	*reinterpret_cast<Vector4f*>(uniform.mVariable) = val;
 }
 
 void Shader::SetUniform(const char* name, const Matrix2f& val)
 {
-	FindUniform(name) = Uniform(name, val);
+	Uniform& uniform = FindUniform(name);
+	uniform.mType = Uniform::Mat2;
+	uniform.mHasChanged = true;
+
+	*reinterpret_cast<Matrix2f*>(uniform.mVariable) = val;
 }
 
 void Shader::SetUniform(const char* name, const Matrix3f& val)
 {
-	FindUniform(name) = Uniform(name, val);
+	Uniform& uniform = FindUniform(name);
+	uniform.mType = Uniform::Mat3;
+	uniform.mHasChanged = true;
+
+	*reinterpret_cast<Matrix3f*>(uniform.mVariable) = val;
 }
 
 void Shader::SetUniform(const char* name, const Matrix4f& val)
 {
-	FindUniform(name) = Uniform(name, val);
+	Uniform& uniform = FindUniform(name);
+	uniform.mType = Uniform::Mat4;
+	uniform.mHasChanged = true;
+
+	*reinterpret_cast<Matrix4f*>(uniform.mVariable) = val;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -229,38 +261,46 @@ void Shader::ApplyUniforms()
 	for (Uint32 i = 0; i < mUniforms.Size(); ++i)
 	{
 		Uniform& uniform = mUniforms[i];
-		int loc = glGetUniformLocation(mID, uniform.mName);
-		Uniform::Type type = uniform.mType;
-		float* var = uniform.mVariable;
 
-		switch (type)
+		// Only set uniform if it has changed
+		if (uniform.mHasChanged)
 		{
-		case Uniform::Int:
-			glUniform1iv(loc, 1, (int*)var);
-			break;
-		case Uniform::Float:
-			glUniform1fv(loc, 1, var);
-			break;
-		case Uniform::Vec2:
-			glUniform2fv(loc, 1, var);
-			break;
-		case Uniform::Vec3:
-			glUniform3fv(loc, 1, var);
-			break;
-		case Uniform::Vec4:
-			glUniform4fv(loc, 1, var);
-			break;
-		case Uniform::Mat2:
-			glUniformMatrix2fv(loc, 1, GL_FALSE, var);
-			break;
-		case Uniform::Mat3:
-			glUniformMatrix3fv(loc, 1, GL_FALSE, var);
-			break;
-		case Uniform::Mat4:
-			glUniformMatrix4fv(loc, 1, GL_FALSE, var);
-			break;
-		default:
-			break;
+			int loc = glGetUniformLocation(mID, uniform.mName);
+			Uniform::Type type = (Uniform::Type)uniform.mType;
+			float* var = uniform.mVariable;
+
+			switch (type)
+			{
+			case Uniform::Int:
+				glUniform1iv(loc, 1, (int*)var);
+				break;
+			case Uniform::Float:
+				glUniform1fv(loc, 1, var);
+				break;
+			case Uniform::Vec2:
+				glUniform2fv(loc, 1, var);
+				break;
+			case Uniform::Vec3:
+				glUniform3fv(loc, 1, var);
+				break;
+			case Uniform::Vec4:
+				glUniform4fv(loc, 1, var);
+				break;
+			case Uniform::Mat2:
+				glUniformMatrix2fv(loc, 1, GL_FALSE, var);
+				break;
+			case Uniform::Mat3:
+				glUniformMatrix3fv(loc, 1, GL_FALSE, var);
+				break;
+			case Uniform::Mat4:
+				glUniformMatrix4fv(loc, 1, GL_FALSE, var);
+				break;
+			default:
+				break;
+			}
+
+			// Uniform is up to date
+			uniform.mHasChanged = false;
 		}
 	}
 }
@@ -268,60 +308,12 @@ void Shader::ApplyUniforms()
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-Uniform::Uniform(const char* name, int val) :
+Uniform::Uniform(const char* name) :
 	mName		(name),
-	mType		(Int)
+	mType		(0),
+	mHasChanged	(false)
 {
-	*(int*)mVariable = val;
-}
 
-Uniform::Uniform(const char* name, float val) :
-	mName		(name),
-	mType		(Float)
-{
-	*(float*)mVariable = val;
-}
-
-Uniform::Uniform(const char* name, const Vector2f& val) :
-	mName		(name),
-	mType		(Vec2)
-{
-	*(Vector2f*)mVariable = val;
-}
-
-Uniform::Uniform(const char* name, const Vector3f& val) :
-	mName		(name),
-	mType		(Vec3)
-{
-	*(Vector3f*)mVariable = val;
-}
-
-Uniform::Uniform(const char* name, const Vector4f& val) :
-	mName		(name),
-	mType		(Vec4)
-{
-	*(Vector4f*)mVariable = val;
-}
-
-Uniform::Uniform(const char* name, const Matrix2f& val) :
-	mName		(name),
-	mType		(Mat2)
-{
-	*(Matrix2f*)mVariable = val;
-}
-
-Uniform::Uniform(const char* name, const Matrix3f& val) :
-	mName		(name),
-	mType		(Mat3)
-{
-	*(Matrix3f*)mVariable = val;
-}
-
-Uniform::Uniform(const char* name, const Matrix4f& val) :
-	mName		(name),
-	mType		(Mat4)
-{
-	*(Matrix4f*)mVariable = val;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -157,6 +157,7 @@ public:
 		if (mLightingMethod)
 			delete mLightingMethod;
 		mLightingMethod = new T(mScene);
+		mLightingMethod->Init();
 
 		// Apply to any existing render passes
 		for (Uint32 i = 0; i < mRenderPasses.Size(); ++i)

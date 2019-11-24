@@ -18,6 +18,8 @@ public:
 	LightingPass(Scene* scene);
 	virtual ~LightingPass();
 
+	/* Load shader, set constant uniforms */
+	virtual void Init() = 0;
 	/* Bind shader, set uniforms */
 	virtual void RenderSetup(FrameBuffer* gbuffer) = 0;
 
@@ -40,6 +42,7 @@ public:
 	DefaultLighting(Scene* scene);
 	~DefaultLighting();
 
+	void Init() override;
 	void RenderSetup(FrameBuffer* gbuffer) override;
 };
 

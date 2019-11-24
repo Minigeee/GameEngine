@@ -16,7 +16,7 @@ public:
 	~Atmosphere();
 
 	/* Do precalculations */
-	void Init();
+	void Init() override;
 
 	/* Render as lighting effect */
 	void RenderSetup(FrameBuffer* gbuffer) override;

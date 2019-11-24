@@ -16,14 +16,7 @@
 struct Uniform
 {
 	Uniform() = default;
-	Uniform(const char* name, int val);
-	Uniform(const char* name, float val);
-	Uniform(const char* name, const Vector2f& val);
-	Uniform(const char* name, const Vector3f& val);
-	Uniform(const char* name, const Vector4f& val);
-	Uniform(const char* name, const Matrix2f& val);
-	Uniform(const char* name, const Matrix3f& val);
-	Uniform(const char* name, const Matrix4f& val);
+	Uniform(const char* name);
 
 	enum Type
 	{
@@ -42,7 +35,10 @@ struct Uniform
 	/* Storage for uniform variable */
 	float mVariable[16];
 	/* Uniform type */
-	Type mType;
+	Uint16 mType;
+
+	/* True if uniform value has changed */
+	bool mHasChanged;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -44,14 +44,10 @@ Atmosphere::Atmosphere(Scene* scene) :
 {
 	mSunSize.x = tan(mSunAngularRadius);
 	mSunSize.y = cos(mSunAngularRadius);
-
-	Init();
 }
 
 Atmosphere::~Atmosphere()
 {
-	if (mShader)
-		Resource<Shader>::Free(mShader);
 	if (mTransmittanceBuffer)
 		Resource<FrameBuffer>::Free(mTransmittanceBuffer);
 	if (mScatteringBuffer)
@@ -59,7 +55,6 @@ Atmosphere::~Atmosphere()
 	if (mIrradianceBuffer)
 		Resource<FrameBuffer>::Free(mIrradianceBuffer);
 
-	mShader = 0;
 	mTransmittanceBuffer = 0;
 	mScatteringBuffer = 0;
 	mIrradianceBuffer = 0;
@@ -186,6 +181,12 @@ void Atmosphere::Init()
 	vao->DrawArrays(6);
 
 
+	// Set constant uniforms
+	SetUniforms(mShader);
+	mShader->Bind();
+	mShader->ApplyUniforms();
+
+
 	// Free resources
 	Resource<VertexBuffer>::Free(vbo);
 	Resource<VertexArray>::Free(vao);
@@ -209,27 +210,18 @@ void Atmosphere::RenderSetup(FrameBuffer* gbuffer)
 	// Shader uniforms
 	mShader->Bind();
 
-	mShader->SetUniform("mNormalSpec", 1);
-	mShader->SetUniform("mAlbedo", 2);
-	mShader->SetUniform("mSpecular", 3);
-	mShader->SetUniform("mDepth", 4);
 	gbuffer->GetColorTexture(0)->Bind(0);
 	gbuffer->GetColorTexture(1)->Bind(1);
 	gbuffer->GetColorTexture(2)->Bind(2);
 	gbuffer->GetColorTexture(3)->Bind(3);
 	gbuffer->GetDepthTexture()->Bind(4);
-	BindTransmittance(mShader, 5);
-	BindScattering(mShader, 6);
-	BindIrradiance(mShader, 7);
-
-	SetUniforms(mShader);
+	mTransmittanceBuffer->GetColorTexture()->Bind(5);
+	mScatteringBuffer->GetColorTexture()->Bind(6);
+	mIrradianceBuffer->GetColorTexture()->Bind(7);
 
 	mShader->SetUniform("mInvProjView", invProjView);
 	mShader->SetUniform("mCamPos", cam.GetPosition());
 	mShader->SetUniform("mSunDir", -mScene->GetDirLight().GetDirection());
-	mShader->SetUniform("mSunSize", mSunSize);
-	mShader->SetUniform("mBaseHeight", mBaseHeight);
-	mShader->SetUniform("mDistScale", mDistScale);
 
 	mScene->GetDirLight().Use(mShader);
 
@@ -259,6 +251,21 @@ void Atmosphere::SetUniforms(Shader* shader)
 	shader->SetUniform("mBr", mScattering_R);
 	shader->SetUniform("mBm", mScattering_M);
 	shader->SetUniform("mMiePhaseG", mMiePhase_G);
+
+	// Bind textures
+	shader->SetUniform("mNormalSpec", 1);
+	shader->SetUniform("mAlbedo", 2);
+	shader->SetUniform("mSpecular", 3);
+	shader->SetUniform("mDepth", 4);
+
+	shader->SetUniform("mTransmittanceTexture", 5);
+	shader->SetUniform("mScatteringTexture", 6);
+	shader->SetUniform("mIrradianceTexture", 7);
+
+	// Other unchanging uniforms
+	shader->SetUniform("mSunSize", mSunSize);
+	shader->SetUniform("mBaseHeight", mBaseHeight);
+	shader->SetUniform("mDistScale", mDistScale);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

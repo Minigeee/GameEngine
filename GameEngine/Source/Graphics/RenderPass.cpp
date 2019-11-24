@@ -106,7 +106,9 @@ LightingPass::LightingPass(Scene* scene) :
 
 LightingPass::~LightingPass()
 {
-
+	if (mShader)
+		Resource<Shader>::Free(mShader);
+	mShader = 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -122,13 +124,25 @@ Shader* LightingPass::GetShader() const
 DefaultLighting::DefaultLighting(Scene* scene) :
 	LightingPass		(scene)
 {
-	mShader = Resource<Shader>::Load("Shaders/DefaultLighting.xml");
+
 }
 
 DefaultLighting::~DefaultLighting()
 {
-	if (mShader)
-		Resource<Shader>::Free(mShader);
+
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void DefaultLighting::Init()
+{
+	mShader = Resource<Shader>::Load("Shaders/DefaultLighting.xml");
+
+	// Constant uniforms
+	mShader->SetUniform("mPosition", 0);
+	mShader->SetUniform("mNormalSpec", 1);
+	mShader->SetUniform("mAlbedo", 2);
+	mShader->SetUniform("mSpecular", 3);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -137,10 +151,6 @@ void DefaultLighting::RenderSetup(FrameBuffer* gbuffer)
 {
 	mShader->Bind();
 
-	mShader->SetUniform("mPosition", 0);
-	mShader->SetUniform("mNormalSpec", 1);
-	mShader->SetUniform("mAlbedo", 2);
-	mShader->SetUniform("mSpecular", 3);
 	gbuffer->GetColorTexture(0)->Bind(0);
 	gbuffer->GetColorTexture(1)->Bind(1);
 	gbuffer->GetColorTexture(2)->Bind(2);
@@ -152,6 +162,7 @@ void DefaultLighting::RenderSetup(FrameBuffer* gbuffer)
 	mShader->SetUniform("mCamPos", mScene->GetCamera().GetPosition());
 	mShader->SetUniform("mAmbient", mScene->GetAmbient());
 
+	// Apply uniforms
 	mShader->ApplyUniforms();
 }
 

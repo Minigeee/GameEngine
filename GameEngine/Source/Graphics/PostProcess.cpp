@@ -171,7 +171,11 @@ PostProcess::Effect::~Effect()
 {
 	if (mInput)
 		Resource<FrameBuffer>::Free(mInput);
+	if (mShader)
+		Resource<Shader>::Free(mShader);
+
 	mInput = 0;
+	mShader = 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -193,20 +197,20 @@ ColorAdjustment::ColorAdjustment(Texture::Format fmt, Image::DataType dtype) :
 	mGamma					(2.2f)
 {
 	mShader = Resource<Shader>::Load("Shaders/PostProcess/ColorAdjustment.xml");
+
+	// Constant uniforms
+	mShader->SetUniform("mColor", 0);
+	mShader->SetUniform("mGamma", mGamma);
 }
 
 ColorAdjustment::~ColorAdjustment()
 {
-	if (mShader)
-		Resource<Shader>::Free(mShader);
-	mShader = 0;
+
 }
 
 void ColorAdjustment::Render(VertexArray* vao)
 {
 	mShader->Bind();
-	mShader->SetUniform("mColor", 0);
-	mShader->SetUniform("mGamma", mGamma);
 	mShader->ApplyUniforms();
 
 	mInput->GetColorTexture()->Bind(0);
