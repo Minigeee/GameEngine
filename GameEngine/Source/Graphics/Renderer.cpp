@@ -312,6 +312,7 @@ void CommonUniforms::ApplyToShader(Shader* shader)
 {
 	shader->SetUniform("mProjView", mProjView);
 	shader->SetUniform("mCamPos", mCamera->GetPosition());
+	shader->SetUniform("mCamPlanes", Vector2f(mCamera->GetNear(), mCamera->GetFar()));
 	shader->SetUniform("mClipPlane", mClipPlane);
 	shader->SetUniform("mTime", mTime);
 }
@@ -392,6 +393,8 @@ void Renderer::DoRenderPass(RenderPass* pass, FrameBuffer* target)
 	// Combine into final image
 
 	// Setup lighting pass
+	float multiplier = pass->GetType() == RenderPass::Normal ? 0.0f : 1.0f;
+	pass->GetLightingPass()->GetShader()->SetUniform("mColorMultiplier", multiplier);
 	pass->GetLightingPass()->RenderSetup(mGBuffer);
 
 	// Disable depth test for quad render
@@ -409,6 +412,13 @@ void Renderer::DoRenderPass(RenderPass* pass, FrameBuffer* target)
 	// Draw quad
 	mQuadVao->Bind();
 	mQuadVao->DrawArrays(6);
+
+	if (target && target->GetDepthTexture())
+	{
+		// Copy depth buffer
+		mGBuffer->Bind(FrameBuffer::Read);
+		mGBuffer->Blit(target, Graphics::DepthBuffer);
+	}
 
 
 	// Reset camera after everything is rendered

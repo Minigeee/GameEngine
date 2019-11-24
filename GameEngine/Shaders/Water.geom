@@ -18,7 +18,7 @@ uniform float mTime;
 
 uniform float mAltitude;
 uniform float mAmplitude;
-uniform float mFrequency;
+uniform float mNoiseSize;
 uniform float mWaveSpeed;
 
 const float PI = 3.1415926435f;
@@ -47,7 +47,8 @@ float Noise(vec2 p)
 
 float GetHeight(vec2 p)
 {
-    return (Noise(p * 0.6f + vec2(mTime * mWaveSpeed)) - 0.5f) * mAmplitude;
+    return
+        (Noise(p / mNoiseSize + vec2(mTime * mWaveSpeed)) - 0.5f) * mAmplitude;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -57,6 +58,7 @@ void main()
     vec4 v1 = Transform[0] * vec4(Vertex[0].x, mAltitude, Vertex[0].y, 1.0);
     vec4 v2 = Transform[0] * vec4(Vertex[1].x, mAltitude, Vertex[1].y, 1.0);
     vec4 v3 = Transform[0] * vec4(Vertex[2].x, mAltitude, Vertex[2].y, 1.0);
+    
     v1.y += GetHeight(v1.xz);
     v2.y += GetHeight(v2.xz);
     v3.y += GetHeight(v3.xz);

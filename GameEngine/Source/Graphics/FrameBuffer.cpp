@@ -39,7 +39,7 @@ Uint32 gDrawBuffers[] =
 ///////////////////////////////////////////////////////////////////////////////
 
 FrameBuffer FrameBuffer::Default = FrameBuffer(0);
-Uint32 FrameBuffer::sCurrentBound = 0;
+Uint32 FrameBuffer::sCurrentBound[2] = { 0, 0 };
 
 FrameBuffer::FrameBuffer() :
 	mSize			(1280, 720, 0),
@@ -86,11 +86,11 @@ FrameBuffer::~FrameBuffer()
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-void FrameBuffer::Bind()
+void FrameBuffer::Bind(FrameBuffer::BindTarget target)
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, mID);
+	glBindFramebuffer(target, mID);
 	glViewport(0, 0, mSize.x, mSize.y);
-	sCurrentBound = mID;
+	sCurrentBound[target - Read] = mID;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -109,7 +109,7 @@ void FrameBuffer::SetMultisampled(bool ms)
 
 Uint32 FrameBuffer::AttachColor(bool texture, const TextureOptions& options)
 {
-	assert(mID == sCurrentBound);
+	assert(mID == sCurrentBound[1]);
 
 	// Used to determine attachment number
 	Uint32 index = mColorTextures.Size();
@@ -158,17 +158,12 @@ Uint32 FrameBuffer::AttachColor(bool texture, const TextureOptions& options)
 
 void FrameBuffer::AttachDepth(bool texture, const TextureOptions& options)
 {
-	assert(mID == sCurrentBound);
+	assert(mID == sCurrentBound[1]);
 
 	if (texture)
 	{
 		// Create texture
 		mDepthTexture = Resource<Texture>::Create();
-
-		// Create empty image
-		Image img;
-		img.SetSize(mSize.x, mSize.y);
-		img.SetDataType(Image::Float);
 
 		// Create empty texture
 		Uint32 format = options.mFormat ? options.mFormat : Texture::Depth;
@@ -201,7 +196,7 @@ void FrameBuffer::AttachDepth(bool texture, const TextureOptions& options)
 
 void FrameBuffer::SetZValue(Uint32 z)
 {
-	assert(mID == sCurrentBound);
+	assert(mID == sCurrentBound[1]);
 
 	for (Uint32 i = 0; i < mColorTextures.Size(); ++i)
 	{
@@ -215,6 +210,19 @@ void FrameBuffer::SetZValue(Uint32 z)
 		mDepthTexture->Bind();
 		glFramebufferTexture3D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_3D, mDepthTexture->GetID(), 0, z);
 	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void FrameBuffer::Blit(FrameBuffer* buffer, Graphics::BufferFlags flags, Texture::Filter filter)
+{
+	assert(mID == sCurrentBound[0] && buffer->mID == sCurrentBound[1]);
+
+	glBlitFramebuffer(
+		0, 0, mSize.x, mSize.y,
+		0, 0, buffer->mSize.x, buffer->mSize.y,
+		flags, filter
+	);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

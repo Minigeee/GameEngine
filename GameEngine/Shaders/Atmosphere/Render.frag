@@ -14,6 +14,7 @@ uniform vec3 mSunDir;
 uniform vec2 mSunSize;
 uniform float mBaseHeight;
 uniform float mDistScale;
+uniform float mColorMultiplier;
 
 uniform float mBotRadius;
 uniform vec3 mSolarIrradiance;
@@ -84,9 +85,13 @@ void main()
         vec3 spec_color = spec * sun_irradiance * specular;
         radiance += spec_color;
 
+        float multiplier = 1.0f / dot(vec3(0, 1, 0), mSunDir);
+
         vec3 in_scatter =
             GetSkyRadianceToPoint(r, viewDir, d, mSunDir, transmittance);
         radiance = radiance * transmittance + in_scatter;
+
+        radiance *= max(multiplier * mColorMultiplier, 1.0f);
     }
 
     // FragColor.rgb = pow(vec3(1.0f) - exp(-radiance), vec3(1.0f / 2.2f));

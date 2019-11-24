@@ -26,7 +26,16 @@ Water::Water() :
 	mTerrain		(0),
 	mLoader			(0),
 	mMinDepth		(0.0f),
-	mAltitude		(0.0f)
+
+	mAltitude		(0.0f),
+	mAmplitude		(0.2f),
+	mNoiseUnit		(1.6f),
+	mWaveSpeed		(0.5f),
+	mColor			(0.0f, 0.03f, 0.04f),
+	mMinColor		(0.8f),
+	mDensity		(0.8f),
+	mFresnelFactor	(0.5f),
+	mReflectStrength(0.4f)
 {
 
 }
@@ -143,20 +152,26 @@ void Water::Create(Scene* scene, float viewDist, Uint32 numSquares, float chunkS
 	// Material
 	Shader* shader = Resource<Shader>::Load("Shaders/Water.xml");
 	shader->SetUniform("mAltitude", mAltitude);
-	shader->SetUniform("mAmplitude", 0.2f);
-	shader->SetUniform("mFrequency", 16.0f);
-	shader->SetUniform("mWaveSpeed", 0.5f);
+	shader->SetUniform("mAmplitude", mAmplitude);
+	shader->SetUniform("mNoiseSize", mNoiseUnit);
+	shader->SetUniform("mWaveSpeed", mWaveSpeed);
+	shader->SetUniform("mWaterColor", mColor);
+	shader->SetUniform("mMinColor", mMinColor);
+	shader->SetUniform("mWaterDensity", mDensity);
+	shader->SetUniform("mFresnelFactor", mFresnelFactor);
+	shader->SetUniform("mReflectStrength", mReflectStrength);
 
 	Material* material = Resource<Material>::Create();
 	material->mShader = shader;
-	material->mDiffuse = Vector3f(0.0f, 0.0f, 1.0f);
-	material->mSpecular = Vector3f(0.0f);
+	material->mDiffuse = Vector3f(1.0f);
+	material->mSpecular = Vector3f(1.0f);
 	material->mSpecFactor = 128.0f;
 	// Don't render water on reflect, refract, or shadow passes
 	material->mViewMask = RenderPass::Normal;
 	// Add textures
 	material->AddTexture(reflectPass->GetTarget()->GetColorTexture(), "mReflectTex");
 	material->AddTexture(refractPass->GetTarget()->GetColorTexture(), "mRefractTex");
+	material->AddTexture(refractPass->GetTarget()->GetDepthTexture(), "mDepthTex");
 
 	// Mesh
 	Mesh mesh;
@@ -271,6 +286,57 @@ void Water::Create(Scene* scene, float viewDist, Uint32 numSquares, float chunkS
 
 	// Set model
 	mModel = model;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+void Water::SetAmplitude(float x)
+{
+	mAmplitude = x;
+}
+
+void Water::SetNoiseUnit(float x)
+{
+	mNoiseUnit = x;
+}
+
+void Water::SetWaveSpeed(float x)
+{
+	mWaveSpeed = x;
+}
+
+void Water::SetColor(float r, float g, float b)
+{
+	mColor = Vector3f(r, g, b);
+}
+
+void Water::SetMinColor(float x)
+{
+	mMinColor = x;
+}
+
+void Water::SetDensity(float x)
+{
+	mDensity = x;
+}
+
+void Water::SetFresnelFactor(float x)
+{
+	mFresnelFactor = x;
+}
+
+void Water::SetReflectStrength(float x)
+{
+	mReflectStrength = x;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+Material* Water::GetMaterial() const
+{
+	if (!mModel) return 0;
+	return mModel->GetMesh(0).mMaterial;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

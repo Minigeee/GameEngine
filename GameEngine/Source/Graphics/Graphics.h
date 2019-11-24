@@ -13,7 +13,7 @@ class GLObject;
 class Graphics
 {
 public:
-	enum ClearFlags
+	enum BufferFlags
 	{
 		ColorBuffer		= 0x00004000,
 		DepthBuffer		= 0x00000100,

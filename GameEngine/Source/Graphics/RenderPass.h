@@ -21,6 +21,9 @@ public:
 	/* Bind shader, set uniforms */
 	virtual void RenderSetup(FrameBuffer* gbuffer) = 0;
 
+	/* Get lighting shader */
+	Shader* GetShader() const;
+
 protected:
 	/* Shader used to render lighting */
 	Shader* mShader;

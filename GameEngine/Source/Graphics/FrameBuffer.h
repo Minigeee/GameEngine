@@ -5,6 +5,7 @@
 
 #include <Math/Vector3.h>
 
+#include <Graphics/Graphics.h>
 #include <Graphics/GLObject.h>
 #include <Graphics/Texture.h>
 #include <Graphics/Image.h>
@@ -43,6 +44,13 @@ public:
 		Uint32 mFormat;
 	};
 
+	/* Framebuffer bind targets */
+	enum BindTarget
+	{
+		Read	= 0x8CA8,
+		Draw	= 0x8CA9
+	};
+
 public:
 	FrameBuffer();
 	~FrameBuffer();
@@ -51,7 +59,7 @@ public:
 	static FrameBuffer Default;
 
 	/* Bind framebuffer */
-	void Bind();
+	void Bind(BindTarget target = Draw);
 
 	/* Set size of framebuffer (Call before creating attachments) */
 	void SetSize(Uint32 w, Uint32 h, Uint32 d = 0);
@@ -64,6 +72,9 @@ public:
 	/* Set z-component of texture */
 	void SetZValue(Uint32 z);
 
+	/* Copy this framebuffer to another one */
+	void Blit(FrameBuffer* buffer, Graphics::BufferFlags flags, Texture::Filter filter = Texture::Nearest);
+
 	/* Get color texture */
 	Texture* GetColorTexture(Uint32 index = 0) const;
 	/* Get depth texture */
@@ -74,7 +85,7 @@ public:
 private:
 	FrameBuffer(Uint32 id);
 
-	static Uint32 sCurrentBound;
+	static Uint32 sCurrentBound[2];
 
 private:
 	/* Resolution of framebuffer */

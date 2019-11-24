@@ -11,6 +11,7 @@
 
 class Terrain;
 class Texture;
+class Material;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -73,6 +74,25 @@ public:
 	/* Create water */
 	void Create(Scene* scene, float viewDist = 150.0f, Uint32 numSquares = 8, float chunkSize = 16.0f);
 
+	/* Set wave amplitude */
+	void SetAmplitude(float a);
+	/* Set noise unit size */
+	void SetNoiseUnit(float size);
+	/* Set wave animation speed */
+	void SetWaveSpeed(float speed);
+	/* Set water color */
+	void SetColor(float r, float g, float b);
+	/* Set minimum amount of color in water refraction */
+	void SetMinColor(float min);
+	/* Set density factor of water (affects murkiness of water) */
+	void SetDensity(float density);
+	/* Set fresnel factor (Amount of reflection vs refraction) */
+	void SetFresnelFactor(float factor);
+	/* Set reflection strength */
+	void SetReflectStrength(float strength);
+	/* Get water material */
+	Material* GetMaterial() const;
+
 private:
 	/* Terrain to place water */
 	Terrain* mTerrain;
@@ -83,6 +103,22 @@ private:
 	float mMinDepth;
 	/* Altitude of water */
 	float mAltitude;
+	/* Amplitude of waves */
+	float mAmplitude;
+	/* Size of one noise unit */
+	float mNoiseUnit;
+	/* Speed of wave animation */
+	float mWaveSpeed;
+	/* Color of water */
+	Vector3f mColor;
+	/* Minimum amount of water in refraction */
+	float mMinColor;
+	/* Density factor (0 - 1) */
+	float mDensity;
+	/* Controls fresnel effect */
+	float mFresnelFactor;
+	/* Controls brightness of reflection vs color */
+	float mReflectStrength;
 
 	/* Keep pointer to model */
 	Model* mModel;

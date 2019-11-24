@@ -231,6 +231,8 @@ void Atmosphere::RenderSetup(FrameBuffer* gbuffer)
 	mShader->SetUniform("mBaseHeight", mBaseHeight);
 	mShader->SetUniform("mDistScale", mDistScale);
 
+	mScene->GetDirLight().Use(mShader);
+
 	mShader->ApplyUniforms();
 }
 
