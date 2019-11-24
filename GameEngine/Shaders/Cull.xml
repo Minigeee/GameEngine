@@ -1,0 +1,5 @@
+<program>
+    <shader type = "Vertex">Shaders/Cull.vert</shader>
+    <shader type = "Geometry">Shaders/Cull.geom</shader>
+    <feedback>Transform</feedback>
+</program>

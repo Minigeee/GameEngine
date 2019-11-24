@@ -87,12 +87,12 @@ void Renderer::Init(Scene* scene)
 	// Albedo
 	options.mDimensions = Texture::_2D;
 	options.mFormat = Texture::Rgb;
-	options.mDataType = Image::Ubyte;
+	options.mDataType = Image::Ushort;
 	mGBuffer->AttachColor(true, options);
 	// Specular
 	options.mDimensions = Texture::_2D;
 	options.mFormat = Texture::Rgb;
-	options.mDataType = Image::Ubyte;
+	options.mDataType = Image::Ushort;
 	mGBuffer->AttachColor(true, options);
 	// Depth
 	mGBuffer->AttachDepth(true);

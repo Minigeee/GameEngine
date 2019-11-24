@@ -319,6 +319,7 @@ void Terrain::Create(Scene* scene)
 	Material* material = Resource<Material>::Create();
 	material->mShader = shader;
 	material->mSpecular = Vector3f(0.05f);
+	material->mSpecFactor = 2.0f;
 
 	// Mesh
 	Mesh mesh;

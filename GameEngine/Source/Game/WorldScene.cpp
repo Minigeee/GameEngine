@@ -37,6 +37,8 @@ void WorldScene::OnCreate()
 {
 	LOG << "Creating world\n";
 
+	Shader* shader = Resource<Shader>::Load("Shaders/Cull.xml");
+
 	RegisterSystem<InputSystem>();
 	RegisterSystem<TransformMatrixSystem>();
 
@@ -102,7 +104,7 @@ void WorldScene::CreateTerrain()
 	// Create biome map
 	mBiomeMap.SetHeightMap(&mHeightMap);
 	mBiomeMap.AddColor(Vector3f(0.651f, 0.616f, 0.325f), 0.2f);
-	mBiomeMap.AddColor(Vector3f(0.147f, 0.301f, 0.129f), 1.0f);
+	mBiomeMap.AddColor(Vector3f(0.169f, 0.431f, 0.188f), 1.0f);
 	mBiomeMap.AddColorFilter(Vector3f(1.0f, 0.0f, 0.0f), 1, 0.05f, 0.015f);
 	mBiomeMap.AddColorFilter(Vector3f(0.0f, 0.0f, 1.0f), 1, 0.05f, 0.015f);
 	mBiomeMap.Generate();

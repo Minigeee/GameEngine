@@ -37,6 +37,13 @@ void VertexBuffer::Bind(VertexBuffer::Target target)
 	sCurrentBound = mID;
 }
 
+void VertexBuffer::Bind(VertexBuffer::Target target, Uint32 index)
+{
+	glBindBufferBase(target, index, mID);
+	mTarget = target;
+	sCurrentBound = mID;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void VertexBuffer::BufferData(const void* data, Uint32 size, Usage usage)

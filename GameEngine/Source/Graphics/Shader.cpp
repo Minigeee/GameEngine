@@ -78,6 +78,31 @@ bool Shader::Load(const char* fname)
 		shaderNode = shaderNode.GetNextSibling("shader");
 	}
 
+	// Add transform feedback varyings
+	XmlNode feedbackNode = programNode.GetFirstNode("feedback");
+	if (feedbackNode.Exists())
+	{
+		Array<const char*> varyings(4);
+		char* value = feedbackNode.GetValue();
+
+		// Add first varying
+		if (*value != ' ' && *value != 0)
+			varyings.Push(value);
+
+		while (*value != 0)
+		{
+			if (*++value == ' ' && *(value + 1) != 0)
+			{
+				*value = 0;
+				varyings.Push(++value);
+			}
+		}
+
+		Uint32 size = varyings.Size();
+		if (varyings.Size())
+			glTransformFeedbackVaryings(program, varyings.Size(), &varyings[0], GL_INTERLEAVED_ATTRIBS);
+	}
+
 	// Link program
 	glLinkProgram(program);
 

@@ -11,9 +11,9 @@ public:
 	virtual ~XmlNode();
 
 	/* Get name */
-	const char* GetName() const;
+	char* GetName() const;
 	/* Get value */
-	const char* GetValue() const;
+	char* GetValue() const;
 
 	/* Get first node with name */
 	XmlNode GetFirstNode(const char* name = 0) const;

@@ -10,7 +10,8 @@ Uint32 VertexArray::sCurrentBound = 0;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-VertexArray::VertexArray()
+VertexArray::VertexArray() :
+	mDrawMode		(Triangles)
 {
 	glGenVertexArrays(1, &mID);
 }
@@ -47,22 +48,48 @@ void VertexArray::VertexAttrib(Uint32 index, Uint32 size, Uint32 stride, Uint32 
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void VertexArray::SetDrawMode(DrawMode mode)
+{
+	mDrawMode = mode;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 void VertexArray::DrawArrays(Uint32 vertices, Uint32 instances, Uint32 offset)
 {
 	assert(sCurrentBound == mID);
 	if (instances == 1)
-		glDrawArrays(GL_TRIANGLES, offset, vertices);
+		glDrawArrays(mDrawMode, offset, vertices);
 	else
-		glDrawArraysInstanced(GL_TRIANGLES, offset, vertices, instances);
+		glDrawArraysInstanced(mDrawMode, offset, vertices, instances);
 }
 
 void VertexArray::DrawElements(Uint32 vertices, Uint32 instances, Uint32 offset)
 {
 	assert(sCurrentBound == mID);
 	if (instances == 1)
-		glDrawElements(GL_TRIANGLES, vertices, GL_UNSIGNED_INT, (const void*)offset);
+		glDrawElements(mDrawMode, vertices, GL_UNSIGNED_INT, (const void*)offset);
 	else
-		glDrawElementsInstanced(GL_TRIANGLES, vertices, GL_UNSIGNED_INT, (const void*)offset, instances);
+		glDrawElementsInstanced(mDrawMode, vertices, GL_UNSIGNED_INT, (const void*)offset, instances);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void VertexArray::TransformFeedback(Uint32 vertices, Uint32 offset)
+{
+	assert(sCurrentBound == mID);
+
+	// Discard pixels
+	glEnable(GL_RASTERIZER_DISCARD);
+	// Start transform feedback mode
+	glBeginTransformFeedback(mDrawMode);
+
+	// Draw
+	glDrawArrays(mDrawMode, offset, vertices);
+
+	// Reset
+	glEndTransformFeedback();
+	glDisable(GL_RASTERIZER_DISCARD);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

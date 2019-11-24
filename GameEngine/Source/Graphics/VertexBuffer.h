@@ -14,8 +14,9 @@ class VertexBuffer : public GLObject
 public:
 	enum Target
 	{
-		Array		= 0x8892,
-		Element		= 0x8893
+		Array				= 0x8892,
+		Element				= 0x8893,
+		TransformFeedback	= 0x8C8E
 	};
 
 	enum Usage
@@ -38,6 +39,8 @@ public:
 
 	/* Bind buffer */
 	void Bind(Target target);
+	/* Bind buffer to index */
+	void Bind(Target target, Uint32 index);
 
 	/* Send data for first time */
 	void BufferData(const void* data, Uint32 size, Usage usage);

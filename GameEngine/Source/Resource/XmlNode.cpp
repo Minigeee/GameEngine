@@ -21,12 +21,12 @@ XmlNode::~XmlNode()
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-const char* XmlNode::GetName() const
+char* XmlNode::GetName() const
 {
 	return XML_CAST(mNode)->name();
 }
 
-const char* XmlNode::GetValue() const
+char* XmlNode::GetValue() const
 {
 	return XML_CAST(mNode)->value();
 }

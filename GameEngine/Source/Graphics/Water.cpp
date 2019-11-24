@@ -31,11 +31,11 @@ Water::Water() :
 	mAmplitude		(0.2f),
 	mNoiseUnit		(1.6f),
 	mWaveSpeed		(0.5f),
-	mColor			(0.0f, 0.03f, 0.04f),
+	mColor			(0.0f, 0.03f, 0.05f),
 	mMinColor		(0.8f),
-	mDensity		(0.8f),
-	mFresnelFactor	(0.5f),
-	mReflectStrength(0.4f)
+	mDensity		(0.85f),
+	mFresnelFactor	(0.4f),
+	mReflectStrength(0.3f)
 {
 
 }
